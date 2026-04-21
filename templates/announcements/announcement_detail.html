@@ -1,0 +1,83 @@
+{% extends 'dashboard_base.html' %}
+
+{% block title %}{{ announcement.title }}Announcement - Kalabu Secondary School{% endblock %}
+
+{% block dashboard_content %}
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Breadcrumb -->
+    <nav class="mb-6 text-sm">
+        <ol class="flex items-center space-x-2 text-gray-600 dark:text-gray-400">
+            <li><a href="{% url 'announcements:list' %}" class="hover:text-blue-600">Announcements</a></li>
+            <li>→</li>
+            <li class="text-gray-900 dark:text-white font-medium">{{ announcement.title }}</li>
+        </ol>
+    </nav>
+    
+    <!-- Announcement Content -->
+    <article class="bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden">
+        <!-- Header -->
+        <div class="{% if announcement.is_pinned %}bg-gradient-to-r from-orange-500 to-red-500{% else %}bg-gradient-to-r from-blue-500 to-purple-600{% endif %} text-white p-8">
+            {% if announcement.is_pinned %}
+            <div class="flex items-center text-sm font-semibold mb-3">
+                <svg class="h-5 w-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M10 2a1 1 0 011 1v1.323l3.954 1.582 1.599-.8a1 1 0 01.894 1.79l-1.233.616 1.738 5.42a1 1 0 01-.285 1.05A3.989 3.989 0 0115 15a3.989 3.989 0 01-2.667-1.019 1 1 0 01-.285-1.05l1.738-5.42-1.233-.617a1 1 0 01.894-1.788l1.599.799L11 4.323V3a1 1 0 011-1zm-5 8.274l-.818 2.552c-.25.78.162 1.638.93 1.939l1.866.739a4.986 4.986 0 01-1.968-1.95 1 1 0 00-1.09-.56L5 15a1 1 0 01-.894-1.447L5.82 10.1a1 1 0 011.09-.56l.818 2.552a1 1 0 00-.818.182z"/>
+                </svg>
+                PINNED ANNOUNCEMENT
+            </div>
+            {% endif %}
+            
+            {% if announcement.course %}
+            <span class="inline-block px-3 py-1 bg-white/20 rounded-full text-sm font-semibold mb-3">
+                {{ announcement.course.code }} - {{ announcement.course.title }}
+            </span>
+            {% else %}
+            <span class="inline-block px-3 py-1 bg-white/20 rounded-full text-sm font-semibold mb-3">
+                SCHOOL-WIDE
+            </span>
+            {% endif %}
+            
+            <h1 class="text-4xl font-bold mb-4">{{ announcement.title }}</h1>
+            
+            <div class="flex items-center text-sm">
+                <div class="flex items-center mr-6">
+                    <div class="h-10 w-10 rounded-full bg-white/20 flex items-center justify-center text-white font-semibold mr-3">
+                        {{ announcement.author.first_name|first }}{{ announcement.author.last_name|first }}
+                    </div>
+                    <div>
+                        <p class="font-semibold">{{ announcement.author.get_full_name }}</p>
+                        <p class="text-white/80">{{ announcement.author.get_role_display }}</p>
+                    </div>
+                </div>
+                <div class="ml-auto">
+                    <p class="text-white/80">{{ announcement.published_date|date:"F d, Y" }}</p>
+                    <p class="text-white/80">{{ announcement.published_date|date:"g:i A" }}</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Content -->
+        <div class="p-8">
+            <div class="prose prose-lg max-w-none dark:prose-invert">
+                {{ announcement.content|linebreaks }}
+            </div>
+        </div>
+        
+        <!-- Footer -->
+        <div class="px-8 py-6 bg-gray-50 dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700">
+            <div class="flex items-center justify-between">
+                <a href="{% url 'announcements:list' %}" 
+                   class="text-blue-600 dark:text-blue-400 hover:underline font-medium">
+                    ← Back to Announcements
+                </a>
+                
+                {% if announcement.course %}
+                <a href="{% url 'courses:detail' announcement.course.pk %}" 
+                   class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-medium">
+                    View Course
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </article>
+</div>
+{% endblock %}

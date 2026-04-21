@@ -1,0 +1,182 @@
+{% extends 'dashboard_base.html' %}
+
+{% block title %}Resources - Kalabu Secondary School{% endblock %}
+
+{% block dashboard_content %}
+<div class="bg-gradient-to-r from-green-500 to-teal-600 text-white py-10">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center">
+        <div>
+            <h1 class="text-4xl font-bold mb-2">📚 Resource Library</h1>
+            <p class="text-green-100">Access educational materials and documents</p>
+        </div>
+
+        {% if user.is_teacher or user.is_school_admin %}
+        <a href="{% url 'resources:create' %}"
+           class="px-5 py-3 bg-white text-green-700 font-semibold rounded-xl hover:bg-green-50">
+            ➕ Upload Resource
+        </a>
+        {% endif %}
+    </div>
+</div>
+
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+    <!-- Filters -->
+    <div class="bg-white rounded-xl shadow p-6 mb-6">
+        <form method="get" class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <input type="text" name="search" value="{{ filter_search }}"
+                   placeholder="Search resources..."
+                   class="px-4 py-3 border rounded-lg">
+
+            <select name="category" class="px-4 py-3 border rounded-lg">
+                <option value="">All Categories</option>
+                {% for category in categories %}
+                <option value="{{ category.id }}"
+                    {% if filter_category == category.id|stringformat:"s" %}selected{% endif %}>
+                    {{ category.name }}
+                </option>
+                {% endfor %}
+            </select>
+
+            <select name="type" class="px-4 py-3 border rounded-lg">
+                <option value="">All Types</option>
+                {% for value, label in resource_types %}
+                <option value="{{ value }}"
+                    {% if filter_type == value %}selected{% endif %}>
+                    {{ label }}
+                </option>
+                {% endfor %}
+            </select>
+
+            <button class="bg-green-600 text-white rounded-lg px-4 py-3">
+                Search
+            </button>
+        </form>
+    </div>
+
+    {% if resources %}
+    <div class="bg-white rounded-xl shadow overflow-hidden">
+
+        <div class="px-4 py-4 border-b">
+            <h2 class="text-lg font-semibold">Resources Table</h2>
+        </div>
+
+        <div class="overflow-x-auto">
+            <table id="resourcesTable" class="min-w-full text-sm">
+                <thead class="bg-gray-50 text-xs uppercase text-gray-500">
+                    <tr>
+                        <th class="px-4 py-3">Title</th>
+                        <th class="px-4 py-3">Type</th>
+                        <th class="px-4 py-3">Category</th>
+                        <th class="px-4 py-3">Course</th>
+                        <th class="px-4 py-3">Uploaded By</th>
+                        <th class="px-4 py-3">Downloads</th>
+                        <th class="px-4 py-3">Date</th>
+                        <th class="px-4 py-3 text-right">Actions</th>
+                    </tr>
+                </thead>
+
+                <tbody class="divide-y">
+                    {% for resource in resources %}
+                    <tr class="hover:bg-gray-50">
+
+                        <td class="px-4 py-3">
+                            <p class="font-medium">{{ resource.title }}</p>
+                            <p class="text-xs text-gray-400">{{ resource.description|truncatewords:10 }}</p>
+                        </td>
+
+                        <td class="px-4 py-3">
+                            <span class="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded">
+                                {{ resource.get_resource_type_display }}
+                            </span>
+                        </td>
+
+                        <td class="px-4 py-3">
+                            {{ resource.category.name|default:"-" }}
+                        </td>
+
+                        <td class="px-4 py-3">
+                            {{ resource.course.title|default:"-" }}
+                        </td>
+
+                        <td class="px-4 py-3">
+                            {{ resource.uploaded_by.get_full_name|default:resource.uploaded_by.username }}
+                        </td>
+
+                        <td class="px-4 py-3">
+                            {{ resource.download_count }}
+                        </td>
+
+                        <td class="px-4 py-3">
+                            {{ resource.created_at|date:"d M Y" }}
+                        </td>
+
+                        <td class="px-4 py-3">
+                            <div class="flex justify-end gap-2">
+
+                                <a href="{% url 'resources:detail' resource.pk %}"
+                                   class="px-3 py-1 text-xs bg-green-600 text-white rounded">
+                                    View
+                                </a>
+
+                                {% if resource.file %}
+                                <a href="{% url 'resources:download' resource.pk %}"
+                                   class="px-3 py-1 text-xs bg-blue-600 text-white rounded">
+                                    Download
+                                </a>
+                                {% elif resource.url %}
+                                <a href="{{ resource.url }}" target="_blank"
+                                   class="px-3 py-1 text-xs bg-blue-600 text-white rounded">
+                                    Open
+                                </a>
+                                {% endif %}
+
+                                {% if user.is_teacher or user.is_school_admin %}
+                                <a href="{% url 'resources:update' resource.pk %}"
+                                   class="px-3 py-1 text-xs bg-yellow-500 text-white rounded">
+                                    Edit
+                                </a>
+
+                                <a href="{% url 'resources:delete' resource.pk %}"
+                                   class="px-3 py-1 text-xs bg-red-600 text-white rounded">
+                                    Delete
+                                </a>
+                                {% endif %}
+
+                            </div>
+                        </td>
+
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    {% else %}
+    <div class="text-center py-10 text-gray-500">
+        No resources found.
+    </div>
+    {% endif %}
+</div>
+
+<!-- DataTables -->
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.tailwindcss.min.css">
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/dataTables.tailwindcss.min.js"></script>
+
+<script>
+$(document).ready(function () {
+    $('#resourcesTable').DataTable({
+        pageLength: 10,
+        ordering: true,
+        responsive: true,
+        columnDefs: [
+            { orderable: false, targets: 7 }
+        ]
+    });
+});
+</script>
+
+{% endblock %}

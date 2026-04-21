@@ -1,0 +1,312 @@
+{% extends 'dashboard_base.html' %}
+
+{% block title %}Courses{% endblock %}
+
+{% block dashboard_content %}
+<div class="bg-gradient-to-r from-blue-600 to-purple-600 text-white py-12">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <h1 class="text-4xl font-bold mb-2">📚 Available Courses</h1>
+        <p class="text-blue-100">Explore and manage courses</p>
+    </div>
+</div>
+
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+    <!-- Filters -->
+    <div class="bg-white rounded-xl shadow-md p-6 mb-6">
+        <form method="get" class="grid grid-cols-1 md:grid-cols-5 gap-4">
+            <div class="md:col-span-2">
+                <input type="text" name="search" placeholder="Search courses..."
+                       value="{{ request.GET.search }}"
+                       class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+            </div>
+
+            <div>
+                <select name="subject" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500">
+                    <option value="">All Subjects</option>
+                    {% for subject in subjects %}
+                    <option value="{{ subject.id }}" {% if request.GET.subject == subject.id|stringformat:"s" %}selected{% endif %}>
+                        {{ subject.name }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div>
+                <select name="grade" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500">
+                    <option value="">All Grades</option>
+                    {% for grade in grade_levels %}
+                    <option value="{{ grade }}" {% if request.GET.grade == grade|stringformat:"s" %}selected{% endif %}>
+                        Grade {{ grade }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div>
+                <button type="submit"
+                        class="w-full px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-medium">
+                    Search
+                </button>
+            </div>
+        </form>
+    </div>
+
+    {% if courses %}
+    <div class="bg-white rounded-xl shadow-md overflow-hidden">
+        <!-- Top Bar -->
+        <div class="px-4 py-4 border-b border-gray-100 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+            <div>
+                <h2 class="text-lg font-semibold text-gray-900">Courses Table</h2>
+                <p class="text-sm text-gray-500">Browse, sort, and manage available courses</p>
+            </div>
+
+            <div class="flex items-center gap-3">
+                <input
+                    type="text"
+                    id="tableSearch"
+                    placeholder="Quick search..."
+                    class="px-4 py-2 rounded-lg border border-gray-300 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                >
+                <select id="rowsPerPage"
+                        class="px-3 py-2 rounded-lg border border-gray-300 text-sm focus:ring-2 focus:ring-blue-500">
+                    <option value="5">5 rows</option>
+                    <option value="10" selected>10 rows</option>
+                    <option value="25">25 rows</option>
+                    <option value="50">50 rows</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Table -->
+        <div class="overflow-x-auto">
+            <table class="min-w-full text-sm" id="coursesTable">
+                <thead class="bg-gray-50 border-b border-gray-200">
+                    <tr class="text-left text-xs font-semibold uppercase tracking-wider text-gray-500">
+                        <th class="px-4 py-3 cursor-pointer sort-header" data-column="0">Title</th>
+                        <th class="px-4 py-3 cursor-pointer sort-header" data-column="1">Code</th>
+                        <th class="px-4 py-3 cursor-pointer sort-header" data-column="2">Subject</th>
+                        <th class="px-4 py-3 cursor-pointer sort-header" data-column="3">Grade</th>
+                        <th class="px-4 py-3 cursor-pointer sort-header" data-column="4">Status</th>
+                        <th class="px-4 py-3 cursor-pointer sort-header" data-column="5">Enrolment</th>
+                        <th class="px-4 py-3 cursor-pointer sort-header" data-column="6">Teacher</th>
+                        <th class="px-4 py-3 text-right">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="coursesTableBody" class="divide-y divide-gray-100">
+                    {% for course in courses %}
+                    <tr class="hover:bg-gray-50 transition">
+                        <td class="px-4 py-3">
+                            <div>
+                                <p class="font-medium text-gray-900">{{ course.title }}</p>
+                                <p class="text-xs text-gray-400">{{ course.description|truncatewords:10 }}</p>
+                            </div>
+                        </td>
+                        <td class="px-4 py-3 text-gray-600">{{ course.code }}</td>
+                        <td class="px-4 py-3 text-gray-600">{{ course.subject.code }}</td>
+                        <td class="px-4 py-3 text-gray-600">Grade {{ course.grade_level }}</td>
+                        <td class="px-4 py-3">
+                            <span class="text-xs px-2.5 py-1 rounded-full font-medium {% if course.is_active %}bg-green-100 text-green-700{% else %}bg-gray-100 text-gray-600{% endif %}">
+                                {% if course.is_active %}Active{% else %}Inactive{% endif %}
+                            </span>
+                        </td>
+                        <td class="px-4 py-3">
+                            <span class="text-xs px-2.5 py-1 rounded-full bg-purple-100 text-purple-700">
+                                {{ course.get_enrolment_type_display }}
+                            </span>
+                        </td>
+                        <td class="px-4 py-3 text-gray-600">{{ course.teacher.get_full_name }}</td>
+                        <td class="px-4 py-3">
+                            <div class="flex justify-end gap-2 flex-wrap">
+                                <a href="{% url 'courses:detail' course.pk %}"
+                                   class="px-3 py-1.5 text-xs font-medium rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition">
+                                    View
+                                </a>
+
+                                {% if user.is_teacher and course.teacher == user %}
+                                <a href="{% url 'courses:update' course.pk %}"
+                                   class="px-3 py-1.5 text-xs font-medium rounded-lg bg-amber-500 text-white hover:bg-amber-600 transition">
+                                    Edit
+                                </a>
+                                <a href="{% url 'dashboard:home' %}?course={{ course.pk }}"
+                                   class="px-3 py-1.5 text-xs font-medium rounded-lg bg-purple-600 text-white hover:bg-purple-700 transition">
+                                    Open
+                                </a>
+                                {% endif %}
+
+                                {% if user.is_student %}
+                                <form method="post" action="{% url 'courses:enroll' course.pk %}">
+                                    {% csrf_token %}
+                                    <button type="submit"
+                                            class="px-3 py-1.5 text-xs font-medium rounded-lg bg-green-600 text-white hover:bg-green-700 transition">
+                                        Enrol
+                                    </button>
+                                </form>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Footer -->
+        <div class="px-4 py-3 border-t border-gray-100 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+            <p class="text-sm text-gray-500" id="tableInfo">Showing courses</p>
+            <div class="flex items-center gap-2" id="paginationControls"></div>
+        </div>
+    </div>
+
+    {% else %}
+    <div class="text-center py-12 bg-white rounded-xl shadow-md">
+        <svg class="mx-auto h-24 w-24 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+        </svg>
+        <h3 class="mt-4 text-xl font-medium text-gray-900">No courses found</h3>
+        <p class="mt-2 text-gray-500">Try adjusting your search or filters</p>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const table = document.getElementById('coursesTable');
+    if (!table) return;
+
+    const tbody = document.getElementById('coursesTableBody');
+    const rows = Array.from(tbody.querySelectorAll('tr'));
+    const searchInput = document.getElementById('tableSearch');
+    const rowsPerPageSelect = document.getElementById('rowsPerPage');
+    const paginationControls = document.getElementById('paginationControls');
+    const tableInfo = document.getElementById('tableInfo');
+    const sortHeaders = document.querySelectorAll('.sort-header');
+
+    let currentPage = 1;
+    let rowsPerPage = parseInt(rowsPerPageSelect.value);
+    let currentSortColumn = null;
+    let currentSortDirection = 'asc';
+    let filteredRows = [...rows];
+
+    function getCellValue(row, index) {
+        const cell = row.children[index];
+        return cell ? cell.innerText.trim().toLowerCase() : '';
+    }
+
+    function sortRows(columnIndex) {
+        if (currentSortColumn === columnIndex) {
+            currentSortDirection = currentSortDirection === 'asc' ? 'desc' : 'asc';
+        } else {
+            currentSortColumn = columnIndex;
+            currentSortDirection = 'asc';
+        }
+
+        filteredRows.sort((a, b) => {
+            const aVal = getCellValue(a, columnIndex);
+            const bVal = getCellValue(b, columnIndex);
+
+            const aNum = parseFloat(aVal.replace(/[^\d.]/g, ''));
+            const bNum = parseFloat(bVal.replace(/[^\d.]/g, ''));
+
+            let comparison = 0;
+
+            if (!isNaN(aNum) && !isNaN(bNum)) {
+                comparison = aNum - bNum;
+            } else {
+                comparison = aVal.localeCompare(bVal);
+            }
+
+            return currentSortDirection === 'asc' ? comparison : -comparison;
+        });
+
+        renderTable();
+    }
+
+    function filterRows() {
+        const term = searchInput.value.toLowerCase();
+
+        filteredRows = rows.filter(row =>
+            row.innerText.toLowerCase().includes(term)
+        );
+
+        currentPage = 1;
+
+        if (currentSortColumn !== null) {
+            sortRows(currentSortColumn);
+        } else {
+            renderTable();
+        }
+    }
+
+    function renderTable() {
+        tbody.innerHTML = '';
+
+        const totalRows = filteredRows.length;
+        const totalPages = Math.ceil(totalRows / rowsPerPage) || 1;
+        if (currentPage > totalPages) currentPage = totalPages;
+
+        const start = (currentPage - 1) * rowsPerPage;
+        const end = start + rowsPerPage;
+        const paginatedRows = filteredRows.slice(start, end);
+
+        paginatedRows.forEach(row => tbody.appendChild(row));
+
+        tableInfo.textContent = `Showing ${totalRows === 0 ? 0 : start + 1} to ${Math.min(end, totalRows)} of ${totalRows} courses`;
+
+        renderPagination(totalPages);
+    }
+
+    function renderPagination(totalPages) {
+        paginationControls.innerHTML = '';
+
+        const prevBtn = document.createElement('button');
+        prevBtn.textContent = 'Previous';
+        prevBtn.className = 'px-3 py-1.5 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50';
+        prevBtn.disabled = currentPage === 1;
+        prevBtn.onclick = () => {
+            currentPage--;
+            renderTable();
+        };
+        paginationControls.appendChild(prevBtn);
+
+        for (let i = 1; i <= totalPages; i++) {
+            const pageBtn = document.createElement('button');
+            pageBtn.textContent = i;
+            pageBtn.className = `px-3 py-1.5 text-sm rounded-lg border ${i === currentPage ? 'bg-blue-600 text-white border-blue-600' : 'border-gray-300 hover:bg-gray-50'}`;
+            pageBtn.onclick = () => {
+                currentPage = i;
+                renderTable();
+            };
+            paginationControls.appendChild(pageBtn);
+        }
+
+        const nextBtn = document.createElement('button');
+        nextBtn.textContent = 'Next';
+        nextBtn.className = 'px-3 py-1.5 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50';
+        nextBtn.disabled = currentPage === totalPages;
+        nextBtn.onclick = () => {
+            currentPage++;
+            renderTable();
+        };
+        paginationControls.appendChild(nextBtn);
+    }
+
+    searchInput.addEventListener('input', filterRows);
+
+    rowsPerPageSelect.addEventListener('change', function () {
+        rowsPerPage = parseInt(this.value);
+        currentPage = 1;
+        renderTable();
+    });
+
+    sortHeaders.forEach(header => {
+        header.addEventListener('click', function () {
+            sortRows(parseInt(this.dataset.column));
+        });
+    });
+
+    renderTable();
+});
+</script>
+{% endblock %}

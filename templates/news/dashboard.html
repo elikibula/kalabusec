@@ -1,0 +1,257 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}News Dashboard - FTA{% endblock %}
+
+{% block content %}
+<div class="min-h-screen maroon-bg py-10">
+  <div class="max-w-7xl mx-auto px-4">
+     <!-- Welcome Header -->
+    <div class="rounded-2xl shadow-lg mb-6 overflow-hidden" style="box-shadow: 0 0 0 3px #FFD700, 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);">
+        <div class="bg-gradient-to-r from-[#800000] via-[#8B0000] to-[#4B0000] px-6 py-6">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-4">
+                  <img src="{% static 'FTALogo.png' %}" alt="FTA" class="h-12 w-auto rounded-md bg-white/10 p-2">
+                  <div>
+                    <h1 class="text-2xl font-bold gold-text">News Dashboard</h1>
+                    <p class="gold-text mt-1">Welcome back, {{ user.get_full_name|default:user.username }}!</p>
+                  </div>
+                </div>
+                <div class="mt-1" data-aos="fade-up" data-aos-delay="200">
+                    <a href="{% url 'dashboard' %}"
+                      class="bg-[color:#800000] gold-text font-semibold py-3 px-8 rounded-full text-lg shadow-lg 
+                              transition duration-300 ease-in-out transform hover:bg-yellow-500 hover:scale-105 hover:animate-glow-bounce">
+                        Staff Dashboard
+                    </a>
+                </div>
+              </div>
+        </div>
+    </div>
+
+
+    <!-- Quick Stats -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+      <div class="bg-white rounded-xl shadow-lg border border-gray-200 p-6 hover:shadow-xl transition-shadow duration-200">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm font-medium text-gray-600">Total Articles</p>
+            <h3 class="text-2xl font-bold maroon-text mt-1">{{ total_news }}</h3>
+            <p class="text-xs text-gray-500 mt-1">{{ recent_news }} new this week</p>
+          </div>
+          <div class="p-3 bg-blue-100 rounded-lg">
+            <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9m0 0v12m0 0h6m-6 0h6"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-xl shadow-lg border border-gray-200 p-6 hover:shadow-xl transition-shadow duration-200">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm font-medium text-gray-600">Photo Galleries</p>
+            <h3 class="text-2xl font-bold maroon-text mt-1">{{ total_photo_news }}</h3>
+            <p class="text-xs text-gray-500 mt-1">{{ recent_photo_news }} new this week</p>
+          </div>
+          <div class="p-3 bg-green-100 rounded-lg">
+            <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-xl shadow-lg border border-gray-200 p-6 hover:shadow-xl transition-shadow duration-200">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm font-medium text-gray-600">Categories</p>
+            <h3 class="text-2xl font-bold maroon-text mt-1">{{ total_categories }}</h3>
+            <p class="text-xs text-gray-500 mt-1">Content categories</p>
+          </div>
+          <div class="p-3 bg-yellow-100 rounded-lg">
+            <svg class="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- Featured Articles -->
+        <div class="bg-white rounded-xl shadow-lg border border-gray-200 p-6 hover:shadow-xl transition-shadow duration-200">
+        <div class="flex items-center justify-between">
+            <div>
+            <p class="text-sm font-medium text-gray-600">Featured Articles</p>
+            <h3 class="text-2xl font-bold maroon-text mt-1">{{ featured_news }}</h3>
+            <p class="text-xs text-gray-500 mt-1">Highlighted content</p>
+            </div>
+            <div class="p-3 bg-purple-100 rounded-lg">
+            <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/>
+            </svg>
+            </div>
+        </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions & Recent Activity -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+      <!-- Quick Actions -->
+      <div class="bg-white rounded-2xl shadow-lg border border-gray-200">
+        <div class="px-6 py-4 border-b border-gray-200">
+          <h2 class="text-lg font-semibold maroon-text">Quick Actions</h2>
+        </div>
+        <div class="p-6">
+          <div class="grid grid-cols-1 gap-4">
+            <a href="{% url 'news:create_news' %}" class="group flex items-center gap-3 p-4 rounded-xl border-2 border-gray-200 hover:border-blue-500 hover:bg-blue-50 transition-all duration-200">
+              <div class="p-2 bg-blue-100 rounded-lg group-hover:bg-blue-200 transition-colors">
+                <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                </svg>
+              </div>
+              <div class="flex-1">
+                <span class="font-medium text-gray-700 group-hover:text-blue-700">Create New Article</span>
+                <p class="text-sm text-gray-500">Write and publish a news article</p>
+              </div>
+            </a>
+
+            <a href="{% url 'news:create_photo_news' %}" class="group flex items-center gap-3 p-4 rounded-xl border-2 border-gray-200 hover:border-green-500 hover:bg-green-50 transition-all duration-200">
+              <div class="p-2 bg-green-100 rounded-lg group-hover:bg-green-200 transition-colors">
+                <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                </svg>
+              </div>
+              <div class="flex-1">
+                <span class="font-medium text-gray-700 group-hover:text-green-700">Create Photo Gallery</span>
+                <p class="text-sm text-gray-500">Upload and manage photo news</p>
+              </div>
+            </a>
+
+            <a href="{% url 'news:news_admin_list' %}" class="group flex items-center gap-3 p-4 rounded-xl border-2 border-gray-200 hover:border-yellow-500 hover:bg-yellow-50 transition-all duration-200">
+              <div class="p-2 bg-yellow-100 rounded-lg group-hover:bg-yellow-200 transition-colors">
+                <svg class="w-5 h-5 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                </svg>
+              </div>
+              <div class="flex-1">
+                <span class="font-medium text-gray-700 group-hover:text-yellow-700">Manage All Content</span>
+                <p class="text-sm text-gray-500">Edit, update, or delete news items</p>
+              </div>
+            </a>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- Recent Activity -->
+      <div class="bg-white rounded-2xl shadow-lg border border-gray-200">
+        <div class="px-6 py-4 border-b border-gray-200">
+          <h2 class="text-lg font-semibold maroon-text">Recent Activity</h2>
+        </div>
+        <div class="p-6">
+          <div class="space-y-4">
+            <!-- Latest Articles -->
+            <div>
+              <h3 class="text-sm font-medium text-gray-700 mb-3">Latest Articles</h3>
+              <div class="space-y-2">
+                {% for news in latest_news %}
+                  {# prefer slug url, fall back to pk-based photo_news detail #}
+                  {% if news.slug %}
+                    {% url 'news:news_detail' news.slug as item_url %}
+                  {% else %}
+                    {% url 'news:photo_news_detail' news.pk as item_url %}
+                  {% endif %}
+
+                  <a href="{{ item_url }}" class="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 transition-colors group">
+                    {% if news.image %}
+                      <img src="{{ news.image.url }}"
+                          alt="{{ news.title|escape }}"
+                          loading="lazy"
+                          class="w-16 h-10 object-cover rounded-md flex-shrink-0">
+                    {% else %}
+                      <div class="w-16 h-10 bg-gray-100 rounded-md flex items-center justify-center text-xs text-gray-500 flex-shrink-0">
+                        No image
+                      </div>
+                    {% endif %}
+
+                    <div class="flex-1 min-w-0">
+                      <p class="text-sm font-medium text-gray-900 group-hover:text-blue-600 truncate">{{ news.title }}</p>
+                      <p class="text-xs text-gray-500">{{ news.date_posted|date:"M d, Y" }}</p>
+                    </div>
+                  </a>
+                {% empty %}
+                  <p class="text-sm text-gray-500 text-center py-2">No recent articles</p>
+                {% endfor %}
+
+              </div>
+            </div>
+
+            <!-- Latest Photo Galleries -->
+            <div>
+              <h3 class="text-sm font-medium text-gray-700 mb-3">Latest Photo Galleries</h3>
+              <div class="space-y-2">
+                {% for photo_news in latest_photo_news %}
+                  {% url 'news:photo_news_detail' pk=photo_news.pk as item_url %}
+                  <a href="{{ item_url }}" class="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 transition-colors group">
+                    {% if photo_news.cover_image %}
+                      <img src="{{ photo_news.cover_image.url }}"
+                          alt="{{ photo_news.title|escape }}"
+                          loading="lazy"
+                          class="w-16 h-10 object-cover rounded-md flex-shrink-0">
+                    {% elif photo_news.image %}
+                      <img src="{{ photo_news.image.url }}"
+                          alt="{{ photo_news.title|escape }}"
+                          loading="lazy"
+                          class="w-16 h-10 object-cover rounded-md flex-shrink-0">
+                    {% else %}
+                      <div class="w-16 h-10 bg-gray-100 rounded-md flex items-center justify-center text-xs text-gray-500 flex-shrink-0">
+                        No image
+                      </div>
+                    {% endif %}
+
+                    <div class="flex-1 min-w-0">
+                      <p class="text-sm font-medium text-gray-900 group-hover:text-green-600 truncate">{{ photo_news.title }}</p>
+                      <p class="text-xs text-gray-500">{{ photo_news.date_posted|date:"M d, Y" }}</p>
+                    </div>
+                  </a>
+                {% empty %}
+                  <p class="text-sm text-gray-500 text-center py-2">No recent photo galleries</p>
+                {% endfor %}
+
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Categories Overview -->
+    <div class="bg-white rounded-2xl shadow-lg border border-gray-200">
+      <div class="px-6 py-4 border-b border-gray-200">
+        <h2 class="text-lg font-semibold maroon-text">Content by Category</h2>
+      </div>
+      <div class="p-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {% for category in news_by_category %}
+          <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+            <div class="flex items-center gap-3">
+              <div class="w-3 h-3 bg-blue-500 rounded-full"></div>
+              <span class="text-sm font-medium text-gray-700">{{ category.name }}</span>
+            </div>
+            <div class="text-right">
+              <span class="text-lg font-bold maroon-text">{{ category.total_count }}</span>
+              <p class="text-xs text-gray-500">
+                {{ category.news_count }} articles, {{ category.photo_news_count }} galleries
+              </p>
+            </div>
+          </div>
+          {% empty %}
+          <div class="col-span-full text-center py-4">
+            <p class="text-gray-500">No categories found</p>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,25 @@
+{% if selected_course %}
+<div class="sticky top-0 z-20 bg-white/95 backdrop-blur border border-gray-200 rounded-xl px-4 py-3 mb-5">
+  <div class="flex items-center justify-between gap-4">
+    <div class="min-w-0">
+      <p class="text-xs uppercase tracking-wider text-gray-400 font-semibold">Current course</p>
+      <h2 class="text-lg font-semibold text-gray-900 truncate">{{ selected_course.title }}</h2>
+      <p class="text-xs text-gray-500">
+        Grade {{ selected_course.grade_level }} · {{ selected_course.get_term_display }} {{ selected_course.year }}
+      </p>
+    </div>
+
+    <div class="flex items-center gap-2 flex-shrink-0">
+      <a href="{% url 'courses:detail' selected_course.pk %}" class="px-3 py-2 text-sm border border-gray-200 rounded-lg hover:bg-gray-50">
+        Course
+      </a>
+      <a href="{% url 'courses:update' selected_course.pk %}" class="px-3 py-2 text-sm border border-gray-200 rounded-lg hover:bg-gray-50">
+        Settings
+      </a>
+      <a href="{% url 'dashboard:quick_assignment' selected_course.pk %}" class="px-3 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+        + Assignment
+      </a>
+    </div>
+  </div>
+</div>
+{% endif %}

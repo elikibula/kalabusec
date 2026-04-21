@@ -1,0 +1,125 @@
+{% extends 'dashboard_base.html' %}
+
+{% block title %}Quizzes{% endblock %}
+
+{% block dashboard_content %}
+<div class="max-w-7xl mx-auto py-10 px-4">
+    <h1 class="text-4xl font-bold mb-6">🧠 Quizzes</h1>
+
+    {% if quizzes %}
+    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow overflow-hidden">
+
+        <!-- Header -->
+        <div class="px-4 py-4 border-b border-gray-100 dark:border-gray-700">
+            <h2 class="text-lg font-semibold">Quiz Management</h2>
+            <p class="text-sm text-gray-500">View, manage and access quizzes</p>
+        </div>
+
+        <!-- Table -->
+        <div class="overflow-x-auto">
+            <table id="quizzesTable" class="min-w-full text-sm">
+                <thead class="bg-gray-50 dark:bg-gray-700 text-xs uppercase text-gray-500 dark:text-gray-300">
+                    <tr>
+                        <th class="px-4 py-3">Title</th>
+                        <th class="px-4 py-3">Course</th>
+                        <th class="px-4 py-3">Points</th>
+                        <th class="px-4 py-3">Time Limit</th>
+                        <th class="px-4 py-3">Questions</th>
+                        <th class="px-4 py-3 text-right">Actions</th>
+                    </tr>
+                </thead>
+
+                <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
+                    {% for quiz in quizzes %}
+                    <tr class="hover:bg-gray-50 dark:hover:bg-gray-700 transition">
+
+                        <!-- Title -->
+                        <td class="px-4 py-3">
+                            <div>
+                                <p class="font-medium text-gray-900 dark:text-white">{{ quiz.title }}</p>
+                            </div>
+                        </td>
+
+                        <!-- Course -->
+                        <td class="px-4 py-3 text-gray-600 dark:text-gray-300">
+                            {{ quiz.course.title }}
+                        </td>
+
+                        <!-- Points -->
+                        <td class="px-4 py-3 text-purple-600 font-medium">
+                            {{ quiz.total_points }} pts
+                        </td>
+
+                        <!-- Time -->
+                        <td class="px-4 py-3 text-gray-600 dark:text-gray-300">
+                            {{ quiz.time_limit_minutes }} min
+                        </td>
+
+                        <!-- Questions -->
+                        <td class="px-4 py-3 text-gray-600 dark:text-gray-300">
+                            {{ quiz.questions.count }}
+                        </td>
+
+                        <!-- Actions -->
+                        <td class="px-4 py-3">
+                            <div class="flex justify-end gap-2">
+
+                                <a href="{% url 'assignments:quiz_detail' quiz.pk %}"
+                                   class="px-3 py-1.5 text-xs font-medium rounded-lg bg-blue-600 text-white hover:bg-blue-700">
+                                    View
+                                </a>
+
+                                {% if user.is_teacher %}
+                                <a href="{% url 'assignments:quiz_update' quiz.pk %}"
+                                   class="px-3 py-1.5 text-xs font-medium rounded-lg bg-amber-500 text-white hover:bg-amber-600">
+                                    Edit
+                                </a>
+                                {% endif %}
+
+                            </div>
+                        </td>
+
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+    {% else %}
+    <div class="text-center py-12 bg-white rounded-xl shadow">
+        <p class="text-gray-500">No quizzes available at the moment.</p>
+    </div>
+    {% endif %}
+</div>
+
+<!-- DataTables -->
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.tailwindcss.min.css">
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/dataTables.tailwindcss.min.js"></script>
+
+<script>
+$(document).ready(function () {
+    $('#quizzesTable').DataTable({
+        pageLength: 10,
+        lengthMenu: [5, 10, 25, 50],
+        ordering: true,
+        responsive: true,
+        language: {
+            search: "🔍 Search:",
+            lengthMenu: "Show _MENU_ quizzes",
+            info: "Showing _START_ to _END_ of _TOTAL_ quizzes",
+            zeroRecords: "No matching quizzes found",
+            paginate: {
+                previous: "←",
+                next: "→"
+            }
+        },
+        columnDefs: [
+            { orderable: false, targets: 5 } // Disable sorting on Actions
+        ]
+    });
+});
+</script>
+{% endblock %}

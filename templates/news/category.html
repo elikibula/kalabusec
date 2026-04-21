@@ -1,0 +1,245 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block content %}
+<!-- Category News + Sidebar -->
+<section class="py-12 bg-white">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <!-- Main column (2/3) -->
+      <main class="lg:col-span-2">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <!-- Article News -->
+          {% for post in articles %}
+          <article class="group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-lg transition-transform duration-300">
+            <a
+              {% if post.slug %}
+                href="{% url 'news:news_detail' post.slug %}"
+              {% else %}
+                href="{% url 'news:photo_news_detail' post.pk %}"
+              {% endif %}
+              class="block relative"
+            >
+              <div class="h-48 w-full overflow-hidden bg-gray-100">
+                {% if post.image %}
+                  <img src="{{ post.image.url }}" alt="{{ post.title }}" class="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-500">
+                {% else %}
+                  <img src="{% static 'assets/img/default-news.jpg' %}" alt="No image" class="w-full h-full object-cover">
+                {% endif %}
+              </div>
+            </a>
+
+            <div class="p-5">
+              <div class="flex items-center justify-between mb-3">
+                <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold bg-fta-gold/10 text-fta-gold">
+                  {{ post.category.name }}
+                </span>
+
+                <time class="text-sm text-gray-400 flex items-center gap-2">
+                  <i class="fa fa-clock-o" aria-hidden="true"></i>
+                  <span>{{ post.date_posted|naturaltime }}</span>
+                </time>
+              </div>
+
+              <h3 class="text-lg font-semibold text-gray-900 leading-tight mb-2">
+                {% if post.slug %}
+                  <a href="{% url 'news:news_detail' post.slug %}" class="hover:text-fta-gold transition-colors">{{ post.title }}</a>
+                {% else %}
+                  <a href="{% url 'news:photo_news_detail' post.pk %}" class="hover:text-fta-gold transition-colors">{{ post.title }}</a>
+                {% endif %}
+              </h3>
+
+              <p class="text-sm text-gray-500 mb-4">{{ post.content|striptags|truncatewords:20 }}</p>
+
+              <div class="flex items-center justify-between">
+                <a
+                  {% if post.slug %}
+                    href="{% url 'news:news_detail' post.slug %}"
+                  {% else %}
+                    href="{% url 'news:photo_news_detail' post.pk %}"
+                  {% endif %}
+                  class="inline-flex items-center gap-2 text-sm font-medium text-fta-gold hover:underline"
+                >
+                  Read more <i class="fa fa-angle-right" aria-hidden="true"></i>
+                </a>
+
+                
+              </div>
+            </div>
+          </article>
+          {% empty %}
+            <p class="text-gray-500">No article news in this category.</p>
+          {% endfor %}
+
+          <!-- Photo News -->
+          {% for gallery in galleries %}
+          <article class="group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-lg transition duration-300">
+            <a
+              {% if gallery.slug %}
+                href="{% url 'news:news_detail_by_slug' gallery.slug %}"
+              {% else %}
+                href="{% url 'news:photo_news_detail' gallery.pk %}"
+              {% endif %}
+              class="block relative"
+            >
+              <div class="h-48 w-full overflow-hidden bg-gray-100">
+                {% if gallery.image %}
+                  <img src="{{ gallery.image.url }}" alt="{{ gallery.title }}" class="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-500">
+                {% else %}
+                  <img src="{% static 'assets/img/default-photo-news.jpg' %}" alt="No image" class="w-full h-full object-cover">
+                {% endif %}
+              </div>
+            </a>
+
+            <div class="p-5">
+              <div class="flex items-center justify-between mb-3">
+                <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold bg-fta-green/10 text-fta-green">
+                  {{ gallery.category.name }}
+                </span>
+
+                <time class="text-sm text-gray-400 flex items-center gap-2">
+                  <i class="fa fa-clock-o" aria-hidden="true"></i>
+                  <span>{{ gallery.date_posted|naturaltime }}</span>
+                </time>
+              </div>
+
+              <h3 class="text-lg font-semibold text-gray-900 mb-2 leading-tight">
+                {% if gallery.slug %}
+                  <a href="{% url 'news:news_detail_by_slug' gallery.slug %}" class="hover:text-fta-gold transition-colors">{{ gallery.title }}</a>
+                {% else %}
+                  <a href="{% url 'news:photo_news_detail' gallery.pk %}" class="hover:text-fta-gold transition-colors">{{ gallery.title }}</a>
+                {% endif %}
+              </h3>
+
+              <p class="text-sm text-gray-500 mb-4">
+                {% if gallery.caption %}
+                  {{ gallery.caption|striptags|truncatewords:20 }}
+                {% elif gallery.description %}
+                  {{ gallery.description|striptags|truncatewords:20 }}
+                {% else %}
+                  No description available.
+                {% endif %}
+              </p>
+
+              <div class="flex items-center justify-between">
+                <a
+                  {% if gallery.slug %}
+                    href="{% url 'news:news_detail_by_slug' gallery.slug %}"
+                  {% else %}
+                    href="{% url 'news:photo_news_detail' gallery.pk %}"
+                  {% endif %}
+                  class="inline-flex items-center gap-2 text-sm font-medium text-fta-gold hover:underline"
+                >
+                  View gallery <i class="fa fa-picture-o" aria-hidden="true"></i>
+                </a>
+
+                <div class="text-sm text-gray-400 hidden sm:block">{{ gallery.author.get_full_name|default:gallery.author.username }}</div>
+              </div>
+            </div>
+          </article>
+          {% endfor %}
+        </div>
+      </main>
+
+      <!-- Sidebar (1/3) -->
+      <aside class="lg:col-span-1">
+        <!-- Categories Sidebar -->
+        <div class="bg-white rounded-2xl p-5 shadow-sm mb-6">
+          <h4 class="text-sm font-semibold text-fta-maroon uppercase mb-4">News Categories</h4>
+          <ul class="space-y-2">
+            {% for category in categories %}
+            <li>
+              <a href="{% url 'news:category_view' pk=category.pk slug=category.slug %}" class="flex items-center justify-between gap-4 p-3 rounded-lg hover:bg-gray-50 transition-colors">
+                <div class="text-sm font-medium text-gray-800">{{ category.name }}</div>
+                <div class="inline-flex items-center px-2 py-0.5 rounded-full bg-fta-maroon/10 text-fta-maroon text-xs font-semibold">{{ category.total_count }}</div>
+              </a>
+            </li>
+            {% empty %}
+              <li class="text-sm text-gray-400">No categories yet.</li>
+            {% endfor %}
+          </ul>
+        </div>
+
+        <!-- Recent News -->
+        <div class="bg-white rounded-2xl p-5 shadow-sm">
+          <h4 class="text-sm font-semibold text-gray-800 mb-4">Recent News</h4>
+
+          <div class="space-y-3">
+            {% for item in recent_news %}
+            <div class="flex items-start gap-3">
+              {% if item.image %}
+              <a
+                {% if item.slug %}
+                  href="{% url 'news:news_detail' item.slug %}"
+                {% else %}
+                  href="{% url 'news:photo_news_detail' item.pk %}"
+                {% endif %}
+                class="flex-shrink-0 w-20 h-16 overflow-hidden rounded-lg bg-gray-100"
+                aria-label="{{ item.title }}"
+              >
+                <img src="{{ item.image.url }}" alt="{{ item.title }}" class="w-full h-full object-cover">
+              </a>
+              {% endif %}
+
+              <div class="min-w-0">
+                <h5 class="text-sm font-medium text-gray-900 truncate">
+                  {% if item.slug %}
+                    <a href="{% url 'news:news_detail' item.slug %}" class="hover:text-fta-gold">{{ item.title }}</a>
+                  {% else %}
+                    <a href="{% url 'news:photo_news_detail' item.pk %}" class="hover:text-fta-gold">{{ item.title }}</a>
+                  {% endif %}
+                </h5>
+
+                <p class="text-xs text-gray-500 mt-1 line-clamp-2">
+                  {% if item.content %}
+                    {{ item.content|striptags|truncatewords:7 }}
+                  {% elif item.description %}
+                    {{ item.description|striptags|truncatewords:7 }}
+                  {% elif item.caption %}
+                    {{ item.caption|striptags|truncatewords:7 }}
+                  {% else %}
+                    No description available.
+                  {% endif %}
+                </p>
+
+                <p class="text-xs text-gray-400 mt-1">{{ item.date_posted|naturaltime }}</p>
+              </div>
+            </div>
+            {% empty %}
+              <p class="text-gray-500">No recent news.</p>
+            {% endfor %}
+          </div>
+        </div>
+      </aside>
+    </div>
+  </div>
+</section>
+
+<!-- Inline utility styles (minimal) -->
+<style>
+  /* FTA color tokens (replace these with your project's Tailwind config if available) */
+  :root {
+    --fta-gold: #f6c84c;
+    --fta-maroon: #7b1b1b;
+    --fta-green: #17a34a;
+  }
+
+  .text-fta-gold { color: var(--fta-gold); }
+  .bg-fta-gold\/10 { background-color: rgba(246,200,76,0.1); }
+  .text-fta-maroon { color: var(--fta-maroon); }
+  .bg-fta-maroon\/10 { background-color: rgba(123,27,27,0.08); }
+  .text-fta-green { color: var(--fta-green); }
+  .bg-fta-green\/10 { background-color: rgba(23,163,74,0.08); }
+
+  /* small clamp helper for description lines in sidebar (requires line-clamp plugin or fallback) */
+  .line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  /* card image scaling already handled with transform on hover */
+</style>
+{% endblock %}

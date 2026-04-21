@@ -1,0 +1,154 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en" class="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}School LMS{% endblock %}</title>
+    
+    <!-- Tailwind CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    {% block extra_css %}{% endblock %}
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
+    <!-- Header/Navigation -->
+    <header class="sticky top-0 z-50 bg-white dark:bg-gray-800 shadow-md">
+        <nav class="container mx-auto px-6 py-3">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-3">    
+                    <!-- Logo -->
+                    <div class="h-10 w-10 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg flex items-center justify-center text-white text-xl font-bold">
+                        S
+                    </div>
+                    <!-- School Name -->
+                    <a href="{% url 'dashboard:home' %}" class="text-2xl font-bold text-gray-800 dark:text-white">
+                        <span class="text-blue-600">School</span> LMS
+                    </a>
+                </div>
+                
+                <!-- Desktop Navigation -->
+                <div class="hidden md:flex items-center space-x-1">
+                    {% if user.is_authenticated %}
+                        <a href="{% url 'dashboard:home' %}" class="px-3 py-2 text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400">Dashboard</a>
+                        <a href="{% url 'courses:list' %}" class="px-3 py-2 text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400">Courses</a>
+                        <a href="{% url 'assignments:list' %}" class="px-3 py-2 text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400">Assignments</a>
+                        <a href="{% url 'announcements:list' %}" class="px-3 py-2 text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400">Announcements</a>
+                        <a href="{% url 'resources:list' %}" class="px-3 py-2 text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400">Resources</a>
+                        
+                        <!-- User Dropdown -->
+                        <div class="relative ml-4" x-data="{ open: false }">
+                            <button @click="open = !open" class="flex items-center space-x-2 px-3 py-2 text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700">
+                                <span>{{ user.get_full_name|default:user.username }}</span>
+                                <i class="fas fa-chevron-down text-xs"></i>
+                            </button>
+                            <div x-show="open" @click.away="open = false" class="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg py-2 z-50" style="display: none;">
+                                <a href="{% url 'accounts:profile' %}" class="block px-4 py-2 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">
+                                    <i class="fas fa-user mr-2"></i>My Profile
+                                </a>
+                                <div class="border-t border-gray-200 dark:border-gray-700 my-1"></div>
+                                <a href="{% url 'accounts:logout' %}" class="block px-4 py-2 text-red-600 dark:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-700">
+                                    <i class="fas fa-sign-out-alt mr-2"></i>Logout
+                                </a>
+                            </div>
+                        </div>
+                    {% else %}
+                        <a href="{% url 'accounts:login' %}" class="ml-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">Login</a>
+                        <a href="{% url 'accounts:register' %}" class="px-4 py-2 border border-blue-600 text-blue-600 rounded-lg hover:bg-blue-50 dark:hover:bg-gray-700 transition">Register</a>
+                    {% endif %}
+                </div>
+                
+                <!-- Mobile Menu Button -->
+                <button id="mobile-menu-button" type="button" class="md:hidden p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700">
+                    <i class="fas fa-bars text-gray-700 dark:text-gray-200"></i>
+                </button>
+            </div>
+            
+            <!-- Mobile Menu -->
+            <div id="mobile-menu" class="hidden md:hidden mt-4 pb-4">
+                {% if user.is_authenticated %}
+                    <a href="{% url 'dashboard:home' %}" class="block px-3 py-2 text-gray-700 dark:text-gray-200 hover:text-blue-600">Dashboard</a>
+                    <a href="{% url 'courses:list' %}" class="block px-3 py-2 text-gray-700 dark:text-gray-200 hover:text-blue-600">Courses</a>
+                    <a href="{% url 'assignments:list' %}" class="block px-3 py-2 text-gray-700 dark:text-gray-200 hover:text-blue-600">Assignments</a>
+                    <a href="{% url 'announcements:list' %}" class="block px-3 py-2 text-gray-700 dark:text-gray-200 hover:text-blue-600">Announcements</a>
+                    <a href="{% url 'resources:list' %}" class="block px-3 py-2 text-gray-700 dark:text-gray-200 hover:text-blue-600">Resources</a>
+                    <div class="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+                        <a href="{% url 'accounts:profile' %}" class="block px-3 py-2 text-gray-700 dark:text-gray-200 hover:text-blue-600">My Profile</a>
+                        <a href="{% url 'accounts:logout' %}" class="block px-3 py-2 text-red-600 dark:text-red-400 mt-2">Logout</a>
+                    </div>
+                {% else %}
+                    <a href="{% url 'accounts:login' %}" class="block px-3 py-2 bg-blue-600 text-white rounded-lg text-center hover:bg-blue-700">Login</a>
+                    <a href="{% url 'accounts:register' %}" class="block px-3 py-2 mt-2 border border-blue-600 text-blue-600 rounded-lg text-center hover:bg-blue-50">Register</a>
+                {% endif %}
+            </div>
+        </nav>
+    </header>
+
+    <!-- Messages -->
+    {% if messages %}
+    <div class="container mx-auto px-6 mt-4">
+        {% for message in messages %}
+        <div class="bg-{% if message.tags == 'error' %}red{% elif message.tags == 'success' %}green{% elif message.tags == 'warning' %}yellow{% else %}blue{% endif %}-100 border border-{% if message.tags == 'error' %}red{% elif message.tags == 'success' %}green{% elif message.tags == 'warning' %}yellow{% else %}blue{% endif %}-400 text-{% if message.tags == 'error' %}red{% elif message.tags == 'success' %}green{% elif message.tags == 'warning' %}yellow{% else %}blue{% endif %}-700 px-4 py-3 rounded relative mb-4" role="alert">
+            <span class="block sm:inline">{{ message }}</span>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Main Content -->
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 dark:bg-gray-900 text-white py-12 mt-16">
+        <div class="container mx-auto px-6">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div>
+                    <h3 class="text-xl font-bold mb-4">School LMS</h3>
+                    <p class="text-gray-400">Empowering education through technology.</p>
+                </div>
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">Quick Links</h4>
+                    <ul class="space-y-2">
+                        <li><a href="{% url 'dashboard:home' %}" class="text-gray-400 hover:text-white">Dashboard</a></li>
+                        <li><a href="{% url 'courses:list' %}" class="text-gray-400 hover:text-white">Courses</a></li>
+                        <li><a href="{% url 'assignments:list' %}" class="text-gray-400 hover:text-white">Assignments</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">Contact</h4>
+                    <ul class="space-y-2 text-gray-400">
+                        <li><i class="fas fa-phone mr-2"></i>+123 456 7890</li>
+                        <li><i class="fas fa-envelope mr-2"></i>info@school.edu</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="border-t border-gray-700 mt-8 pt-8 text-center text-gray-400">
+                <p>&copy; 2025 School LMS. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Alpine.js for dropdown -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    
+    <!-- Base JavaScript -->
+    <script>
+        // Mobile menu toggle
+        const mobileMenuButton = document.getElementById('mobile-menu-button');
+        const mobileMenu = document.getElementById('mobile-menu');
+        
+        if (mobileMenuButton) {
+            mobileMenuButton.addEventListener('click', () => {
+                mobileMenu.classList.toggle('hidden');
+            });
+        }
+    </script>
+
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

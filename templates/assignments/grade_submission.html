@@ -1,0 +1,82 @@
+{% extends 'dashboard_base.html' %}
+{% block title %}Grade Submission{% endblock %}
+
+{% block dashboard_content %}
+<div class="max-w-3xl mx-auto">
+    <div class="bg-white shadow rounded-xl p-6">
+
+        <h1 class="text-2xl font-bold text-gray-800 mb-4">
+            Grade Submission
+        </h1>
+
+        <div class="mb-6 border-b pb-4">
+            <p class="text-sm text-gray-500">Student</p>
+            <p class="font-semibold text-gray-800">
+                {{ submission.student.get_full_name }}
+            </p>
+
+            <p class="text-sm text-gray-500 mt-3">Assignment</p>
+            <p class="font-semibold text-gray-800">
+                {{ submission.assignment.title }}
+            </p>
+
+            <p class="text-sm text-gray-500 mt-3">Submitted On</p>
+            <p class="text-gray-700">
+                {{ submission.submitted_at|date:"d M Y H:i" }}
+            </p>
+        </div>
+
+        {% if submission.submission_text %}
+        <div class="mb-6">
+            <h2 class="font-semibold text-gray-800 mb-2">Student Response</h2>
+            <div class="bg-gray-50 border rounded-lg p-4 text-gray-700">
+                {{ submission.submission_text|linebreaks }}
+            </div>
+        </div>
+        {% endif %}
+
+        {% if submission.attachment %}
+        <div class="mb-6">
+            <a href="{{ submission.attachment.url }}"
+               class="text-blue-600 hover:underline"
+               target="_blank">
+                Download Attachment
+            </a>
+        </div>
+        {% endif %}
+
+        <form method="post" class="space-y-4">
+            {% csrf_token %}
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">
+                    Score (out of {{ submission.assignment.total_points }})
+                </label>
+                <input type="number"
+                       name="score"
+                       step="0.01"
+                       min="0"
+                       max="{{ submission.assignment.total_points }}"
+                       class="w-full border rounded-lg px-4 py-2"
+                       required>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">
+                    Feedback
+                </label>
+                <textarea name="feedback"
+                          rows="5"
+                          class="w-full border rounded-lg px-4 py-2"
+                          placeholder="Write feedback for the student..."></textarea>
+            </div>
+
+            <button type="submit"
+                    class="bg-blue-600 text-white px-5 py-2 rounded-lg hover:bg-blue-700">
+                Save Grade
+            </button>
+        </form>
+
+    </div>
+</div>
+{% endblock %}

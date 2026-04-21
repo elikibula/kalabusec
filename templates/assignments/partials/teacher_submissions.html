@@ -1,0 +1,51 @@
+<!-- Teacher Submissions Overview -->
+<div class="bg-white dark:bg-gray-800 rounded-2xl shadow p-8">
+    <div class="flex items-center justify-between mb-6">
+        <h2 class="text-2xl font-bold text-gray-900 dark:text-white">
+            Student Submissions 
+            <span class="text-gray-400 dark:text-gray-500 text-lg font-normal">({{ submissions|length }})</span>
+        </h2>
+    </div>
+    
+    {% if submissions %}
+    <div class="space-y-4">
+        {% for sub in submissions %}
+        <div class="flex items-center justify-between p-5 border border-gray-200 dark:border-gray-700 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700/50 transition">
+            <div class="flex-1">
+                <p class="font-semibold text-gray-900 dark:text-white">
+                    {{ sub.student.get_full_name|default:sub.student.username }}
+                </p>
+                <p class="text-sm text-gray-500 dark:text-gray-400">
+                    Submitted: {{ sub.submitted_at|date:"d M Y • H:i" }}
+                    {% if sub.is_late %}
+                        <span class="text-red-600">• Late</span>
+                    {% endif %}
+                </p>
+            </div>
+            
+            <div class="flex items-center gap-6">
+                {% if sub.score is not None %}
+                <div class="text-right">
+                    <span class="text-2xl font-bold text-green-600 dark:text-green-400">
+                        {{ sub.score }}
+                    </span>
+                    <span class="text-sm text-gray-400">/ {{ assignment.total_points }}</span>
+                </div>
+                {% else %}
+                <span class="text-amber-600 text-sm font-medium">Not Graded</span>
+                {% endif %}
+                
+                <a href="{% url 'assignments:grade' sub.pk %}" 
+                   class="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-xl transition">
+                    {% if sub.status == 'graded' %}Review{% else %}Grade{% endif %}
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="text-center py-16 text-gray-400 dark:text-gray-500">
+        <p class="text-lg">No submissions received yet.</p>
+    </div>
+    {% endif %}
+</div>

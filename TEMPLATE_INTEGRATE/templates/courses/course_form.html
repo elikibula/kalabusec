@@ -1,0 +1,139 @@
+{% extends 'base/base.html' %}
+
+{% block title %}{% if object %}Edit Course{% else %}Create Course{% endif %} - School LMS{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-8">
+        <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-6">
+            {% if object %}Edit Course{% else %}Create New Course{% endif %}
+        </h1>
+        
+        <form method="post" enctype="multipart/form-data" class="space-y-6">
+            {% csrf_token %}
+            
+            {% if form.errors %}
+            <div class="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+                <p class="text-sm text-red-800 font-medium mb-2">Please correct the following errors:</p>
+                <ul class="list-disc list-inside text-sm text-red-700">
+                    {% for field, errors in form.errors.items %}
+                        {% for error in errors %}
+                        <li>{{ field|title }}: {{ error }}</li>
+                        {% endfor %}
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+            
+            <!-- Basic Information -->
+            <div class="border-b border-gray-200 dark:border-gray-700 pb-6">
+                <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">Basic Information</h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label for="{{ form.title.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                            Course Title <span class="text-red-500">*</span>
+                        </label>
+                        {{ form.title }}
+                    </div>
+                    
+                    <div>
+                        <label for="{{ form.code.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                            Course Code <span class="text-red-500">*</span>
+                        </label>
+                        {{ form.code }}
+                    </div>
+                </div>
+                
+                <div class="mt-6">
+                    <label for="{{ form.subject.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        Subject <span class="text-red-500">*</span>
+                    </label>
+                    {{ form.subject }}
+                </div>
+                
+                <div class="mt-6">
+                    <label for="{{ form.description.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        Description <span class="text-red-500">*</span>
+                    </label>
+                    {{ form.description }}
+                </div>
+            </div>
+            
+            <!-- Academic Information -->
+            <div class="border-b border-gray-200 dark:border-gray-700 pb-6">
+                <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">Academic Information</h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div>
+                        <label for="{{ form.grade_level.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                            Grade Level <span class="text-red-500">*</span>
+                        </label>
+                        {{ form.grade_level }}
+                    </div>
+                    
+                    <div>
+                        <label for="{{ form.semester.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                            Semester <span class="text-red-500">*</span>
+                        </label>
+                        {{ form.semester }}
+                    </div>
+                    
+                    <div>
+                        <label for="{{ form.year.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                            Year <span class="text-red-500">*</span>
+                        </label>
+                        {{ form.year }}
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Settings -->
+            <div class="border-b border-gray-200 dark:border-gray-700 pb-6">
+                <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">Course Settings</h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label for="{{ form.max_students.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                            Maximum Students
+                        </label>
+                        {{ form.max_students }}
+                    </div>
+                </div>
+                
+                <div class="mt-6">
+                    <label for="{{ form.syllabus.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        Syllabus (PDF)
+                    </label>
+                    {{ form.syllabus }}
+                    {% if object and object.syllabus %}
+                    <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">Current: {{ object.syllabus.name }}</p>
+                    {% endif %}
+                </div>
+                
+                <div class="mt-6">
+                    <label for="{{ form.thumbnail.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        Course Thumbnail
+                    </label>
+                    {{ form.thumbnail }}
+                    {% if object and object.thumbnail %}
+                    <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">Current: {{ object.thumbnail.name }}</p>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Action Buttons -->
+            <div class="flex items-center justify-between pt-6">
+                <a href="{% if object %}{% url 'courses:detail' object.pk %}{% else %}{% url 'courses:list' %}{% endif %}" 
+                   class="px-6 py-3 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition font-medium">
+                    Cancel
+                </a>
+                <button type="submit" 
+                        class="px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:shadow-lg transition font-medium">
+                    {% if object %}Update Course{% else %}Create Course{% endif %}
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

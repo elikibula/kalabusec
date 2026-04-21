@@ -1,0 +1,45 @@
+{% extends 'dashboard_base.html' %}
+
+{% block title %}Quiz Result - {{ quiz.title }}{% endblock %}
+
+{% block dashboard_content %}
+<div class="max-w-4xl mx-auto py-10 px-4">
+    <div class="text-center mb-10">
+        <h1 class="text-4xl font-bold mb-2">Quiz Result</h1>
+        <p class="text-6xl font-bold text-purple-600">{{ attempt.score }} / {{ quiz.total_points }}</p>
+    </div>
+
+    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow p-8">
+        {% for question in questions %}
+        <div class="mb-8 pb-8 border-b last:border-b-0">
+            <p class="font-semibold mb-3">
+                {{ forloop.counter }}. {{ question.question_text }}
+            </p>
+            
+            <p class="text-sm mb-2">
+                Your Answer: <strong>{{ attempt.answers|get_item:question.id|default:"Not answered" }}</strong>
+            </p>
+            
+            {% if question.question_type in 'multiple_choice,true_false' %}
+            <p class="text-sm text-green-600">
+                Correct Answer: <strong>{{ question.correct_answer }}</strong>
+            </p>
+            {% endif %}
+            
+            {% if question.explanation %}
+            <p class="mt-4 text-gray-600 dark:text-gray-400 italic">
+                {{ question.explanation }}
+            </p>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="text-center mt-10">
+        <a href="{% url 'assignments:quiz_detail' quiz.pk %}" 
+           class="inline-block bg-blue-600 text-white px-8 py-3 rounded-xl">
+            Back to Quiz
+        </a>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,134 @@
+{% extends 'base/base.html' %}
+
+{% block title %}Submit Assignment - {{ assignment.title }}{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Breadcrumb -->
+    <nav class="mb-6 text-sm">
+        <ol class="flex items-center space-x-2 text-gray-600 dark:text-gray-400">
+            <li><a href="{% url 'assignments:list' %}" class="hover:text-blue-600">Assignments</a></li>
+            <li>→</li>
+            <li><a href="{% url 'assignments:detail' assignment.pk %}" class="hover:text-blue-600">{{ assignment.title }}</a></li>
+            <li>→</li>
+            <li class="text-gray-900 dark:text-white font-medium">Submit</li>
+        </ol>
+    </nav>
+    
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-8">
+        <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+            {% if submission %}Update Submission{% else %}Submit Assignment{% endif %}
+        </h1>
+        <p class="text-gray-600 dark:text-gray-400 mb-6">{{ assignment.title }}</p>
+        
+        <!-- Assignment Info -->
+        <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 mb-6">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                <div>
+                    <p class="text-gray-600 dark:text-gray-400">Due Date</p>
+                    <p class="font-semibold text-gray-900 dark:text-white">{{ assignment.due_date|date:"M d, Y H:i" }}</p>
+                </div>
+                <div>
+                    <p class="text-gray-600 dark:text-gray-400">Points</p>
+                    <p class="font-semibold text-gray-900 dark:text-white">{{ assignment.total_points }} pts</p>
+                </div>
+                <div>
+                    <p class="text-gray-600 dark:text-gray-400">Status</p>
+                    <p class="font-semibold {% if assignment.due_date > now %}text-green-600{% else %}text-red-600{% endif %}">
+                        {% if assignment.due_date > now %}On Time{% else %}Past Due{% endif %}
+                    </p>
+                </div>
+            </div>
+        </div>
+        
+        {% if submission and submission.is_late %}
+        <div class="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4 mb-6">
+            <p class="text-yellow-800 dark:text-yellow-300 font-medium">
+                ⚠️ This submission is {{ submission.days_late }} day(s) late. 
+                {% if assignment.late_penalty_percent > 0 %}
+                A {{ assignment.late_penalty_percent }}% penalty per day may apply.
+                {% endif %}
+            </p>
+        </div>
+        {% endif %}
+        
+        <form method="post" enctype="multipart/form-data" class="space-y-6">
+            {% csrf_token %}
+            
+            {% if form.errors %}
+            <div class="bg-red-50 border border-red-200 rounded-lg p-4">
+                <p class="text-sm text-red-800 font-medium mb-2">Please correct the following errors:</p>
+                <ul class="list-disc list-inside text-sm text-red-700">
+                    {% for field, errors in form.errors.items %}
+                        {% for error in errors %}
+                        <li>{{ field|title }}: {{ error }}</li>
+                        {% endfor %}
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+            
+            <!-- Submission Text -->
+            <div>
+                <label for="{{ form.submission_text.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Submission Text
+                </label>
+                {{ form.submission_text }}
+                <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Enter your answer or response here</p>
+            </div>
+            
+            <!-- File Upload -->
+            <div>
+                <label for="{{ form.attachment.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Attach File (Optional)
+                </label>
+                {{ form.attachment }}
+                {% if submission and submission.attachment %}
+                <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">
+                    Current file: <a href="{{ submission.attachment.url }}" target="_blank" class="text-blue-600 hover:underline">{{ submission.attachment.name }}</a>
+                </p>
+                {% endif %}
+                <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Upload documents, PDFs, images, or other files</p>
+            </div>
+            
+            {% if submission %}
+            <div class="bg-gray-50 dark:bg-gray-900 rounded-lg p-4">
+                <h3 class="font-semibold text-gray-900 dark:text-white mb-2">Previous Submission</h3>
+                <p class="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                    Submitted: {{ submission.submitted_at|date:"M d, Y H:i" }}
+                </p>
+                {% if submission.submission_text %}
+                <div class="text-sm text-gray-700 dark:text-gray-300 mt-3">
+                    <p class="font-medium mb-1">Previous Text:</p>
+                    <p class="bg-white dark:bg-gray-800 p-3 rounded border border-gray-200 dark:border-gray-700">
+                        {{ submission.submission_text|truncatewords:50 }}
+                    </p>
+                </div>
+                {% endif %}
+            </div>
+            {% endif %}
+            
+            <!-- Confirmation -->
+            <div class="flex items-start">
+                <input type="checkbox" id="confirm" required
+                       class="mt-1 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                <label for="confirm" class="ml-2 text-sm text-gray-700 dark:text-gray-300">
+                    I confirm that this is my own work and I understand the school's academic integrity policy.
+                </label>
+            </div>
+            
+            <!-- Action Buttons -->
+            <div class="flex items-center justify-between pt-6 border-t border-gray-200 dark:border-gray-700">
+                <a href="{% url 'assignments:detail' assignment.pk %}" 
+                   class="px-6 py-3 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition font-medium">
+                    Cancel
+                </a>
+                <button type="submit" 
+                        class="px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:shadow-lg transition font-medium">
+                    {% if submission %}Update Submission{% else %}Submit Assignment{% endif %}
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

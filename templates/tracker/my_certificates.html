@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% block title %}My Certificates{% endblock %}
+{% block content %}
+<h1 class="text-2xl font-semibold text-gray-900 mb-6">My certificates</h1>
+{% if certs %}
+<div class="grid grid-cols-2 gap-4">
+  {% for cert in certs %}
+  <a href="{% url 'courses:certificate' cert.pk %}" class="bg-white border border-gray-200 rounded-xl p-5 hover:border-blue-300 hover:shadow-sm transition-all flex items-center gap-4">
+    <div class="w-12 h-12 bg-yellow-100 rounded-xl flex items-center justify-center flex-shrink-0">
+      <svg width="24" height="24" fill="none" stroke="#B45309" stroke-width="1.5" viewBox="0 0 24 24"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/></svg>
+    </div>
+    <div class="min-w-0">
+      <p class="text-sm font-semibold text-gray-900 truncate">{{ cert.course.title }}</p>
+      <p class="text-xs text-gray-400 mt-0.5">Issued {{ cert.issued_at|date:"j M Y" }}</p>
+      <p class="text-xs text-gray-300 mt-0.5">No. {{ cert.certificate_number }}</p>
+    </div>
+  </a>
+  {% endfor %}
+</div>
+{% else %}
+<div class="text-center py-16 text-gray-400">
+  <p>No certificates yet. Complete a course to earn one!</p>
+  <a href="{% url 'courses:list' %}" class="text-sm text-blue-600 hover:underline mt-2 inline-block">Go to my courses</a>
+</div>
+{% endif %}
+{% endblock %}

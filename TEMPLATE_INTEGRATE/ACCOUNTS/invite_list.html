@@ -1,0 +1,154 @@
+{% extends 'base.html' %}
+{% block title %}Invitations — SchoolOS{% endblock %}
+{% block page_title %}Invitations{% endblock %}
+
+{% block content %}
+
+<!-- Header row -->
+<div class="flex items-center justify-between mb-6">
+  <div>
+    <p class="text-slate-400 text-sm">Manage who has been invited to join the platform.</p>
+  </div>
+  <div class="flex gap-2">
+    <a href="{% url 'accounts:invite_bulk' %}"
+       class="px-4 py-2 border border-slate-200 text-slate-600 text-sm font-medium rounded-xl hover:bg-slate-50 transition">
+      Bulk invite
+    </a>
+    <a href="{% url 'accounts:invite_send' %}"
+       class="px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white text-sm font-semibold rounded-xl transition shadow-sm">
+      + Send invite
+    </a>
+  </div>
+</div>
+
+<!-- Stats row -->
+<div class="grid grid-cols-4 gap-4 mb-6">
+  <div class="bg-white border border-slate-100 rounded-2xl p-4 text-center shadow-sm">
+    <p class="text-2xl font-display font-700 text-amber-600">{{ stats.pending }}</p>
+    <p class="text-[11px] font-semibold text-amber-500 uppercase tracking-wider mt-1">Pending</p>
+  </div>
+  <div class="bg-white border border-slate-100 rounded-2xl p-4 text-center shadow-sm">
+    <p class="text-2xl font-display font-700 text-emerald-600">{{ stats.accepted }}</p>
+    <p class="text-[11px] font-semibold text-emerald-500 uppercase tracking-wider mt-1">Accepted</p>
+  </div>
+  <div class="bg-white border border-slate-100 rounded-2xl p-4 text-center shadow-sm">
+    <p class="text-2xl font-display font-700 text-slate-400">{{ stats.expired }}</p>
+    <p class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider mt-1">Expired</p>
+  </div>
+  <div class="bg-white border border-slate-100 rounded-2xl p-4 text-center shadow-sm">
+    <p class="text-2xl font-display font-700 text-red-400">{{ stats.revoked }}</p>
+    <p class="text-[11px] font-semibold text-red-400 uppercase tracking-wider mt-1">Revoked</p>
+  </div>
+</div>
+
+{% if invitations %}
+<!-- Table -->
+<div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+  <table class="w-full text-sm">
+    <thead class="border-b border-slate-100 bg-slate-50">
+      <tr>
+        <th class="text-left px-5 py-3 text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Recipient</th>
+        <th class="text-left px-5 py-3 text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Role</th>
+        <th class="text-left px-5 py-3 text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Invited by</th>
+        <th class="text-left px-5 py-3 text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Status</th>
+        <th class="text-left px-5 py-3 text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Date</th>
+        <th class="px-5 py-3"></th>
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-slate-50">
+      {% for inv in invitations %}
+      <tr class="hover:bg-slate-50 transition">
+        <td class="px-5 py-3.5">
+          <div>
+            {% if inv.first_name or inv.last_name %}
+            <p class="font-medium text-slate-800 text-[13px]">{{ inv.first_name }} {{ inv.last_name }}</p>
+            <p class="text-xs text-slate-400">{{ inv.email }}</p>
+            {% else %}
+            <p class="font-medium text-slate-800 text-[13px]">{{ inv.email }}</p>
+            {% endif %}
+          </div>
+        </td>
+        <td class="px-5 py-3.5">
+          <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-semibold
+            {% if inv.role == 'teacher' %}bg-purple-100 text-purple-700
+            {% elif inv.role == 'student' %}bg-blue-100 text-blue-700
+            {% elif inv.role == 'admin' %}bg-red-100 text-red-700
+            {% else %}bg-slate-100 text-slate-600{% endif %}">
+            {{ inv.get_role_display }}
+          </span>
+        </td>
+        <td class="px-5 py-3.5 text-[13px] text-slate-500">
+          {{ inv.invited_by.get_full_name|default:inv.invited_by.username|default:"—" }}
+        </td>
+        <td class="px-5 py-3.5">
+          <span class="inline-flex items-center gap-1 text-[12px] font-semibold
+            {% if inv.status == 'pending' %}text-amber-600
+            {% elif inv.status == 'accepted' %}text-emerald-600
+            {% elif inv.status == 'expired' %}text-slate-400
+            {% else %}text-red-400{% endif %}">
+            {% if inv.status == 'pending' %}⏳
+            {% elif inv.status == 'accepted' %}✅
+            {% elif inv.status == 'expired' %}⏰
+            {% else %}🚫{% endif %}
+            {{ inv.get_status_display }}
+          </span>
+        </td>
+        <td class="px-5 py-3.5 text-xs text-slate-400">
+          {% if inv.status == 'accepted' %}
+            Joined {{ inv.accepted_at|date:"M j, Y" }}
+          {% else %}
+            Expires {{ inv.expires_at|date:"M j, Y" }}
+          {% endif %}
+        </td>
+        <td class="px-5 py-3.5 text-right">
+          <div class="flex items-center justify-end gap-3">
+            {% if inv.status == 'pending' or inv.status == 'expired' %}
+            <form method="post" action="{% url 'accounts:invite_resend' inv.pk %}">
+              {% csrf_token %}
+              <button type="submit" class="text-xs font-medium text-brand-600 hover:underline">Resend</button>
+            </form>
+            {% endif %}
+            {% if inv.status == 'pending' %}
+            <form method="post" action="{% url 'accounts:invite_revoke' inv.pk %}"
+                  onsubmit="return confirm('Revoke this invitation?')">
+              {% csrf_token %}
+              <button type="submit" class="text-xs font-medium text-red-500 hover:underline">Revoke</button>
+            </form>
+            {% endif %}
+          </div>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<!-- Pagination -->
+{% if is_paginated %}
+<div class="flex justify-center items-center gap-2 mt-6">
+  {% if page_obj.has_previous %}
+  <a href="?page={{ page_obj.previous_page_number }}"
+     class="px-4 py-2 border border-slate-200 rounded-xl text-sm text-slate-600 hover:bg-slate-50 transition">← Prev</a>
+  {% endif %}
+  <span class="text-sm text-slate-400">Page {{ page_obj.number }} of {{ page_obj.num_pages }}</span>
+  {% if page_obj.has_next %}
+  <a href="?page={{ page_obj.next_page_number }}"
+     class="px-4 py-2 border border-slate-200 rounded-xl text-sm text-slate-600 hover:bg-slate-50 transition">Next →</a>
+  {% endif %}
+</div>
+{% endif %}
+
+{% else %}
+<!-- Empty state -->
+<div class="bg-white rounded-2xl border border-dashed border-slate-200 p-16 text-center">
+  <div class="w-14 h-14 rounded-2xl bg-slate-50 flex items-center justify-center mx-auto mb-4 text-2xl">✉️</div>
+  <h3 class="font-semibold text-slate-700 mb-1">No invitations yet</h3>
+  <p class="text-slate-400 text-sm mb-6">Send your first invitation to bring users onto the platform.</p>
+  <a href="{% url 'accounts:invite_send' %}"
+     class="inline-block px-6 py-2.5 bg-brand-600 hover:bg-brand-700 text-white text-sm font-semibold rounded-xl transition shadow-sm">
+    Send first invite →
+  </a>
+</div>
+{% endif %}
+
+{% endblock %}

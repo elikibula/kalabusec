@@ -1,0 +1,14 @@
+{% extends 'dashboard_base.html' %}
+{% block title %}Delete lesson{% endblock %}
+{% block dashboard_content %}
+<div class="max-w-lg mx-auto">
+  <div class="bg-white border border-red-200 rounded-xl p-6 text-center">
+    <h1 class="text-lg font-semibold text-gray-900 mb-2">Delete "{{ object.title }}"?</h1>
+    <p class="text-sm text-gray-500 mb-6">Student completion records for this lesson will also be removed.</p>
+    <form method="post" class="flex justify-center gap-3">{% csrf_token %}
+      <a href="javascript:history.back()" class="px-4 py-2 text-sm border border-gray-200 rounded-lg text-gray-600">Cancel</a>
+      <button type="submit" class="px-4 py-2 text-sm bg-red-600 text-white rounded-lg font-medium">Delete lesson</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

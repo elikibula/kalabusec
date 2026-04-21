@@ -1,0 +1,466 @@
+<div class="h-full flex flex-col" x-data="{
+    teacherCoursesOpen: true,
+    teacherAttentionOpen: true,
+    teacherQuickOpen: true,
+    teacherSelectedCourseOpen: true,
+    teacherMainOpen: true,
+    teacherNewsOpen: true,
+
+    studentOverviewOpen: true,
+    studentLearningOpen: true,
+    studentPersonalOpen: true,
+
+    adminOverviewOpen: true,
+    adminQuickOpen: true,
+    adminManagementOpen: true,
+    adminNewsOpen: true
+}">
+
+  <!-- Mobile header -->
+  <div class="lg:hidden flex items-center justify-between px-4 py-3 border-b border-gray-100">
+    <p class="text-sm font-semibold text-gray-800">
+      {% if user.is_teacher %}Teacher Menu{% elif user.is_student %}Student Menu{% elif user.is_school_admin %}Admin Menu{% else %}Menu{% endif %}
+    </p>
+    <button @click="sidebarOpen = false" class="p-2 rounded-lg text-gray-600 hover:bg-gray-100">✕</button>
+  </div>
+
+  <div class="flex-1 p-3 space-y-4 overflow-y-auto">
+
+    {% if user.is_teacher %}
+
+      <!-- Teacher: My Courses -->
+      <div class="bg-white border border-gray-200 rounded-xl overflow-hidden">
+        <button
+          @click="teacherCoursesOpen = !teacherCoursesOpen"
+          class="w-full flex items-center justify-between px-4 py-3 border-b border-gray-100"
+          :class="{ 'border-b': teacherCoursesOpen }">
+          <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider" x-show="!sidebarMini">My courses</p>
+          <span class="text-gray-400 text-xs" x-show="!sidebarMini" x-text="teacherCoursesOpen ? '−' : '+'"></span>
+          <span class="w-8 h-8 flex items-center justify-center rounded-lg bg-blue-100 text-blue-700 mx-auto" x-show="sidebarMini" title="My courses">📚</span>
+        </button>
+        <div x-show="teacherCoursesOpen" x-collapse>
+          {% for course in sidebar_teaching_courses %}
+          <a href="{% url 'dashboard:home' %}?course={{ course.pk }}"
+             @click="sidebarOpen = false"
+             class="group flex items-start gap-3 px-4 py-3 border-b border-gray-100 last:border-0 hover:bg-gray-50 transition-colors {% if selected_course and selected_course.pk == course.pk %}bg-blue-50{% endif %}"
+             :title="sidebarMini ? '{{ course.title|escapejs }}' : ''">
+            <div class="w-8 h-8 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center text-xs font-semibold flex-shrink-0">
+              {{ course.title|slice:":1"|upper }}
+            </div>
+            <div class="min-w-0" x-show="!sidebarMini">
+              <span class="block text-sm font-medium {% if selected_course and selected_course.pk == course.pk %}text-blue-700{% else %}text-gray-800{% endif %}">{{ course.title }}</span>
+              <span class="block text-xs text-gray-400 mt-0.5">{{ course.get_term_display }} · {{ course.year }} · {{ course.student_count }} students</span>
+            </div>
+          </a>
+          {% empty %}
+          <div class="px-4 py-6 text-center" x-show="!sidebarMini">
+            <p class="text-sm text-gray-400">No courses yet</p>
+            <a href="{% url 'courses:create' %}" class="text-sm text-blue-600 hover:underline mt-1 inline-block">Create one</a>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- Teacher: Needs attention -->
+      {% if sidebar_pending_submissions or sidebar_pending_enrolments or unread_notifications_count %}
+      <div class="bg-white border border-gray-200 rounded-xl overflow-hidden">
+        <button @click="teacherAttentionOpen = !teacherAttentionOpen" class="w-full flex items-center justify-between px-4 py-3 border-b border-gray-100">
+          <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider" x-show="!sidebarMini">Needs attention</p>
+          <span class="text-gray-400 text-xs" x-show="!sidebarMini" x-text="teacherAttentionOpen ? '−' : '+'"></span>
+          <span class="w-8 h-8 flex items-center justify-center rounded-lg bg-amber-100 text-amber-700 mx-auto" x-show="sidebarMini" title="Needs attention">⚠️</span>
+        </button>
+        <div x-show="teacherAttentionOpen" x-collapse>
+          {% if sidebar_pending_submissions %}
+          <div class="flex items-center justify-between px-4 py-2.5 text-sm text-gray-600 border-b border-gray-100">
+            <span>Ungraded</span>
+            <span class="bg-amber-100 text-amber-700 text-xs font-semibold px-2 py-0.5 rounded-full">{{ sidebar_pending_submissions }}</span>
+          </div>
+          {% endif %}
+          {% if sidebar_pending_enrolments %}
+          <div class="flex items-center justify-between px-4 py-2.5 text-sm text-gray-600 border-b border-gray-100">
+            <span>Pending enrolments</span>
+            <span class="bg-blue-100 text-blue-700 text-xs font-semibold px-2 py-0.5 rounded-full">{{ sidebar_pending_enrolments }}</span>
+          </div>
+          {% endif %}
+          {% if unread_notifications_count %}
+          <a href="{% url 'notifications:list' %}" @click="sidebarOpen = false"
+             class="flex items-center justify-between px-4 py-2.5 text-sm text-gray-600 hover:bg-gray-50 transition-colors">
+            <span>Notifications</span>
+            <span class="bg-red-100 text-red-700 text-xs font-semibold px-2 py-0.5 rounded-full">{{ unread_notifications_count }}</span>
+          </a>
+          {% endif %}
+        </div>
+      </div>
+      {% endif %}
+
+      <!-- Teacher: Selected course shortcuts -->
+      {% if selected_course %}
+      <div class="bg-white border border-gray-200 rounded-xl overflow-hidden">
+        <button @click="teacherSelectedCourseOpen = !teacherSelectedCourseOpen" class="w-full flex items-center justify-between px-4 py-3 border-b border-gray-100">
+          <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider" x-show="!sidebarMini">Selected course</p>
+          <span class="text-gray-400 text-xs" x-show="!sidebarMini" x-text="teacherSelectedCourseOpen ? '−' : '+'"></span>
+          <span class="w-8 h-8 flex items-center justify-center rounded-lg bg-cyan-100 text-cyan-700 mx-auto" x-show="sidebarMini" title="Selected course">🎯</span>
+        </button>
+        <div x-show="teacherSelectedCourseOpen" x-collapse class="p-3 space-y-1">
+          <div x-show="!sidebarMini" class="px-3 pb-2">
+            <p class="text-sm font-medium text-gray-800 truncate">{{ selected_course.title }}</p>
+            <p class="text-xs text-gray-400">{{ selected_course.get_term_display }} · {{ selected_course.year }}</p>
+          </div>
+          <a href="{% url 'courses:detail' selected_course.pk %}" @click="sidebarOpen = false" class="flex items-center gap-3 px-3 py-2 text-sm rounded-lg text-gray-700 hover:bg-gray-100 transition-colors">
+            <span class="w-5 text-center">📘</span><span x-show="!sidebarMini">View Course</span>
+          </a>
+          <a href="{% url 'courses:student_roster' selected_course.pk %}" @click="sidebarOpen = false" class="flex items-center gap-3 px-3 py-2 text-sm rounded-lg text-gray-700 hover:bg-gray-100 transition-colors">
+            <span class="w-5 text-center">👥</span><span x-show="!sidebarMini">Student Roster</span>
+          </a>
+          <a href="{% url 'courses:course_analysis' selected_course.pk %}" @click="sidebarOpen = false" class="flex items-center gap-3 px-3 py-2 text-sm rounded-lg text-gray-700 hover:bg-gray-100 transition-colors">
+            <span class="w-5 text-center">📈</span><span x-show="!sidebarMini">Course Analysis</span>
+          </a>
+          <a href="{% url 'courses:enrolment_requests' selected_course.pk %}" @click="sidebarOpen = false" class="flex items-center justify-between px-3 py-2 text-sm rounded-lg text-gray-700 hover:bg-gray-100 transition-colors">
+            <span class="flex items-center gap-3"><span class="w-5 text-center">✅</span><span x-show="!sidebarMini">Enrolment Requests</span></span>
+            {% if sidebar_pending_enrolments %}
+            <span x-show="!sidebarMini" class="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">{{ sidebar_pending_enrolments }}</span>
+            {% endif %}
+          </a>
+          <a href="{% url 'courses:module_create' selected_course.pk %}" @click="sidebarOpen = false" class="flex items-center gap-3 px-3 py-2 text-sm rounded-lg text-gray-700 hover:bg-gray-100 transition-colors">
+            <span class="w-5 text-center">🗂️</span><span x-show="!sidebarMini">Add Module</span>
+          </a>
+          <a href="{% url 'assignments:create' %}?course={{ selected_course.pk }}" @click="sidebarOpen = false" class="flex items-center gap-3 px-3 py-2 text-sm rounded-lg text-gray-700 hover:bg-gray-100 transition-colors">
+            <span class="w-5 text-center">📝</span><span x-show="!sidebarMini">Add Assignment</span>
+          </a>
+          <a href="{% url 'assignments:quiz_create' %}?course={{ selected_course.pk }}" @click="sidebarOpen = false" class="flex items-center gap-3 px-3 py-2 text-sm rounded-lg text-gray-700 hover:bg-gray-100 transition-colors">
+            <span class="w-5 text-center">❓</span><span x-show="!sidebarMini">Add Quiz</span>
+          </a>
+          <a href="{% url 'announcements:create' %}?course={{ selected_course.pk }}" @click="sidebarOpen = false" class="flex items-center gap-3 px-3 py-2 text-sm rounded-lg text-gray-700 hover:bg-gray-100 transition-colors">
+            <span class="w-5 text-center">📢</span><span x-show="!sidebarMini">Add Announcement</span>
+          </a>
+          <a href="{% url 'resources:create' %}?course={{ selected_course.pk }}" @click="sidebarOpen = false" class="flex items-center gap-3 px-3 py-2 text-sm rounded-lg text-gray-700 hover:bg-gray-100 transition-colors">
+            <span class="w-5 text-center">📂</span><span x-show="!sidebarMini">Add Resource</span>
+          </a>
+        </div>
+      </div>
+      {% endif %}
+
+      <!-- Teacher: Main navigation -->
+      <div class="bg-white border border-gray-200 rounded-xl overflow-hidden">
+        <button @click="teacherMainOpen = !teacherMainOpen" class="w-full flex items-center justify-between px-4 py-3 border-b border-gray-100">
+          <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider" x-show="!sidebarMini">Navigation</p>
+          <span class="text-gray-400 text-xs" x-show="!sidebarMini" x-text="teacherMainOpen ? '−' : '+'"></span>
+          <span class="w-8 h-8 flex items-center justify-center rounded-lg bg-gray-100 text-gray-700 mx-auto" x-show="sidebarMini" title="Navigation">🧭</span>
+        </button>
+        <div x-show="teacherMainOpen" x-collapse class="p-3 space-y-1">
+          <a href="{% url 'dashboard:home' %}" @click="sidebarOpen = false" :title="sidebarMini ? 'Dashboard' : ''"
+             class="flex items-center gap-3 px-3 py-2 text-sm rounded-lg transition-colors {% if active_view_name == 'dashboard:home' %}bg-blue-50 text-blue-700 font-medium{% else %}text-gray-700 hover:bg-gray-100{% endif %}">
+            <span class="w-5 text-center">🏠</span><span x-show="!sidebarMini">Dashboard</span>
+          </a>
+          <a href="{% url 'notifications:list' %}" @click="sidebarOpen = false" :title="sidebarMini ? 'Notifications' : ''"
+             class="flex items-center justify-between px-3 py-2 text-sm rounded-lg transition-colors {% if active_app_name == 'notifications' %}bg-blue-50 text-blue-700 font-medium{% else %}text-gray-700 hover:bg-gray-100{% endif %}">
+            <span class="flex items-center gap-3"><span class="w-5 text-center">🔔</span><span x-show="!sidebarMini">Notifications</span></span>
+            {% if unread_notifications_count %}
+            <span x-show="!sidebarMini" class="text-xs bg-red-100 text-red-700 px-2 py-0.5 rounded-full">{{ unread_notifications_count }}</span>
+            {% endif %}
+          </a>
+          <a href="{% url 'courses:list' %}" @click="sidebarOpen = false" :title="sidebarMini ? 'My Courses' : ''"
+             class="flex items-center gap-3 px-3 py-2 text-sm rounded-lg transition-colors {% if active_app_name == 'courses' %}bg-blue-50 text-blue-700 font-medium{% else %}text-gray-700 hover:bg-gray-100{% endif %}">
+            <span class="w-5 text-center">📚</span><span x-show="!sidebarMini">My Courses</span>
+          </a>
+          <a href="{% url 'assignments:list' %}" @click="sidebarOpen = false" :title="sidebarMini ? 'Assignments' : ''"
+             class="flex items-center justify-between px-3 py-2 text-sm rounded-lg transition-colors {% if active_app_name == 'assignments' and active_view_name != 'assignments:quiz_list' %}bg-blue-50 text-blue-700 font-medium{% else %}text-gray-700 hover:bg-gray-100{% endif %}">
+            <span class="flex items-center gap-3"><span class="w-5 text-center">📝</span><span x-show="!sidebarMini">Assignments</span></span>
+            {% if sidebar_pending_submissions %}
+            <span x-show="!sidebarMini" class="text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full">{{ sidebar_pending_submissions }}</span>
+            {% endif %}
+          </a>
+          <a href="{% url 'assignments:quiz_list' %}" @click="sidebarOpen = false" :title="sidebarMini ? 'Quizzes' : ''"
+             class="flex items-center justify-between px-3 py-2 text-sm rounded-lg transition-colors {% if active_view_name == 'assignments:quiz_list' or active_view_name == 'assignments:quiz_create' or active_view_name == 'assignments:quiz_update' %}bg-blue-50 text-blue-700 font-medium{% else %}text-gray-700 hover:bg-gray-100{% endif %}">
+            <span class="flex items-center gap-3"><span class="w-5 text-center">❓</span><span x-show="!sidebarMini">Quizzes</span></span>
+            {% if sidebar_teacher_quiz_count %}
+            <span x-show="!sidebarMini" class="text-xs bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full">{{ sidebar_teacher_quiz_count }}</span>
+            {% endif %}
+          </a>
+          <a href="{% url 'resources:list' %}" @click="sidebarOpen = false" :title="sidebarMini ? 'Resources' : ''"
+             class="flex items-center gap-3 px-3 py-2 text-sm rounded-lg transition-colors {% if active_app_name == 'resources' %}bg-blue-50 text-blue-700 font-medium{% else %}text-gray-700 hover:bg-gray-100{% endif %}">
+            <span class="w-5 text-center">📂</span><span x-show="!sidebarMini">Resources</span>
+          </a>
+          <a href="{% url 'dashboard:analytics' %}" @click="sidebarOpen = false" :title="sidebarMini ? 'Analytics' : ''"
+             class="flex items-center gap-3 px-3 py-2 text-sm rounded-lg transition-colors {% if active_view_name == 'dashboard:analytics' %}bg-blue-50 text-blue-700 font-medium{% else %}text-gray-700 hover:bg-gray-100{% endif %}">
+            <span class="w-5 text-center">📊</span><span x-show="!sidebarMini">Analytics</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- Teacher: News -->
+      <div class="bg-white border border-gray-200 rounded-xl overflow-hidden">
+        <button @click="teacherNewsOpen = !teacherNewsOpen" class="w-full flex items-center justify-between px-4 py-3 border-b border-gray-100">
+          <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider" x-show="!sidebarMini">News</p>
+          <span class="text-gray-400 text-xs" x-show="!sidebarMini" x-text="teacherNewsOpen ? '−' : '+'"></span>
+          <span class="w-8 h-8 flex items-center justify-center rounded-lg bg-yellow-100 text-yellow-700 mx-auto" x-show="sidebarMini" title="News">📰</span>
+        </button>
+        <div x-show="teacherNewsOpen" x-collapse>
+          <a href="{% url 'news:news_list' %}" @click="sidebarOpen = false" :title="sidebarMini ? 'All News' : ''"
+             class="flex items-center gap-3 px-4 py-3 border-b border-gray-100 hover:bg-gray-50 transition-colors {% if active_app_name == 'news' and active_view_name == 'news:news_list' %}bg-blue-50{% endif %}">
+            <span class="w-8 h-8 flex items-center justify-center rounded-lg bg-yellow-100 text-yellow-700">📰</span>
+            <div x-show="!sidebarMini"><span class="text-sm font-medium text-gray-800">All News</span></div>
+          </a>
+          <a href="{% url 'news:news_create' %}" @click="sidebarOpen = false" :title="sidebarMini ? 'Create News' : ''"
+             class="flex items-center gap-3 px-4 py-3 border-b border-gray-100 hover:bg-gray-50 transition-colors {% if active_view_name == 'news:news_create' %}bg-blue-50{% endif %}">
+            <span class="w-8 h-8 flex items-center justify-center rounded-lg bg-emerald-100 text-emerald-700">➕</span>
+            <div x-show="!sidebarMini"><span class="text-sm font-medium text-gray-800">Create News</span></div>
+          </a>
+          <a href="{% url 'news:photo_news_create' %}" @click="sidebarOpen = false" :title="sidebarMini ? 'Create Photo News' : ''"
+             class="flex items-center gap-3 px-4 py-3 border-b border-gray-100 hover:bg-gray-50 transition-colors {% if active_view_name == 'news:photo_news_create' %}bg-blue-50{% endif %}">
+            <span class="w-8 h-8 flex items-center justify-center rounded-lg bg-purple-100 text-purple-700">📷</span>
+            <div x-show="!sidebarMini"><span class="text-sm font-medium text-gray-800">Create Photo News</span></div>
+          </a>
+          <a href="{% url 'news:news_admin' %}" @click="sidebarOpen = false" :title="sidebarMini ? 'Manage News' : ''"
+             class="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors {% if active_view_name == 'news:news_admin' %}bg-blue-50{% endif %}">
+            <span class="w-8 h-8 flex items-center justify-center rounded-lg bg-blue-100 text-blue-700">🛠️</span>
+            <div x-show="!sidebarMini"><span class="text-sm font-medium text-gray-800">Manage News</span></div>
+          </a>
+        </div>
+      </div>
+
+    {% elif user.is_student %}
+
+      <!-- Student: Overview -->
+      <div class="bg-white border border-gray-200 rounded-xl overflow-hidden">
+        <button @click="studentOverviewOpen = !studentOverviewOpen" class="w-full flex items-center justify-between px-4 py-3 border-b border-gray-100">
+          <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider" x-show="!sidebarMini">Overview</p>
+          <span class="text-gray-400 text-xs" x-show="!sidebarMini" x-text="studentOverviewOpen ? '−' : '+'"></span>
+          <span class="w-8 h-8 flex items-center justify-center rounded-lg bg-blue-100 text-blue-700 mx-auto" x-show="sidebarMini" title="Overview">🏠</span>
+        </button>
+        <div x-show="studentOverviewOpen" x-collapse>
+          <a href="{% url 'dashboard:home' %}" @click="sidebarOpen = false" :title="sidebarMini ? 'Dashboard' : ''"
+             class="flex items-center gap-3 px-4 py-3 border-b border-gray-100 hover:bg-gray-50 transition-colors {% if active_view_name == 'dashboard:home' %}bg-blue-50{% endif %}">
+            <span class="w-8 h-8 flex items-center justify-center rounded-lg bg-blue-100 text-blue-700">🏠</span>
+            <div x-show="!sidebarMini"><span class="text-sm font-medium text-gray-800">Dashboard</span></div>
+          </a>
+          <a href="{% url 'notifications:list' %}" @click="sidebarOpen = false" :title="sidebarMini ? 'Notifications' : ''"
+             class="flex items-center justify-between px-4 py-3 border-b border-gray-100 hover:bg-gray-50 transition-colors {% if active_app_name == 'notifications' %}bg-blue-50{% endif %}">
+            <span class="flex items-center gap-3">
+              <span class="w-8 h-8 flex items-center justify-center rounded-lg bg-red-100 text-red-700">🔔</span>
+              <span x-show="!sidebarMini" class="text-sm font-medium text-gray-800">Notifications</span>
+            </span>
+            {% if unread_notifications_count %}
+            <span x-show="!sidebarMini" class="text-xs bg-red-100 text-red-700 px-2 py-0.5 rounded-full">{{ unread_notifications_count }}</span>
+            {% endif %}
+          </a>
+          <a href="{% url 'dashboard:analytics' %}" @click="sidebarOpen = false" :title="sidebarMini ? 'Analytics' : ''"
+             class="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors {% if active_view_name == 'dashboard:analytics' %}bg-blue-50{% endif %}">
+            <span class="w-8 h-8 flex items-center justify-center rounded-lg bg-purple-100 text-purple-700">📊</span>
+            <div x-show="!sidebarMini"><span class="text-sm font-medium text-gray-800">Analytics</span></div>
+          </a>
+        </div>
+      </div>
+
+      <!-- Student: Learning -->
+      <div class="bg-white border border-gray-200 rounded-xl overflow-hidden">
+        <button @click="studentLearningOpen = !studentLearningOpen" class="w-full flex items-center justify-between px-4 py-3 border-b border-gray-100">
+          <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider" x-show="!sidebarMini">Learning</p>
+          <span class="text-gray-400 text-xs" x-show="!sidebarMini" x-text="studentLearningOpen ? '−' : '+'"></span>
+          <span class="w-8 h-8 flex items-center justify-center rounded-lg bg-green-100 text-green-700 mx-auto" x-show="sidebarMini" title="Learning">📚</span>
+        </button>
+        <div x-show="studentLearningOpen" x-collapse>
+          <a href="{% url 'courses:list' %}" @click="sidebarOpen = false" :title="sidebarMini ? 'My Courses' : ''"
+             class="flex items-center justify-between px-4 py-3 border-b border-gray-100 hover:bg-gray-50 transition-colors {% if active_app_name == 'courses' %}bg-blue-50{% endif %}">
+            <span class="flex items-center gap-3">
+              <span class="w-8 h-8 flex items-center justify-center rounded-lg bg-green-100 text-green-700">📚</span>
+              <span x-show="!sidebarMini" class="text-sm font-medium text-gray-800">My Courses</span>
+            </span>
+            {% if sidebar_student_course_count %}
+            <span x-show="!sidebarMini" class="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full">{{ sidebar_student_course_count }}</span>
+            {% endif %}
+          </a>
+          <a href="{% url 'assignments:list' %}" @click="sidebarOpen = false" :title="sidebarMini ? 'Assignments' : ''"
+             class="flex items-center justify-between px-4 py-3 border-b border-gray-100 hover:bg-gray-50 transition-colors {% if active_app_name == 'assignments' and active_view_name != 'assignments:quiz_list' %}bg-blue-50{% endif %}">
+            <span class="flex items-center gap-3">
+              <span class="w-8 h-8 flex items-center justify-center rounded-lg bg-amber-100 text-amber-700">📝</span>
+              <span x-show="!sidebarMini" class="text-sm font-medium text-gray-800">Assignments</span>
+            </span>
+            {% if sidebar_student_assignment_count %}
+            <span x-show="!sidebarMini" class="text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full">{{ sidebar_student_assignment_count }}</span>
+            {% endif %}
+          </a>
+          <a href="{% url 'assignments:quiz_list' %}" @click="sidebarOpen = false" :title="sidebarMini ? 'Quizzes' : ''"
+             class="flex items-center justify-between px-4 py-3 border-b border-gray-100 hover:bg-gray-50 transition-colors {% if active_view_name == 'assignments:quiz_list' %}bg-blue-50{% endif %}">
+            <span class="flex items-center gap-3">
+              <span class="w-8 h-8 flex items-center justify-center rounded-lg bg-indigo-100 text-indigo-700">❓</span>
+              <span x-show="!sidebarMini" class="text-sm font-medium text-gray-800">Quizzes</span>
+            </span>
+            {% if sidebar_student_quiz_count %}
+            <span x-show="!sidebarMini" class="text-xs bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded-full">{{ sidebar_student_quiz_count }}</span>
+            {% endif %}
+          </a>
+          <a href="{% url 'resources:list' %}" @click="sidebarOpen = false" :title="sidebarMini ? 'Resources' : ''"
+             class="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors {% if active_app_name == 'resources' %}bg-blue-50{% endif %}">
+            <span class="w-8 h-8 flex items-center justify-center rounded-lg bg-cyan-100 text-cyan-700">📂</span>
+            <div x-show="!sidebarMini"><span class="text-sm font-medium text-gray-800">Resources</span></div>
+          </a>
+        </div>
+      </div>
+
+      <!-- Student: Personal -->
+      <div class="bg-white border border-gray-200 rounded-xl overflow-hidden">
+        <button @click="studentPersonalOpen = !studentPersonalOpen" class="w-full flex items-center justify-between px-4 py-3 border-b border-gray-100">
+          <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider" x-show="!sidebarMini">Personal</p>
+          <span class="text-gray-400 text-xs" x-show="!sidebarMini" x-text="studentPersonalOpen ? '−' : '+'"></span>
+          <span class="w-8 h-8 flex items-center justify-center rounded-lg bg-gray-100 text-gray-700 mx-auto" x-show="sidebarMini" title="Personal">👤</span>
+        </button>
+        <div x-show="studentPersonalOpen" x-collapse>
+          <a href="{% url 'accounts:profile' %}" @click="sidebarOpen = false" :title="sidebarMini ? 'My Profile' : ''"
+             class="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors {% if active_view_name == 'accounts:profile' %}bg-blue-50{% endif %}">
+            <span class="w-8 h-8 flex items-center justify-center rounded-lg bg-gray-100 text-gray-700">👤</span>
+            <div x-show="!sidebarMini"><span class="text-sm font-medium text-gray-800">My Profile</span></div>
+          </a>
+        </div>
+      </div>
+
+    {% elif user.is_school_admin %}
+
+      <!-- Admin: Overview -->
+      <div class="bg-white border border-gray-200 rounded-xl overflow-hidden">
+        <button @click="adminOverviewOpen = !adminOverviewOpen" class="w-full flex items-center justify-between px-4 py-3 border-b border-gray-100">
+          <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider" x-show="!sidebarMini">Overview</p>
+          <span class="text-gray-400 text-xs" x-show="!sidebarMini" x-text="adminOverviewOpen ? '−' : '+'"></span>
+          <span class="w-8 h-8 flex items-center justify-center rounded-lg bg-blue-100 text-blue-700 mx-auto" x-show="sidebarMini" title="Overview">🏠</span>
+        </button>
+        <div x-show="adminOverviewOpen" x-collapse>
+          <a href="{% url 'dashboard:home' %}" @click="sidebarOpen = false" :title="sidebarMini ? 'Dashboard' : ''"
+             class="flex items-center gap-3 px-4 py-3 border-b border-gray-100 hover:bg-gray-50 transition-colors {% if active_view_name == 'dashboard:home' %}bg-blue-50{% endif %}">
+            <span class="w-8 h-8 flex items-center justify-center rounded-lg bg-blue-100 text-blue-700">🏠</span>
+            <div x-show="!sidebarMini"><span class="text-sm font-medium text-gray-800">Dashboard</span></div>
+          </a>
+          <a href="{% url 'notifications:list' %}" @click="sidebarOpen = false" :title="sidebarMini ? 'Notifications' : ''"
+             class="flex items-center justify-between px-4 py-3 border-b border-gray-100 hover:bg-gray-50 transition-colors {% if active_app_name == 'notifications' %}bg-blue-50{% endif %}">
+            <span class="flex items-center gap-3">
+              <span class="w-8 h-8 flex items-center justify-center rounded-lg bg-red-100 text-red-700">🔔</span>
+              <span x-show="!sidebarMini" class="text-sm font-medium text-gray-800">Notifications</span>
+            </span>
+            {% if unread_notifications_count %}
+            <span x-show="!sidebarMini" class="text-xs bg-red-100 text-red-700 px-2 py-0.5 rounded-full">{{ unread_notifications_count }}</span>
+            {% endif %}
+          </a>
+          <a href="{% url 'dashboard:analytics' %}" @click="sidebarOpen = false" :title="sidebarMini ? 'Analytics' : ''"
+             class="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors {% if active_view_name == 'dashboard:analytics' %}bg-blue-50{% endif %}">
+            <span class="w-8 h-8 flex items-center justify-center rounded-lg bg-purple-100 text-purple-700">📊</span>
+            <div x-show="!sidebarMini"><span class="text-sm font-medium text-gray-800">Analytics</span></div>
+          </a>
+        </div>
+      </div>
+
+      <!-- Admin: Quick actions -->
+      <div class="bg-white border border-gray-200 rounded-xl overflow-hidden">
+        <button @click="adminQuickOpen = !adminQuickOpen" class="w-full flex items-center justify-between px-4 py-3 border-b border-gray-100">
+          <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider" x-show="!sidebarMini">Quick actions</p>
+          <span class="text-gray-400 text-xs" x-show="!sidebarMini" x-text="adminQuickOpen ? '−' : '+'"></span>
+          <span class="w-8 h-8 flex items-center justify-center rounded-lg bg-emerald-100 text-emerald-700 mx-auto" x-show="sidebarMini" title="Quick actions">➕</span>
+        </button>
+        <div x-show="adminQuickOpen" x-collapse class="p-3 space-y-1">
+          <a href="{% url 'courses:create' %}" @click="sidebarOpen = false" :title="sidebarMini ? 'Create Course' : ''" class="flex items-center gap-3 px-3 py-2 text-sm rounded-lg text-gray-700 hover:bg-gray-100 transition-colors">
+            <span class="w-5 text-center">📚</span><span x-show="!sidebarMini">Create Course</span>
+          </a>
+          <a href="{% url 'assignments:create' %}" @click="sidebarOpen = false" :title="sidebarMini ? 'Create Assignment' : ''" class="flex items-center gap-3 px-3 py-2 text-sm rounded-lg text-gray-700 hover:bg-gray-100 transition-colors">
+            <span class="w-5 text-center">📝</span><span x-show="!sidebarMini">Create Assignment</span>
+          </a>
+          <a href="{% url 'assignments:quiz_create' %}" @click="sidebarOpen = false" :title="sidebarMini ? 'Create Quiz' : ''" class="flex items-center gap-3 px-3 py-2 text-sm rounded-lg text-gray-700 hover:bg-gray-100 transition-colors">
+            <span class="w-5 text-center">❓</span><span x-show="!sidebarMini">Create Quiz</span>
+          </a>
+          <a href="{% url 'announcements:create' %}" @click="sidebarOpen = false" :title="sidebarMini ? 'Create Announcement' : ''" class="flex items-center gap-3 px-3 py-2 text-sm rounded-lg text-gray-700 hover:bg-gray-100 transition-colors">
+            <span class="w-5 text-center">📢</span><span x-show="!sidebarMini">Create Announcement</span>
+          </a>
+          <a href="{% url 'resources:create' %}" @click="sidebarOpen = false" :title="sidebarMini ? 'Upload Resource' : ''" class="flex items-center gap-3 px-3 py-2 text-sm rounded-lg text-gray-700 hover:bg-gray-100 transition-colors">
+            <span class="w-5 text-center">📂</span><span x-show="!sidebarMini">Upload Resource</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- Admin: Management -->
+      <div class="bg-white border border-gray-200 rounded-xl overflow-hidden">
+        <button @click="adminManagementOpen = !adminManagementOpen" class="w-full flex items-center justify-between px-4 py-3 border-b border-gray-100">
+          <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider" x-show="!sidebarMini">Management</p>
+          <span class="text-gray-400 text-xs" x-show="!sidebarMini" x-text="adminManagementOpen ? '−' : '+'"></span>
+          <span class="w-8 h-8 flex items-center justify-center rounded-lg bg-green-100 text-green-700 mx-auto" x-show="sidebarMini" title="Management">🛠️</span>
+        </button>
+        <div x-show="adminManagementOpen" x-collapse>
+          <a href="{% url 'courses:list' %}" @click="sidebarOpen = false" :title="sidebarMini ? 'Courses' : ''"
+             class="flex items-center justify-between px-4 py-3 border-b border-gray-100 hover:bg-gray-50 transition-colors {% if active_app_name == 'courses' %}bg-blue-50{% endif %}">
+            <span class="flex items-center gap-3">
+              <span class="w-8 h-8 flex items-center justify-center rounded-lg bg-green-100 text-green-700">📚</span>
+              <span x-show="!sidebarMini" class="text-sm font-medium text-gray-800">Courses</span>
+            </span>
+            {% if sidebar_admin_course_count %}
+            <span x-show="!sidebarMini" class="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full">{{ sidebar_admin_course_count }}</span>
+            {% endif %}
+          </a>
+          <a href="{% url 'assignments:list' %}" @click="sidebarOpen = false" :title="sidebarMini ? 'Assignments' : ''"
+             class="flex items-center gap-3 px-4 py-3 border-b border-gray-100 hover:bg-gray-50 transition-colors {% if active_app_name == 'assignments' and active_view_name != 'assignments:quiz_list' %}bg-blue-50{% endif %}">
+            <span class="w-8 h-8 flex items-center justify-center rounded-lg bg-amber-100 text-amber-700">📝</span>
+            <div x-show="!sidebarMini"><span class="text-sm font-medium text-gray-800">Assignments</span></div>
+          </a>
+          <a href="{% url 'assignments:quiz_list' %}" @click="sidebarOpen = false" :title="sidebarMini ? 'Quizzes' : ''"
+             class="flex items-center gap-3 px-4 py-3 border-b border-gray-100 hover:bg-gray-50 transition-colors {% if active_view_name == 'assignments:quiz_list' %}bg-blue-50{% endif %}">
+            <span class="w-8 h-8 flex items-center justify-center rounded-lg bg-indigo-100 text-indigo-700">❓</span>
+            <div x-show="!sidebarMini"><span class="text-sm font-medium text-gray-800">Quizzes</span></div>
+          </a>
+          <a href="{% url 'resources:list' %}" @click="sidebarOpen = false" :title="sidebarMini ? 'Resources' : ''"
+             class="flex items-center gap-3 px-4 py-3 border-b border-gray-100 hover:bg-gray-50 transition-colors {% if active_app_name == 'resources' %}bg-blue-50{% endif %}">
+            <span class="w-8 h-8 flex items-center justify-center rounded-lg bg-cyan-100 text-cyan-700">📂</span>
+            <div x-show="!sidebarMini"><span class="text-sm font-medium text-gray-800">Resources</span></div>
+          </a>
+          <a href="{% url 'announcements:list' %}" @click="sidebarOpen = false" :title="sidebarMini ? 'Announcements' : ''"
+             class="flex items-center gap-3 px-4 py-3 border-b border-gray-100 hover:bg-gray-50 transition-colors {% if active_app_name == 'announcements' %}bg-blue-50{% endif %}">
+            <span class="w-8 h-8 flex items-center justify-center rounded-lg bg-pink-100 text-pink-700">📢</span>
+            <div x-show="!sidebarMini"><span class="text-sm font-medium text-gray-800">Announcements</span></div>
+          </a>
+          <a href="{% url 'dashboard:users_configuration' %}" @click="sidebarOpen = false" :title="sidebarMini ? 'Users Configuration' : ''"
+             class="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors {% if active_view_name == 'dashboard:users_configuration' %}bg-blue-50{% endif %}">
+            <span class="w-8 h-8 flex items-center justify-center rounded-lg bg-indigo-100 text-indigo-700">👥</span>
+            <div x-show="!sidebarMini"><span class="text-sm font-medium text-gray-800">Users Configuration</span></div>
+          </a>
+          <a href="{% url 'mainapp:about_dashboard' %}"
+              class="flex items-center gap-3 px-4 py-3 rounded-xl transition
+              {% if '/dashboard/about/' in request.path %}
+                  bg-[#800000] text-white
+              {% else %}
+                  text-gray-700 hover:bg-[#800000] hover:text-white
+              {% endif %}">
+                <span>🏫</span>
+                <span>About Us Management</span>
+            </a>
+        </div>
+      </div>
+
+      <!-- Admin: News -->
+      <div class="bg-white border border-gray-200 rounded-xl overflow-hidden">
+        <button @click="adminNewsOpen = !adminNewsOpen" class="w-full flex items-center justify-between px-4 py-3 border-b border-gray-100">
+          <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider" x-show="!sidebarMini">News</p>
+          <span class="text-gray-400 text-xs" x-show="!sidebarMini" x-text="adminNewsOpen ? '−' : '+'"></span>
+          <span class="w-8 h-8 flex items-center justify-center rounded-lg bg-yellow-100 text-yellow-700 mx-auto" x-show="sidebarMini" title="News">📰</span>
+        </button>
+        <div x-show="adminNewsOpen" x-collapse>
+          <a href="{% url 'news:news_list' %}" @click="sidebarOpen = false" :title="sidebarMini ? 'All News' : ''"
+             class="flex items-center gap-3 px-4 py-3 border-b border-gray-100 hover:bg-gray-50 transition-colors {% if active_app_name == 'news' and active_view_name == 'news:news_list' %}bg-blue-50{% endif %}">
+            <span class="w-8 h-8 flex items-center justify-center rounded-lg bg-yellow-100 text-yellow-700">📰</span>
+            <div x-show="!sidebarMini"><span class="text-sm font-medium text-gray-800">All News</span></div>
+          </a>
+          <a href="{% url 'news:news_create' %}" @click="sidebarOpen = false" :title="sidebarMini ? 'Create News' : ''"
+             class="flex items-center gap-3 px-4 py-3 border-b border-gray-100 hover:bg-gray-50 transition-colors {% if active_view_name == 'news:news_create' %}bg-blue-50{% endif %}">
+            <span class="w-8 h-8 flex items-center justify-center rounded-lg bg-emerald-100 text-emerald-700">➕</span>
+            <div x-show="!sidebarMini"><span class="text-sm font-medium text-gray-800">Create News</span></div>
+          </a>
+          <a href="{% url 'news:photo_news_create' %}" @click="sidebarOpen = false" :title="sidebarMini ? 'Create Photo News' : ''"
+             class="flex items-center gap-3 px-4 py-3 border-b border-gray-100 hover:bg-gray-50 transition-colors {% if active_view_name == 'news:photo_news_create' %}bg-blue-50{% endif %}">
+            <span class="w-8 h-8 flex items-center justify-center rounded-lg bg-purple-100 text-purple-700">📷</span>
+            <div x-show="!sidebarMini"><span class="text-sm font-medium text-gray-800">Create Photo News</span></div>
+          </a>
+          <a href="{% url 'news:news_admin' %}" @click="sidebarOpen = false" :title="sidebarMini ? 'Manage News' : ''"
+             class="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors {% if active_view_name == 'news:news_admin' %}bg-blue-50{% endif %}">
+            <span class="w-8 h-8 flex items-center justify-center rounded-lg bg-blue-100 text-blue-700">🛠️</span>
+            <div x-show="!sidebarMini"><span class="text-sm font-medium text-gray-800">Manage News</span></div>
+          </a>
+        </div>
+      </div>
+
+    {% endif %}
+
+  </div>
+</div>

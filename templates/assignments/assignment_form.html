@@ -1,0 +1,139 @@
+{% extends 'dashboard_base.html' %}
+
+{% block title %}Create New Assignment — Kalabu Secondary School{% endblock %}
+
+{% block dashboard_content %}
+<div class="max-w-4xl mx-auto px-4 py-10">
+
+    <div class="bg-white dark:bg-gray-800 rounded-3xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
+        
+        <!-- Header -->
+        <div class="px-8 py-6 border-b border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
+            <h1 class="text-3xl font-semibold text-gray-900 dark:text-white">Create New Assignment</h1>
+            <p class="text-gray-600 dark:text-gray-400 mt-1">Fill in the details below for your students.</p>
+        </div>
+
+        <!-- Form -->
+        <div class="p-8">
+            <form method="post" enctype="multipart/form-data" class="space-y-8">
+                {% csrf_token %}
+
+                {% if form.errors %}
+                <div class="bg-red-50 border border-red-200 text-red-700 px-5 py-4 rounded-2xl">
+                    <p class="font-medium">Please correct the following errors:</p>
+                    <ul class="list-disc list-inside text-sm mt-2">
+                        {% for field in form %}
+                            {% if field.errors %}
+                                {% for error in field.errors %}
+                                    <li>{{ field.label }}: {{ error }}</li>
+                                {% endfor %}
+                            {% endif %}
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% endif %}
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Course -->
+                    <div>
+                        {{ form.course.label_tag }}
+                        {{ form.course }}
+                        {{ form.course.errors }}
+                    </div>
+
+                    <!-- Title -->
+                    <div>
+                        {{ form.title.label_tag }}
+                        {{ form.title }}
+                        {{ form.title.errors }}
+                    </div>
+                </div>
+
+                <div>
+                    {{ form.status.label_tag }}
+                    {{ form.status }}
+                    {{ form.status.errors }}
+                    <p class="text-xs text-gray-500 mt-1">Use drafts for preparation, publish when students should see it, archive when the cycle is finished.</p>
+                </div>
+
+                <!-- Description -->
+                <div>
+                    {{ form.description.label_tag }}
+                    {{ form.description }}
+                    {{ form.description.errors }}
+                </div>
+
+                <!-- Instructions -->
+                <div>
+                    {{ form.instructions.label_tag }}
+                    {{ form.instructions }}
+                    {{ form.instructions.errors }}
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Available From -->
+                    <div>
+                        {{ form.available_from.label_tag }}
+                        {{ form.available_from }}
+                        {{ form.available_from.errors }}
+                    </div>
+
+                    <!-- Due Date -->
+                    <div>
+                        {{ form.due_date.label_tag }}
+                        {{ form.due_date }}
+                        {{ form.due_date.errors }}
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Total Points -->
+                    <div>
+                        {{ form.total_points.label_tag }}
+                        {{ form.total_points }}
+                        {{ form.total_points.errors }}
+                    </div>
+
+                    <!-- Attachment (Optional) -->
+                    <div>
+                        {{ form.attachment.label_tag }}
+                        {{ form.attachment }}
+                        {{ form.attachment.errors }}
+                        <p class="text-xs text-gray-500 mt-1">Optional: Upload reference file or rubric</p>
+                    </div>
+                </div>
+
+                <!-- Late Submission Options -->
+                <div class="bg-gray-50 dark:bg-gray-900 p-6 rounded-2xl border border-gray-100 dark:border-gray-700">
+                    <div class="flex items-center gap-3">
+                        {{ form.allow_late_submission }}
+                        {{ form.allow_late_submission.label_tag }}
+                    </div>
+                    
+                    {% if form.allow_late_submission.value %}
+                    <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            {{ form.late_penalty_percent.label_tag }}
+                            {{ form.late_penalty_percent }}
+                            {{ form.late_penalty_percent.errors }}
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="flex justify-end gap-4 pt-6 border-t border-gray-100 dark:border-gray-700">
+                    <a href="{% url 'assignments:list' %}" 
+                       class="px-6 py-3 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-2xl hover:bg-gray-50 dark:hover:bg-gray-700 transition font-medium">
+                        Cancel
+                    </a>
+                    <button type="submit" 
+                            class="px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-2xl transition shadow-sm">
+                        {% if object %}Save Assignment{% else %}Create Assignment{% endif %}
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

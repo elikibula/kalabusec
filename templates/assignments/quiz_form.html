@@ -1,0 +1,130 @@
+{% extends 'dashboard_base.html' %}
+
+{% block title %}{% if form.instance.pk %}Edit Quiz{% else %}Create New Quiz{% endif %}{% endblock %}
+
+{% block dashboard_content %}
+<div class="max-w-4xl mx-auto py-10 px-4">
+    <div class="bg-white dark:bg-gray-800 rounded-3xl shadow-lg p-8">
+        <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-8">
+            {% if form.instance.pk %}Edit Quiz{% else %}Create New Quiz{% endif %}
+        </h1>
+
+        <form method="post" class="space-y-8">
+            {% csrf_token %}
+
+            <!-- Course + Title -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                        {{ form.course.label }}
+                    </label>
+                    {{ form.course }}
+                    {% if form.course.errors %}
+                        <p class="text-red-500 text-sm mt-1">{{ form.course.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                        {{ form.title.label }}
+                    </label>
+                    {{ form.title }}
+                    {% if form.title.errors %}
+                        <p class="text-red-500 text-sm mt-1">{{ form.title.errors.0 }}</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Description -->
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                    {{ form.description.label }}
+                </label>
+                {{ form.description }}
+                {% if form.description.errors %}
+                    <p class="text-red-500 text-sm mt-1">{{ form.description.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <!-- Time + Points -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                        {{ form.time_limit_minutes.label }}
+                    </label>
+                    {{ form.time_limit_minutes }}
+                </div>
+
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                        {{ form.total_points.label }}
+                    </label>
+                    {{ form.total_points }}
+                </div>
+            </div>
+
+            <!-- Available Dates -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                        {{ form.available_from.label }}
+                    </label>
+                    {{ form.available_from }}
+                </div>
+
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                        {{ form.available_until.label }}
+                    </label>
+                    {{ form.available_until }}
+                </div>
+            </div>
+
+            <!-- Settings -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                        {{ form.allow_multiple_attempts.label }}
+                    </label>
+                    {{ form.allow_multiple_attempts }}
+                </div>
+
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                        {{ form.max_attempts.label }}
+                    </label>
+                    {{ form.max_attempts }}
+                </div>
+
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                        {{ form.show_correct_answers.label }}
+                    </label>
+                    {{ form.show_correct_answers }}
+                </div>
+            </div>
+
+            <!-- Shuffle -->
+            <div class="pt-6 border-t border-gray-200 dark:border-gray-700">
+                <label class="flex items-center gap-3 text-sm font-medium text-gray-700 dark:text-gray-300">
+                    {{ form.shuffle_questions }}
+                    <span>{{ form.shuffle_questions.label }}</span>
+                </label>
+            </div>
+
+            <!-- Buttons -->
+            <div class="flex gap-4 pt-6">
+                <button type="submit"
+                        class="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-4 rounded-2xl font-semibold text-lg transition shadow-md">
+                    {% if form.instance.pk %}Update Quiz{% else %}Create Quiz{% endif %}
+                </button>
+
+                <a href="{% url 'assignments:quiz_list' %}"
+                class="flex-1 text-center py-4 border border-gray-300 dark:border-gray-600 rounded-2xl font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition">
+                    Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

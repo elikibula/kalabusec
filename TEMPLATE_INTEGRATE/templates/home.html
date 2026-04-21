@@ -1,0 +1,346 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Home - Kalabu Secondary School{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="bg-gradient-to-r from-blue-500 to-purple-600 text-white py-20">
+    <div class="container mx-auto px-6 text-center">
+        <h1 class="text-4xl md:text-6xl font-bold mb-6">Kalabu Secondary School</h1>
+        <p class="text-xl md:text-2xl mb-8">Strive to attain excellence.</p>
+        <div class="flex flex-col md:flex-row justify-center gap-4">
+            <a href="#projects" class="bg-white text-blue-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition duration-300">Browse Projects</a>
+            <a href="#" class="bg-transparent border-2 border-white px-8 py-3 rounded-lg font-semibold hover:bg-white hover:text-blue-600 transition duration-300">Submit Project</a>
+        </div>
+    </div>
+</section>
+
+<!-- Projects Section -->
+<section id="projects" class="py-16 bg-gray-50 dark:bg-gray-900">
+    <div class="container mx-auto px-6">
+        <h2 class="text-3xl font-bold text-center text-gray-800 dark:text-white mb-12">Featured Projects</h2>
+        
+        <!-- Filter/Sort Controls -->
+        <div class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
+            <div class="flex items-center space-x-4">
+                <button id="filter-button" class="flex items-center space-x-2 bg-white dark:bg-gray-800 px-4 py-2 rounded-lg shadow-sm hover:bg-gray-50 dark:hover:bg-gray-700">
+                    <i class="fas fa-filter"></i>
+                    <span class="dark:text-white">Filters</span>
+                </button>
+                
+                <div id="filter-dropdown" class="hidden absolute mt-64 bg-white dark:bg-gray-800 shadow-lg rounded-lg p-4 z-50 w-64">
+                    <div class="mb-4">
+                        <h3 class="font-semibold mb-2 dark:text-white">Category</h3>
+                        <select title="Filter by category" class="w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                            <option>All Categories</option>
+                            <option>Web Application</option>
+                            <option>Mobile App</option>
+                            <option>Library</option>
+                            <option>Utility</option>
+                        </select>
+                    </div>
+                    <div class="mb-4">
+                        <h3 class="font-semibold mb-2 dark:text-white">Language</h3>
+                        <select title="Filter by language" class="w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                            <option>All Languages</option>
+                            <option>JavaScript</option>
+                            <option>Python</option>
+                            <option>Java</option>
+                            <option>C++</option>
+                        </select>
+                    </div>
+                    <button class="mt-4 w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700">Apply Filters</button>
+                </div>
+                
+                <div class="flex items-center space-x-2">
+                    <span class="dark:text-white">Sort by:</span>
+                    <select class="bg-white dark:bg-gray-800 dark:text-white p-2 rounded border dark:border-gray-600" title="Sort projects">
+                        <option>Most Popular</option>
+                        <option>Newest</option>
+                        <option>Recently Updated</option>
+                        <option>Most Stars</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="flex items-center space-x-2">
+                <span class="dark:text-white">View:</span>
+                <button type="button" title="Grid View" class="p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-700 dark:text-white">
+                    <i class="fas fa-th-large"></i>
+                </button>
+                <button type="button" title="List View" class="p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-700 dark:text-white">
+                    <i class="fas fa-list"></i>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Project Grid -->
+        <div id="projects-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Project Card 1 -->
+            <div class="project-card bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300">
+                <div class="p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <span class="bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 text-xs font-semibold px-3 py-1 rounded-full">Web Application</span>
+                        <span class="text-gray-500 dark:text-gray-400 text-sm">2 days ago</span>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-800 dark:text-white mb-2">Student Portal System</h3>
+                    <p class="text-gray-600 dark:text-gray-300 mb-4">A comprehensive student management system built with Django and React</p>
+                    <div class="flex items-center mb-4 space-x-4">
+                        <span class="flex items-center text-sm text-gray-500 dark:text-gray-400">
+                            <i class="fas fa-star text-yellow-500 mr-1"></i> 4.8
+                        </span>
+                        <span class="flex items-center text-sm text-gray-500 dark:text-gray-400">
+                            <i class="fas fa-code-branch mr-1"></i> 23 forks
+                        </span>
+                        <span class="flex items-center text-sm text-gray-500 dark:text-gray-400">
+                            <i class="fas fa-eye mr-1"></i> 156 views
+                        </span>
+                    </div>
+                    <div class="flex flex-wrap gap-2 mb-4">
+                        <span class="bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-xs px-2 py-1 rounded">Django</span>
+                        <span class="bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-xs px-2 py-1 rounded">React</span>
+                        <span class="bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-xs px-2 py-1 rounded">PostgreSQL</span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center">
+                            <img src="https://ui-avatars.com/api/?name=John+Doe&background=random" alt="Author" class="w-8 h-8 rounded-full mr-2">
+                            <span class="text-sm text-gray-700 dark:text-gray-300">John Doe</span>
+                        </div>
+                        <a href="#" class="text-blue-600 dark:text-blue-400 hover:underline text-sm font-semibold">Details →</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Project Card 2 -->
+            <div class="project-card bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300">
+                <div class="p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <span class="bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 text-xs font-semibold px-3 py-1 rounded-full">Mobile App</span>
+                        <span class="text-gray-500 dark:text-gray-400 text-sm">1 week ago</span>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-800 dark:text-white mb-2">Library Management App</h3>
+                    <p class="text-gray-600 dark:text-gray-300 mb-4">Track books, manage borrowing, and digital catalog with Flutter</p>
+                    <div class="flex items-center mb-4 space-x-4">
+                        <span class="flex items-center text-sm text-gray-500 dark:text-gray-400">
+                            <i class="fas fa-star text-yellow-500 mr-1"></i> 4.5
+                        </span>
+                        <span class="flex items-center text-sm text-gray-500 dark:text-gray-400">
+                            <i class="fas fa-code-branch mr-1"></i> 12 forks
+                        </span>
+                        <span class="flex items-center text-sm text-gray-500 dark:text-gray-400">
+                            <i class="fas fa-eye mr-1"></i> 98 views
+                        </span>
+                    </div>
+                    <div class="flex flex-wrap gap-2 mb-4">
+                        <span class="bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-xs px-2 py-1 rounded">Flutter</span>
+                        <span class="bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-xs px-2 py-1 rounded">Firebase</span>
+                        <span class="bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-xs px-2 py-1 rounded">Dart</span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center">
+                            <img src="https://ui-avatars.com/api/?name=Jane+Smith&background=random" alt="Author" class="w-8 h-8 rounded-full mr-2">
+                            <span class="text-sm text-gray-700 dark:text-gray-300">Jane Smith</span>
+                        </div>
+                        <a href="#" class="text-blue-600 dark:text-blue-400 hover:underline text-sm font-semibold">Details →</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Project Card 3 -->
+            <div class="project-card bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300">
+                <div class="p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <span class="bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200 text-xs font-semibold px-3 py-1 rounded-full">Utility</span>
+                        <span class="text-gray-500 dark:text-gray-400 text-sm">3 days ago</span>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-800 dark:text-white mb-2">Grade Calculator</h3>
+                    <p class="text-gray-600 dark:text-gray-300 mb-4">Calculate GPA and track academic performance with ease</p>
+                    <div class="flex items-center mb-4 space-x-4">
+                        <span class="flex items-center text-sm text-gray-500 dark:text-gray-400">
+                            <i class="fas fa-star text-yellow-500 mr-1"></i> 4.9
+                        </span>
+                        <span class="flex items-center text-sm text-gray-500 dark:text-gray-400">
+                            <i class="fas fa-code-branch mr-1"></i> 8 forks
+                        </span>
+                        <span class="flex items-center text-sm text-gray-500 dark:text-gray-400">
+                            <i class="fas fa-eye mr-1"></i> 234 views
+                        </span>
+                    </div>
+                    <div class="flex flex-wrap gap-2 mb-4">
+                        <span class="bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-xs px-2 py-1 rounded">Python</span>
+                        <span class="bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-xs px-2 py-1 rounded">Tkinter</span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center">
+                            <img src="https://ui-avatars.com/api/?name=Mike+Wilson&background=random" alt="Author" class="w-8 h-8 rounded-full mr-2">
+                            <span class="text-sm text-gray-700 dark:text-gray-300">Mike Wilson</span>
+                        </div>
+                        <a href="#" class="text-blue-600 dark:text-blue-400 hover:underline text-sm font-semibold">Details →</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Load More Button -->
+        <div class="text-center mt-12">
+            <button class="bg-blue-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-blue-700 transition duration-300">
+                Load More Projects
+            </button>
+        </div>
+    </div>
+</section>
+
+<!-- Categories Section -->
+<section id="categories" class="py-16 bg-white dark:bg-gray-800">
+    <div class="container mx-auto px-6">
+        <h2 class="text-3xl font-bold text-center text-gray-800 dark:text-white mb-12">Browse by Category</h2>
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+            <div class="bg-blue-50 dark:bg-blue-900/20 p-6 rounded-lg text-center hover:shadow-lg transition-shadow cursor-pointer">
+                <i class="fas fa-laptop-code text-4xl text-blue-600 dark:text-blue-400 mb-3"></i>
+                <h3 class="font-semibold text-gray-800 dark:text-white mb-1">Web Apps</h3>
+                <p class="text-sm text-gray-600 dark:text-gray-400">45 projects</p>
+            </div>
+            <div class="bg-green-50 dark:bg-green-900/20 p-6 rounded-lg text-center hover:shadow-lg transition-shadow cursor-pointer">
+                <i class="fas fa-mobile-alt text-4xl text-green-600 dark:text-green-400 mb-3"></i>
+                <h3 class="font-semibold text-gray-800 dark:text-white mb-1">Mobile Apps</h3>
+                <p class="text-sm text-gray-600 dark:text-gray-400">32 projects</p>
+            </div>
+            <div class="bg-purple-50 dark:bg-purple-900/20 p-6 rounded-lg text-center hover:shadow-lg transition-shadow cursor-pointer">
+                <i class="fas fa-robot text-4xl text-purple-600 dark:text-purple-400 mb-3"></i>
+                <h3 class="font-semibold text-gray-800 dark:text-white mb-1">AI/ML</h3>
+                <p class="text-sm text-gray-600 dark:text-gray-400">28 projects</p>
+            </div>
+            <div class="bg-yellow-50 dark:bg-yellow-900/20 p-6 rounded-lg text-center hover:shadow-lg transition-shadow cursor-pointer">
+                <i class="fas fa-gamepad text-4xl text-yellow-600 dark:text-yellow-400 mb-3"></i>
+                <h3 class="font-semibold text-gray-800 dark:text-white mb-1">Games</h3>
+                <p class="text-sm text-gray-600 dark:text-gray-400">19 projects</p>
+            </div>
+            <div class="bg-red-50 dark:bg-red-900/20 p-6 rounded-lg text-center hover:shadow-lg transition-shadow cursor-pointer">
+                <i class="fas fa-tools text-4xl text-red-600 dark:text-red-400 mb-3"></i>
+                <h3 class="font-semibold text-gray-800 dark:text-white mb-1">Utilities</h3>
+                <p class="text-sm text-gray-600 dark:text-gray-400">52 projects</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- About Section -->
+<section id="about" class="py-16 bg-gray-50 dark:bg-gray-900">
+    <div class="container mx-auto px-6">
+        <h2 class="text-3xl font-bold text-center text-gray-800 dark:text-white mb-12">About Kalabu Secondary School</h2>
+        <div class="max-w-3xl mx-auto text-center">
+            <p class="text-lg text-gray-600 dark:text-gray-300 mb-6">
+                We are a community of passionate students and educators dedicated to fostering innovation, creativity, and technical excellence. 
+                Our project showcase platform allows students to share their work, collaborate with peers, and gain recognition for their achievements.
+            </p>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mt-12">
+                <div class="text-center">
+                    <div class="text-4xl font-bold text-blue-600 dark:text-blue-400 mb-2">250+</div>
+                    <div class="text-gray-600 dark:text-gray-400">Projects</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-4xl font-bold text-blue-600 dark:text-blue-400 mb-2">500+</div>
+                    <div class="text-gray-600 dark:text-gray-400">Students</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-4xl font-bold text-blue-600 dark:text-blue-400 mb-2">50+</div>
+                    <div class="text-gray-600 dark:text-gray-400">Teachers</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Contact Section -->
+<section id="contact" class="py-16 bg-white dark:bg-gray-800">
+    <div class="container mx-auto px-6">
+        <h2 class="text-3xl font-bold text-center text-gray-800 dark:text-white mb-12">Get in Touch</h2>
+        <div class="max-w-2xl mx-auto">
+            <form id="contact-form" class="space-y-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label for="name" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Name</label>
+                        <input type="text" id="name" name="name" required
+                            class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white">
+                    </div>
+                    <div>
+                        <label for="email" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Email</label>
+                        <input type="email" id="email" name="email" required
+                            class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white">
+                    </div>
+                </div>
+                <div>
+                    <label for="subject" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Subject</label>
+                    <input type="text" id="subject" name="subject" required
+                        class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white">
+                </div>
+                <div>
+                    <label for="message" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Message</label>
+                    <textarea id="message" name="message" rows="5" required
+                        class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"></textarea>
+                </div>
+                <div class="text-center">
+                    <button type="submit" class="bg-blue-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-blue-700 transition duration-300">
+                        Send Message
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Filter button toggle
+    const filterButton = document.getElementById('filter-button');
+    const filterDropdown = document.getElementById('filter-dropdown');
+    
+    filterButton.addEventListener('click', () => {
+        filterDropdown.classList.toggle('hidden');
+    });
+    
+    // Close filter dropdown when clicking outside
+    document.addEventListener('click', (e) => {
+        if (!filterButton.contains(e.target) && !filterDropdown.contains(e.target)) {
+            filterDropdown.classList.add('hidden');
+        }
+    });
+    
+    // Search functionality (if you want to implement it)
+    const searchInput = document.getElementById('search-input');
+    const searchResults = document.getElementById('search-results');
+    
+    if (searchInput) {
+        searchInput.addEventListener('input', (e) => {
+            const query = e.target.value.trim();
+            if (query.length > 2) {
+                // Implement search logic here
+                // For now, just show a message
+                searchResults.innerHTML = `<div class="px-4 py-2 text-gray-500 dark:text-gray-400">Searching for "${query}"...</div>`;
+                searchResults.classList.remove('hidden');
+            } else {
+                searchResults.classList.add('hidden');
+            }
+        });
+        
+        document.addEventListener('click', (e) => {
+            if (e.target !== searchInput) {
+                searchResults.classList.add('hidden');
+            }
+        });
+    }
+    
+    // Contact form submission
+    const contactForm = document.getElementById('contact-form');
+    contactForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const formData = new FormData(contactForm);
+        const data = Object.fromEntries(formData.entries());
+        console.log('Contact Form Data:', data);
+        alert('Thank you for contacting us! We will get back to you soon.');
+        contactForm.reset();
+    });
+</script>
+{% endblock %}

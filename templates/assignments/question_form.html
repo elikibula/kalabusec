@@ -1,0 +1,135 @@
+{% extends 'dashboard_base.html' %}
+
+{% block title %}{% if form.instance.pk %}Edit Question{% else %}Add New Question{% endif %}{% endblock %}
+
+{% block dashboard_content %}
+<div class="max-w-4xl mx-auto py-10 px-4">
+    <div class="bg-white dark:bg-gray-800 rounded-3xl shadow-lg p-8">
+        <h1 class="text-3xl font-bold mb-2">
+            {% if form.instance.pk %}Edit Question{% else %}Add New Question{% endif %}
+        </h1>
+        <p class="text-gray-600 dark:text-gray-400 mb-8">Quiz: <strong>{{ quiz.title }}</strong></p>
+
+        <form method="post" class="space-y-8">
+            {% csrf_token %}
+
+            <!-- Question Text -->
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                    {{ form.question_text.label }}
+                </label>
+                {{ form.question_text }}
+                {% if form.question_text.errors %}
+                    <p class="text-red-500 text-sm mt-1">{{ form.question_text.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <!-- Type + Points -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                        {{ form.question_type.label }}
+                    </label>
+                    {{ form.question_type }}
+                    {% if form.question_type.errors %}
+                        <p class="text-red-500 text-sm mt-1">{{ form.question_type.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                        {{ form.points.label }}
+                    </label>
+                    {{ form.points }}
+                    {% if form.points.errors %}
+                        <p class="text-red-500 text-sm mt-1">{{ form.points.errors.0 }}</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Order -->
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                    {{ form.order.label }}
+                </label>
+                {{ form.order }}
+                {% if form.order.errors %}
+                    <p class="text-red-500 text-sm mt-1">{{ form.order.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <!-- Choices -->
+            <div id="choices-field">
+                <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                    {{ form.choices.label }}
+                </label>
+                {{ form.choices }}
+                {% if form.choices.errors %}
+                    <p class="text-red-500 text-sm mt-1">{{ form.choices.errors.0 }}</p>
+                {% endif %}
+                <p class="text-xs text-gray-500 mt-1">
+                    For Multiple Choice / True-False: Enter as JSON list → 
+                    <code>["Option A", "Option B", "Option C"]</code>
+                </p>
+            </div>
+
+            <!-- Correct Answer -->
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                    {{ form.correct_answer.label }}
+                </label>
+                {{ form.correct_answer }}
+                {% if form.correct_answer.errors %}
+                    <p class="text-red-500 text-sm mt-1">{{ form.correct_answer.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <!-- Explanation -->
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                    {{ form.explanation.label }}
+                </label>
+                {{ form.explanation }}
+                {% if form.explanation.errors %}
+                    <p class="text-red-500 text-sm mt-1">{{ form.explanation.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <!-- Buttons -->
+            <div class="flex gap-4 pt-6">
+                <button type="submit" 
+                        class="flex-1 bg-green-600 hover:bg-green-700 text-white py-4 rounded-2xl font-semibold text-lg transition shadow-md">
+                    {% if form.instance.pk %}Update Question{% else %}Add Question{% endif %}
+                </button>
+                
+                <a href="{% url 'assignments:quiz_detail' quiz.pk %}" 
+                class="flex-1 text-center py-4 border border-gray-300 dark:border-gray-600 rounded-2xl font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition">
+                    Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const qType = document.getElementById('id_question_type');
+    const choicesField = document.getElementById('choices-field');
+
+    function toggleChoices() {
+        if (!qType || !choicesField) return;
+
+        if (qType.value === 'multiple_choice') {
+            choicesField.style.display = 'block';
+        } else {
+            choicesField.style.display = 'none';
+        }
+    }
+
+    if (qType) {
+        qType.addEventListener('change', toggleChoices);
+        toggleChoices();
+    }
+});
+</script>
+{% endblock %}

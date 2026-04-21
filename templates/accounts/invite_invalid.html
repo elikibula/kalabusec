@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+{% block title %}Invitation Invalid — SchoolOS{% endblock %}
+
+{% block content %}
+<div class="min-h-screen flex items-center justify-center bg-slate-50 px-4">
+  <div class="w-full max-w-sm text-center">
+
+    <div class="w-16 h-16 rounded-2xl mx-auto mb-6 flex items-center justify-center text-3xl
+      {% if reason == 'expired' %}bg-amber-100
+      {% elif reason == 'accepted' %}bg-emerald-100
+      {% elif reason == 'revoked' %}bg-red-100
+      {% else %}bg-slate-100{% endif %}">
+      {% if reason == 'expired' %}⏰
+      {% elif reason == 'accepted' %}✅
+      {% elif reason == 'revoked' %}🚫
+      {% else %}❌{% endif %}
+    </div>
+
+    {% if reason == 'expired' %}
+      <h1 class="font-display text-2xl text-slate-900 mb-3">Link Expired</h1>
+      <p class="text-slate-500 text-sm leading-relaxed mb-6">
+        This invitation link has expired. Invite links are valid for 72 hours.<br>
+        Please ask your administrator to send you a new invitation.
+      </p>
+
+    {% elif reason == 'accepted' %}
+      <h1 class="font-display text-2xl text-slate-900 mb-3">Already Used</h1>
+      <p class="text-slate-500 text-sm leading-relaxed mb-6">
+        This invitation has already been used to create an account.<br>
+        If that was you, sign in below.
+      </p>
+      <a href="{% url 'accounts:login' %}"
+         class="inline-block px-6 py-3 bg-brand-600 hover:bg-brand-700 text-white font-semibold text-sm rounded-xl transition shadow-sm">
+        Go to Sign In →
+      </a>
+
+    {% elif reason == 'revoked' %}
+      <h1 class="font-display text-2xl text-slate-900 mb-3">Invitation Cancelled</h1>
+      <p class="text-slate-500 text-sm leading-relaxed mb-6">
+        This invitation has been cancelled by an administrator.<br>
+        Please contact your school if you believe this is a mistake.
+      </p>
+
+    {% else %}
+      <h1 class="font-display text-2xl text-slate-900 mb-3">Invalid Link</h1>
+      <p class="text-slate-500 text-sm leading-relaxed mb-6">
+        This invitation link is not valid.<br>
+        Please check your email and try the link again.
+      </p>
+    {% endif %}
+
+    <a href="{% url 'accounts:login' %}" class="text-sm text-brand-600 hover:underline">
+      ← Back to sign in
+    </a>
+  </div>
+</div>
+{% endblock %}

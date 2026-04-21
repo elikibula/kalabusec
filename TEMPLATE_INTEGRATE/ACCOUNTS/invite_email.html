@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>You've been invited to SchoolOS</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:#f5f6fa; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif; color:#334155; }
+  .wrap  { max-width:540px; margin:40px auto; background:#fff; border-radius:16px; overflow:hidden; box-shadow:0 4px 20px rgba(0,0,0,.07); }
+  .head  { background:linear-gradient(135deg,#4338ca,#6366f1); padding:36px 40px 28px; }
+  .logo  { display:inline-flex; align-items:center; gap:8px; margin-bottom:20px; }
+  .logo-box { width:32px; height:32px; background:rgba(255,255,255,.2); border-radius:8px; display:flex; align-items:center; justify-content:center; }
+  .logo-text { font-size:17px; font-weight:700; color:#fff; }
+  .head h1 { font-size:24px; font-weight:700; color:#fff; line-height:1.3; }
+  .head p  { color:rgba(255,255,255,.75); font-size:14px; margin-top:4px; }
+  .body  { padding:36px 40px; }
+  .badge { display:inline-block; background:#eef2ff; color:#4338ca; font-size:12px; font-weight:700; padding:4px 12px; border-radius:20px; margin:12px 0 20px; }
+  .msg-box { background:#f8fafc; border-left:3px solid #6366f1; border-radius:0 8px 8px 0; padding:12px 16px; margin:0 0 24px; font-size:13px; color:#64748b; font-style:italic; }
+  .body p  { font-size:14px; color:#475569; line-height:1.7; margin-bottom:12px; }
+  .btn-wrap { text-align:center; margin:28px 0; }
+  .btn { display:inline-block; background:#4f46e5; color:#fff !important; text-decoration:none; font-size:15px; font-weight:700; padding:15px 44px; border-radius:12px; letter-spacing:.2px; }
+  .expiry { text-align:center; font-size:12px; color:#94a3b8; margin-bottom:20px; }
+  .fallback { background:#f8fafc; border-radius:8px; padding:12px 16px; margin-bottom:20px; }
+  .fallback p { font-size:11px; color:#94a3b8; margin-bottom:4px; }
+  .fallback a { font-size:11px; color:#6366f1; word-break:break-all; }
+  .foot  { border-top:1px solid #f1f5f9; padding:20px 40px; text-align:center; }
+  .foot p { font-size:11px; color:#94a3b8; line-height:1.7; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="head">
+    <div class="logo">
+      <div class="logo-box">
+        <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="white" stroke-width="2.5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.966 8.966 0 00-6 2.292m0-14.25v14.25"/>
+        </svg>
+      </div>
+      <span class="logo-text">SchoolOS</span>
+    </div>
+    <h1>You've been invited! 🎉</h1>
+    <p>Your account is ready to be created</p>
+  </div>
+
+  <div class="body">
+    <p>Hi <strong>{% if invitation.first_name %}{{ invitation.first_name }}{% else %}there{% endif %}</strong>,</p>
+    <p>
+      <strong>{{ inviter.get_full_name|default:inviter.username }}</strong> has invited you to join SchoolOS as a:
+    </p>
+
+    <span class="badge">{{ invitation.get_role_display }}</span>
+
+    {% if invitation.personal_message %}
+    <div class="msg-box">"{{ invitation.personal_message }}"</div>
+    {% endif %}
+
+    <p>Click the button below to create your account. This link is personal to you — please do not share it.</p>
+
+    <div class="btn-wrap">
+      <a href="{{ register_url }}" class="btn">Create My Account →</a>
+    </div>
+
+    <p class="expiry">⏰ This invitation expires in <strong>{{ expiry_hours }} hours</strong></p>
+
+    <div class="fallback">
+      <p>If the button doesn't work, copy and paste this link into your browser:</p>
+      <a href="{{ register_url }}">{{ register_url }}</a>
+    </div>
+  </div>
+
+  <div class="foot">
+    <p>
+      If you weren't expecting this invitation, you can safely ignore this email.<br>
+      Your address will not be used unless you create an account.
+    </p>
+  </div>
+
+</div>
+</body>
+</html>

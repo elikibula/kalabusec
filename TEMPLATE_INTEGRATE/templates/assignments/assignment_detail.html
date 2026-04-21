@@ -1,0 +1,229 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}{{ assignment.title }} - School LMS{% endblock %}
+
+{% block content %}
+<div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Breadcrumb -->
+    <nav class="mb-6 text-sm">
+        <ol class="flex items-center space-x-2 text-gray-600 dark:text-gray-400">
+            <li><a href="{% url 'assignments:list' %}" class="hover:text-blue-600">Assignments</a></li>
+            <li>→</li>
+            <li class="text-gray-900 dark:text-white font-medium">{{ assignment.title }}</li>
+        </ol>
+    </nav>
+    
+    <!-- Assignment Header -->
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-8 mb-6">
+        <div class="flex items-start justify-between mb-4">
+            <div class="flex-1">
+                <span class="inline-block px-3 py-1 bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-200 text-sm font-semibold rounded-full mb-3">
+                    {{ assignment.course.code }}
+                </span>
+                <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">{{ assignment.title }}</h1>
+                <p class="text-gray-600 dark:text-gray-400">{{ assignment.course.title }}</p>
+            </div>
+            
+            <div class="ml-6 text-right">
+                <div class="text-3xl font-bold text-purple-600 dark:text-purple-400 mb-1">
+                    {{ assignment.total_points }} pts
+                </div>
+                <div class="text-sm text-gray-500 dark:text-gray-400">Total Points</div>
+            </div>
+        </div>
+        
+        <!-- Assignment Meta -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
+            <div>
+                <p class="text-sm text-gray-600 dark:text-gray-400 mb-1">Available From</p>
+                <p class="font-semibold text-gray-900 dark:text-white">{{ assignment.available_from|date:"M d, Y H:i" }}</p>
+            </div>
+            <div>
+                <p class="text-sm text-gray-600 dark:text-gray-400 mb-1">Due Date</p>
+                <p class="font-semibold {% if assignment.due_date < now %}text-red-600{% else %}text-gray-900 dark:text-white{% endif %}">
+                    {{ assignment.due_date|date:"M d, Y H:i" }}
+                </p>
+            </div>
+            <div>
+                <p class="text-sm text-gray-600 dark:text-gray-400 mb-1">Late Submissions</p>
+                <p class="font-semibold text-gray-900 dark:text-white">
+                    {% if assignment.allow_late_submission %}
+                        Allowed (-{{ assignment.late_penalty_percent }}% per day)
+                    {% else %}
+                        Not Allowed
+                    {% endif %}
+                </p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Main Content -->
+        <div class="lg:col-span-2">
+            <!-- Description -->
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 mb-6">
+                <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-4">Description</h2>
+                <div class="text-gray-700 dark:text-gray-300 leading-relaxed">
+                    {{ assignment.description|linebreaks }}
+                </div>
+            </div>
+            
+            <!-- Instructions -->
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 mb-6">
+                <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-4">Instructions</h2>
+                <div class="text-gray-700 dark:text-gray-300 leading-relaxed">
+                    {{ assignment.instructions|linebreaks }}
+                </div>
+            </div>
+            
+            <!-- Attachment -->
+            {% if assignment.attachment %}
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 mb-6">
+                <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-3">Assignment Files</h3>
+                <a href="{{ assignment.attachment.url }}" target="_blank" download
+                   class="inline-flex items-center px-4 py-3 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900/30 transition">
+                    <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                    </svg>
+                    Download Assignment File
+                </a>
+            </div>
+            {% endif %}
+            
+            {% if user.is_student %}
+            <!-- Student Submission Section -->
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6">
+                <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-4">Your Submission</h2>
+                
+                {% if submission %}
+                    <!-- Existing Submission -->
+                    <div class="border-l-4 {% if submission.status == 'graded' %}border-green-500 bg-green-50 dark:bg-green-900/20{% elif submission.status == 'submitted' %}border-blue-500 bg-blue-50 dark:bg-blue-900/20{% else %}border-gray-500 bg-gray-50 dark:bg-gray-900/20{% endif %} p-4 mb-4">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="font-semibold text-gray-900 dark:text-white">
+                                Status: {{ submission.get_status_display }}
+                            </span>
+                            {% if submission.score %}
+                            <span class="text-2xl font-bold text-green-600 dark:text-green-400">
+                                {{ submission.score }}/{{ assignment.total_points }}
+                            </span>
+                            {% endif %}
+                        </div>
+                        <p class="text-sm text-gray-600 dark:text-gray-400">
+                            Submitted: {{ submission.submitted_at|date:"M d, Y H:i" }}
+                            {% if submission.is_late %}
+                                <span class="text-red-600 dark:text-red-400">({{ submission.days_late }} days late)</span>
+                            {% endif %}
+                        </p>
+                        
+                        {% if submission.feedback %}
+                        <div class="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+                            <p class="font-semibold text-gray-900 dark:text-white mb-2">Feedback:</p>
+                            <p class="text-gray-700 dark:text-gray-300">{{ submission.feedback }}</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    {% if can_submit %}
+                    <a href="{% url 'assignments:submit' assignment.pk %}" 
+                       class="inline-block px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-medium">
+                        Update Submission
+                    </a>
+                    {% endif %}
+                {% else %}
+                    <!-- No Submission Yet -->
+                    {% if can_submit %}
+                    <p class="text-gray-600 dark:text-gray-400 mb-4">You haven't submitted this assignment yet.</p>
+                    <a href="{% url 'assignments:submit' assignment.pk %}" 
+                       class="inline-block px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:shadow-lg transition font-medium">
+                        Submit Assignment
+                    </a>
+                    {% else %}
+                    <div class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
+                        <p class="text-red-700 dark:text-red-400 font-medium">
+                            This assignment is past due and no longer accepts submissions.
+                        </p>
+                    </div>
+                    {% endif %}
+                {% endif %}
+            </div>
+            {% elif user.is_teacher and assignment.course.teacher == user %}
+            <!-- Teacher View: Submissions -->
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6">
+                <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-4">
+                    Submissions ({{ submissions.count }})
+                </h2>
+                
+                {% if submissions %}
+                <div class="space-y-3">
+                    {% for sub in submissions %}
+                    <div class="border border-gray-200 dark:border-gray-700 rounded-lg p-4 hover:bg-gray-50 dark:hover:bg-gray-700 transition">
+                        <div class="flex items-center justify-between">
+                            <div class="flex-1">
+                                <p class="font-semibold text-gray-900 dark:text-white">{{ sub.student.get_full_name }}</p>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">
+                                    Submitted: {{ sub.submitted_at|date:"M d, Y H:i" }}
+                                    {% if sub.is_late %}
+                                        <span class="text-red-600 dark:text-red-400">(Late)</span>
+                                    {% endif %}
+                                </p>
+                            </div>
+                            <div class="flex items-center space-x-4">
+                                {% if sub.status == 'graded' %}
+                                <span class="text-lg font-bold text-green-600 dark:text-green-400">
+                                    {{ sub.score }}/{{ assignment.total_points }}
+                                </span>
+                                {% else %}
+                                <span class="text-sm text-gray-500 dark:text-gray-400">Not graded</span>
+                                {% endif %}
+                                <a href="{% url 'assignments:grade' sub.pk %}" 
+                                   class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm font-medium">
+                                    {% if sub.status == 'graded' %}Review{% else %}Grade{% endif %}
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p class="text-gray-500 dark:text-gray-400 text-center py-8">No submissions yet.</p>
+                {% endif %}
+            </div>
+            {% endif %}
+        </div>
+        
+        <!-- Sidebar -->
+        <div>
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 sticky top-4">
+                <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4">Assignment Info</h3>
+                
+                <div class="space-y-4">
+                    <div>
+                        <p class="text-sm text-gray-600 dark:text-gray-400 mb-1">Course</p>
+                        <a href="{% url 'courses:detail' assignment.course.pk %}" 
+                           class="font-medium text-blue-600 dark:text-blue-400 hover:underline">
+                            {{ assignment.course.title }}
+                        </a>
+                    </div>
+                    
+                    <div>
+                        <p class="text-sm text-gray-600 dark:text-gray-400 mb-1">Status</p>
+                        <span class="inline-block px-3 py-1 {% if assignment.due_date > now %}bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300{% else %}bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300{% endif %} text-sm font-semibold rounded-full">
+                            {% if assignment.due_date > now %}Open{% else %}Closed{% endif %}
+                        </span>
+                    </div>
+                    
+                    {% if user.is_teacher and assignment.course.teacher == user %}
+                    <div class="pt-4 border-t border-gray-200 dark:border-gray-700">
+                        <a href="{% url 'courses:detail' assignment.course.pk %}" 
+                           class="block w-full text-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-medium mb-2">
+                            View Course
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,186 @@
+{% extends 'dashboard_base.html' %}
+
+{% block title %}Assignments - Kalabu Secondary School{% endblock %}
+
+{% block dashboard_content %}
+<div class="bg-gradient-to-r from-purple-600 to-pink-600 text-white py-12">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <h1 class="text-4xl font-bold mb-2">📝 Assignments</h1>
+        <p class="text-purple-100">Manage your assignments and submissions</p>
+    </div>
+</div>
+
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Filters -->
+    <div class="bg-white rounded-xl shadow-md p-6 mb-8">
+        <form method="get" class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div class="md:col-span-2">
+                <input type="text"
+                       name="search"
+                       placeholder="Search assignments..."
+                       value="{{ filter_search }}"
+                       class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+            </div>
+
+            <div>
+                <select name="course"
+                        class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-purple-500">
+                    <option value="">All courses</option>
+                    {% for course in filter_courses %}
+                    <option value="{{ course.pk }}" {% if filter_course == course.pk|stringformat:"s" %}selected{% endif %}>
+                        {{ course.title }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div>
+                <select name="status"
+                        class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-purple-500">
+                    <option value="">All statuses</option>
+                    {% for value, label in status_options %}
+                    <option value="{{ value }}" {% if filter_status == value %}selected{% endif %}>
+                        {{ label }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="md:col-span-4 flex items-center gap-3">
+                <button type="submit"
+                        class="px-5 py-2.5 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition font-medium">
+                    Apply filters
+                </button>
+                <a href="{% url 'assignments:list' %}"
+                   class="px-5 py-2.5 border border-gray-300 text-gray-600 rounded-lg hover:bg-gray-50 transition">
+                    Reset
+                </a>
+            </div>
+        </form>
+    </div>
+
+    {% if assignments %}
+    <div class="bg-white rounded-xl shadow-md overflow-hidden">
+        <div class="px-4 py-4 border-b border-gray-100">
+            <h2 class="text-lg font-semibold text-gray-900">Assignments Table</h2>
+            <p class="text-sm text-gray-500">Manage and track all assignments</p>
+        </div>
+
+        <div class="overflow-x-auto">
+            <table id="assignmentsTable" class="min-w-full text-sm">
+                <thead class="bg-gray-50 border-b border-gray-200">
+                    <tr class="text-left text-xs font-semibold uppercase tracking-wider text-gray-500">
+                        <th class="px-4 py-3">Title</th>
+                        <th class="px-4 py-3">Course</th>
+                        <th class="px-4 py-3">Status</th>
+                        <th class="px-4 py-3">Points</th>
+                        <th class="px-4 py-3">Availability / Due</th>
+                        <th class="px-4 py-3 text-right">Actions</th>
+                    </tr>
+                </thead>
+
+                <tbody class="divide-y divide-gray-100">
+                    {% for assignment in assignments %}
+                    <tr class="hover:bg-gray-50 transition">
+                        <td class="px-4 py-3">
+                            <div>
+                                <p class="font-medium text-gray-900">{{ assignment.title }}</p>
+                                <p class="text-xs text-gray-400">{{ assignment.description|truncatewords:12 }}</p>
+                            </div>
+                        </td>
+
+                        <td class="px-4 py-3 text-gray-600">
+                            <div>
+                                <p class="font-medium">{{ assignment.course.title }}</p>
+                                <p class="text-xs text-gray-400">{{ assignment.course.code }}</p>
+                            </div>
+                        </td>
+
+                        <td class="px-4 py-3">
+                            <span class="text-xs px-2.5 py-1 rounded-full font-medium
+                                {% if assignment.timeline_state == 'open' %}bg-green-100 text-green-700
+                                {% elif assignment.timeline_state == 'upcoming' %}bg-blue-100 text-blue-700
+                                {% elif assignment.timeline_state == 'closed' %}bg-red-100 text-red-700
+                                {% elif assignment.timeline_state == 'draft' %}bg-amber-100 text-amber-700
+                                {% else %}bg-gray-100 text-gray-600{% endif %}">
+                                {{ assignment.timeline_state|title }}
+                            </span>
+                        </td>
+
+                        <td class="px-4 py-3 text-gray-600">
+                            {{ assignment.total_points }}
+                        </td>
+
+                        <td class="px-4 py-3 text-gray-600">
+                            {% if assignment.timeline_state == 'upcoming' %}
+                                <div>
+                                    <p class="font-medium">Opens</p>
+                                    <p class="text-xs text-gray-400">{{ assignment.available_from|date:"M d, Y H:i" }}</p>
+                                </div>
+                            {% else %}
+                                <div>
+                                    <p class="font-medium">Due</p>
+                                    <p class="text-xs text-gray-400">{{ assignment.due_date|date:"M d, Y H:i" }}</p>
+                                </div>
+                            {% endif %}
+                        </td>
+
+                        <td class="px-4 py-3">
+                            <div class="flex justify-end gap-2 flex-wrap">
+                                <a href="{% url 'assignments:detail' assignment.pk %}"
+                                   class="px-3 py-1.5 text-xs font-medium rounded-lg bg-purple-600 text-white hover:bg-purple-700 transition">
+                                    View
+                                </a>
+
+                                {% if user.is_teacher %}
+                                <a href="{% url 'assignments:update' assignment.pk %}"
+                                   class="px-3 py-1.5 text-xs font-medium rounded-lg bg-amber-500 text-white hover:bg-amber-600 transition">
+                                    Edit
+                                </a>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% else %}
+    <div class="text-center py-12 bg-white rounded-xl shadow-md">
+        <p class="text-gray-500">No assignments available</p>
+    </div>
+    {% endif %}
+</div>
+
+<!-- DataTables CSS/JS -->
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.tailwindcss.min.css">
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/dataTables.tailwindcss.min.js"></script>
+
+<script>
+    $(document).ready(function () {
+        $('#assignmentsTable').DataTable({
+            pageLength: 10,
+            lengthMenu: [5, 10, 25, 50],
+            ordering: true,
+            responsive: true,
+            language: {
+                search: "Search table:",
+                lengthMenu: "Show _MENU_ assignments",
+                info: "Showing _START_ to _END_ of _TOTAL_ assignments",
+                infoEmpty: "No assignments available",
+                zeroRecords: "No matching assignments found",
+                paginate: {
+                    previous: "←",
+                    next: "→"
+                }
+            },
+            columnDefs: [
+                { orderable: false, targets: 5 }
+            ]
+        });
+    });
+</script>
+{% endblock %}

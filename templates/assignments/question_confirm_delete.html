@@ -1,0 +1,37 @@
+{% extends 'dashboard_base.html' %}
+
+{% block title %}Delete Question - {{ question.quiz.title }}{% endblock %}
+
+{% block dashboard_content %}
+<div class="max-w-lg mx-auto py-12 px-4">
+    <div class="bg-white dark:bg-gray-800 rounded-3xl shadow-lg p-10">
+        <div class="text-red-600 dark:text-red-400 text-5xl mb-6">🗑️</div>
+        
+        <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-4">Delete Question</h1>
+        
+        <p class="text-gray-600 dark:text-gray-400 mb-8">
+            Are you sure you want to delete this question from <strong>"{{ question.quiz.title }}"</strong>?
+        </p>
+
+        <div class="bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-2xl p-6 mb-8">
+            <p class="font-medium text-gray-900 dark:text-white">
+                {{ question.question_text|truncatewords:30 }}
+            </p>
+        </div>
+
+        <form method="post" class="flex gap-4">
+            {% csrf_token %}
+            
+            <button type="submit" 
+                    class="flex-1 bg-red-600 hover:bg-red-700 text-white py-4 rounded-2xl font-semibold transition">
+                Yes, Delete Question
+            </button>
+            
+            <a href="{% url 'assignments:quiz_detail' question.quiz.pk %}" 
+               class="flex-1 text-center py-4 border border-gray-300 dark:border-gray-600 rounded-2xl font-medium hover:bg-gray-50 dark:hover:bg-gray-700 transition">
+                Cancel
+            </a>
+        </form>
+    </div>
+</div>
+{% endblock %}

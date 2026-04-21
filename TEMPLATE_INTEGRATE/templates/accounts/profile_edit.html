@@ -1,0 +1,156 @@
+{% extends 'base/base.html' %}
+
+{% block title %}Edit Profile - School LMS{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-8">
+        <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-6">Edit Profile</h1>
+        
+        <form method="post" enctype="multipart/form-data" class="space-y-6">
+            {% csrf_token %}
+            
+            {% if form.errors %}
+            <div class="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+                <p class="text-sm text-red-800 font-medium mb-2">Please correct the following errors:</p>
+                <ul class="list-disc list-inside text-sm text-red-700">
+                    {% for field, errors in form.errors.items %}
+                        {% for error in errors %}
+                        <li>{{ field|title }}: {{ error }}</li>
+                        {% endfor %}
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+            
+            <!-- Personal Information -->
+            <div class="border-b border-gray-200 dark:border-gray-700 pb-6">
+                <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">Personal Information</h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label for="{{ form.first_name.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                            First Name <span class="text-red-500">*</span>
+                        </label>
+                        {{ form.first_name }}
+                    </div>
+                    
+                    <div>
+                        <label for="{{ form.last_name.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                            Last Name <span class="text-red-500">*</span>
+                        </label>
+                        {{ form.last_name }}
+                    </div>
+                </div>
+                
+                <div class="mt-6">
+                    <label for="{{ form.email.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        Email <span class="text-red-500">*</span>
+                    </label>
+                    {{ form.email }}
+                </div>
+                
+                <div class="mt-6">
+                    <label for="{{ form.phone_number.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        Phone Number
+                    </label>
+                    {{ form.phone_number }}
+                </div>
+                
+                <div class="mt-6">
+                    <label for="{{ form.date_of_birth.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        Date of Birth
+                    </label>
+                    {{ form.date_of_birth }}
+                </div>
+                
+                <div class="mt-6">
+                    <label for="{{ form.address.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        Address
+                    </label>
+                    {{ form.address }}
+                </div>
+                
+                <div class="mt-6">
+                    <label for="{{ form.bio.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        Bio
+                    </label>
+                    {{ form.bio }}
+                </div>
+                
+                <div class="mt-6">
+                    <label for="{{ form.profile_picture.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        Profile Picture
+                    </label>
+                    {{ form.profile_picture }}
+                    {% if user.profile_picture %}
+                    <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">Current: {{ user.profile_picture.name }}</p>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Academic/Professional Information -->
+            {% if user.is_student or user.is_teacher %}
+            <div class="border-b border-gray-200 dark:border-gray-700 pb-6">
+                <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">
+                    {% if user.is_student %}Academic Information{% else %}Professional Information{% endif %}
+                </h2>
+                
+                {% if user.is_student %}
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label for="{{ form.student_id.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                Student ID
+                            </label>
+                            {{ form.student_id }}
+                        </div>
+                        
+                        <div>
+                            <label for="{{ form.grade_level.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                Grade Level
+                            </label>
+                            {{ form.grade_level }}
+                        </div>
+                    </div>
+                {% elif user.is_teacher %}
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label for="{{ form.employee_id.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                Employee ID
+                            </label>
+                            {{ form.employee_id }}
+                        </div>
+                        
+                        <div>
+                            <label for="{{ form.department.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                Department
+                            </label>
+                            {{ form.department }}
+                        </div>
+                    </div>
+                    
+                    <div class="mt-6">
+                        <label for="{{ form.specialization.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                            Specialization
+                        </label>
+                        {{ form.specialization }}
+                    </div>
+                {% endif %}
+            </div>
+            {% endif %}
+            
+            <!-- Action Buttons -->
+            <div class="flex items-center justify-between pt-6">
+                <a href="{% url 'accounts:profile' %}" 
+                   class="px-6 py-3 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition font-medium">
+                    Cancel
+                </a>
+                <button type="submit" 
+                        class="px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:shadow-lg transition font-medium">
+                    Save Changes
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

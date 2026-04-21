@@ -1,0 +1,75 @@
+{% extends 'dashboard_base.html' %}
+
+{% block title %}Admin Dashboard{% endblock %}
+
+{% block dashboard_content %}
+<div class="mb-6">
+  <h1 class="text-2xl font-semibold text-gray-900">Admin Dashboard</h1>
+  <p class="text-sm text-gray-500 mt-0.5">Platform overview</p>
+</div>
+
+<div class="grid grid-cols-4 gap-4 mb-6">
+  <div class="bg-white border border-gray-200 rounded-xl p-4">
+    <p class="text-xs text-gray-500 mb-1">Active courses</p>
+    <p class="text-3xl font-semibold text-gray-900">{{ total_courses }}</p>
+  </div>
+  <div class="bg-white border border-gray-200 rounded-xl p-4">
+    <p class="text-xs text-gray-500 mb-1">Students</p>
+    <p class="text-3xl font-semibold text-gray-900">{{ total_students }}</p>
+  </div>
+  <div class="bg-white border border-gray-200 rounded-xl p-4">
+    <p class="text-xs text-gray-500 mb-1">Teachers</p>
+    <p class="text-3xl font-semibold text-gray-900">{{ total_teachers }}</p>
+  </div>
+  <div class="bg-white border border-gray-200 rounded-xl p-4">
+    <p class="text-xs text-gray-500 mb-1">Notifications</p>
+    <p class="text-3xl font-semibold {% if unread_notifications %}text-amber-600{% else %}text-gray-900{% endif %}">{{ unread_notifications }}</p>
+  </div>
+</div>
+
+<div class="grid grid-cols-2 gap-5">
+  <div class="bg-white border border-gray-200 rounded-xl overflow-hidden">
+    <div class="flex items-center justify-between px-4 py-3 border-b border-gray-100">
+      <h2 class="text-sm font-semibold text-gray-700">Recent enrolments</h2>
+    </div>
+    <div class="divide-y divide-gray-100">
+      {% for enr in recent_enrollments %}
+      <div class="flex items-center gap-3 px-4 py-2.5">
+        <div class="w-7 h-7 rounded-full bg-blue-100 flex items-center justify-center text-blue-700 text-xs font-medium flex-shrink-0">
+          {{ enr.student.first_name|first|upper }}{{ enr.student.last_name|first|upper }}
+        </div>
+        <div class="flex-1 min-w-0">
+          <p class="text-sm text-gray-800"><span class="font-medium">{{ enr.student.get_full_name }}</span></p>
+          <p class="text-xs text-gray-400">{{ enr.course.title }} &middot; {{ enr.enrolled_at|date:"j M Y" }}</p>
+        </div>
+        <span class="text-xs px-2 py-0.5 rounded-full
+          {% if enr.status == 'active' %}bg-green-100 text-green-700
+          {% elif enr.status == 'pending' %}bg-amber-100 text-amber-700
+          {% else %}bg-gray-100 text-gray-500{% endif %}">
+          {{ enr.status }}
+        </span>
+      </div>
+      {% empty %}
+      <div class="px-4 py-6 text-center text-sm text-gray-400">No enrolments yet.</div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <div class="bg-white border border-gray-200 rounded-xl overflow-hidden">
+    <div class="flex items-center justify-between px-4 py-3 border-b border-gray-100">
+      <h2 class="text-sm font-semibold text-gray-700">Recent announcements</h2>
+      <a href="{% url 'announcements:list' %}" class="text-xs text-blue-600 hover:underline">All →</a>
+    </div>
+    <div class="divide-y divide-gray-100">
+      {% for ann in recent_announcements %}
+      <div class="px-4 py-3">
+        <p class="text-sm font-medium text-gray-800">{{ ann.title }}</p>
+        <p class="text-xs text-gray-400 mt-0.5">{{ ann.author.get_full_name }} &middot; {{ ann.published_date|date:"j M Y" }}</p>
+      </div>
+      {% empty %}
+      <div class="px-4 py-6 text-center text-sm text-gray-400">No announcements.</div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}

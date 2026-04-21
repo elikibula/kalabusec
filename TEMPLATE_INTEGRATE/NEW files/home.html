@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+{# This template is the fallback for parent / unknown roles.            #}
+{# Teachers → teacher_classroom.html                                    #}
+{# Students → student_home.html                                         #}
+{# Admins   → admin_home.html                                           #}
+{# are all rendered directly by dashboard/views.py without this file.  #}
+
+<div class="mb-6">
+  <h1 class="text-2xl font-semibold text-gray-900">Welcome, {{ user.get_full_name }}!</h1>
+  <p class="text-sm text-gray-500 mt-0.5 capitalize">{{ user.get_role_display }}</p>
+</div>
+
+<!-- Announcements (visible to all roles) -->
+{% if recent_announcements %}
+<div class="bg-white border border-gray-200 rounded-xl overflow-hidden max-w-2xl">
+  <div class="flex items-center justify-between px-4 py-3 border-b border-gray-100">
+    <h2 class="text-sm font-semibold text-gray-700">Recent announcements</h2>
+    <a href="{% url 'announcements:list' %}" class="text-xs text-blue-600 hover:underline">All →</a>
+  </div>
+  <div class="divide-y divide-gray-100">
+    {% for ann in recent_announcements %}
+    <a href="{% url 'announcements:detail' ann.pk %}"
+       class="flex items-start gap-3 px-4 py-3 hover:bg-gray-50 transition-colors">
+      <div class="flex-1 min-w-0">
+        <p class="text-sm font-medium text-gray-800">{{ ann.title }}</p>
+        <p class="text-xs text-gray-400 mt-0.5">{{ ann.published_date|date:"j M Y" }}</p>
+      </div>
+    </a>
+    {% endfor %}
+  </div>
+</div>
+{% else %}
+<div class="bg-white border border-gray-200 rounded-xl px-4 py-12 text-center max-w-2xl">
+  <p class="text-gray-400 text-sm">No announcements yet.</p>
+</div>
+{% endif %}
+{% endblock %}

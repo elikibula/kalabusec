@@ -1,0 +1,262 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en" class="light">
+<head>
+   
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Primary SEO -->
+    <title>{% block title %}Kalabu Secondary School | Quality Education in Fiji{% endblock %}</title>
+    <meta name="title" content="{% block meta_title %}Kalabu Secondary School | Quality Education in Fiji{% endblock %}">
+    <meta name="description" content="{% block meta_description %}Kalabu Secondary School is a leading secondary school in Fiji committed to academic excellence, student development, discipline, leadership, and community values. Strive to attain excellence.{% endblock %}">
+    <meta name="keywords" content="{% block meta_keywords %}Kalabu Secondary School, Fiji school, secondary school in Fiji, Suva school, education in Fiji, Kalabu, school admissions, school news, student learning, academic excellence{% endblock %}">
+    <meta name="author" content="Kalabu Secondary School">
+    <meta name="robots" content="{% block meta_robots %}index, follow{% endblock %}">
+    <meta name="googlebot" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+    <meta name="theme-color" content="#800000">
+
+    <!-- Canonical -->
+    <link rel="canonical" href="{% block canonical_url %}{{ request.build_absolute_uri }}{% endblock %}">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="{% static 'images/school-logo.png' %}">
+    <link rel="apple-touch-icon" href="{% static 'images/school-logo.png' %}">
+
+    <!-- Open Graph -->
+    <meta property="og:site_name" content="Kalabu Secondary School">
+    <meta property="og:locale" content="en_FJ">
+    <meta property="og:type" content="{% block og_type %}website{% endblock %}">
+    <meta property="og:title" content="{% block og_title %}Kalabu Secondary School | Quality Education in Fiji{% endblock %}">
+    <meta property="og:description" content="{% block og_description %}Kalabu Secondary School is committed to academic excellence, character development, and student success in Fiji.{% endblock %}">
+    <meta property="og:url" content="{% block og_url %}{{ request.build_absolute_uri }}{% endblock %}">
+    <meta property="og:image" content="{% block og_image %}{{ request.scheme }}://{{ request.get_host }}{% static 'images/school-logo.png' %}{% endblock %}">
+    <meta property="og:image:alt" content="{% block og_image_alt %}Kalabu Secondary School Logo{% endblock %}">
+
+    <!-- Twitter / X -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{% block twitter_title %}Kalabu Secondary School | Quality Education in Fiji{% endblock %}">
+    <meta name="twitter:description" content="{% block twitter_description %}Kalabu Secondary School is committed to academic excellence, discipline, leadership, and student success in Fiji.{% endblock %}">
+    <meta name="twitter:image" content="{% block twitter_image %}{{ request.scheme }}://{{ request.get_host }}{% static 'images/school-logo.png' %}{% endblock %}">
+    <meta name="twitter:image:alt" content="{% block twitter_image_alt %}Kalabu Secondary School Logo{% endblock %}">
+
+    <!-- Performance -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+    <link rel="preconnect" href="https://cdn.datatables.net">
+    <link rel="preconnect" href="https://code.jquery.com">
+    <link rel="preconnect" href="https://unpkg.com">
+
+    <!-- Optional structured data block -->
+    {% block structured_data %}
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "School",
+      "name": "Kalabu Secondary School",
+      "url": "{{ request.scheme }}://{{ request.get_host }}",
+      "logo": "{{ request.scheme }}://{{ request.get_host }}{% static 'images/school-logo.png' %}",
+      "description": "Kalabu Secondary School is a secondary school in Fiji committed to academic excellence, discipline, leadership, and student development.",
+      "address": {
+        "@type": "PostalAddress",
+        "addressCountry": "Fiji"
+      }
+    }
+    </script>
+    {% endblock %}
+
+    <!-- CSS / JS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.tailwindcss.min.css">
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.tailwindcss.min.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/aos@2.3.1/dist/aos.css">
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+
+    {% block extra_css %}{% endblock %}
+
+    <!--FAVICON-->
+    <!-- Basic Favicon -->
+    <link rel="icon" href="{% static 'images/favicon-16x16.png' %}" type="image/x-icon">    
+    <!-- Recommended: Modern PNG version -->
+    <link rel="icon" href="{% static 'images/favicon-32x32.png' %}" type="image/png" sizes="32x32">
+    <!-- Primary Favicon -->
+    <link rel="icon" href="{% static 'images/favicon.ico' %}" sizes="any">    
+    <!-- PNG Favicons -->
+    <link rel="icon" href="{% static 'images/favicon-32x32.png' %}" sizes="32x32" type="image/png">
+    <link rel="icon" href="{% static 'images/favicon-16x16.png' %}" type="image/png">    
+    <!-- Apple Touch Icon (iOS) -->
+    <link rel="apple-touch-icon" href="{% static 'images/apple-touch-icon.png' %}" sizes="180x180">    
+    <!-- Android & Others -->
+    <link rel="manifest" href="{% static 'images/site.webmanifest' %}">
+
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
+    <!-- Header/Navigation -->
+    <header class="sticky top-0 z-50 bg-white dark:bg-gray-800 shadow">
+        <nav class="container mx-auto px-6 py-3 flex items-center justify-between">
+            <!-- Logo -->
+            <a href="{% url 'dashboard:home' %}" class="flex items-center space-x-3">
+                <img src="{% static 'images/Logo.png' %}" 
+                     alt="Kalabu Sec School Logo" 
+                     class="h-11 w-11 object-contain drop-shadow-sm">
+                <span class="text-2xl font-bold text-gray-800 dark:text-white">
+                    KALABU <span class="text-blue-600">Secondary School</span>
+                </span>
+            </a>
+
+            <!-- Desktop Navigation -->
+            <div class="hidden md:flex items-center space-x-3">
+                <!-- Public Links -->
+                <a href="{% url 'mainapp:home' %}"
+                   class="px-4 py-2 text-sm font-medium text-gray-700 hover:text-blue-600 transition">
+                    Home
+                </a>
+                <a href="{% url 'mainapp:about_us' %}"
+                   class="px-4 py-2 text-sm font-medium text-gray-700 hover:text-blue-600 transition">
+                    About Us
+                </a>
+                <a href="{% url 'news:news_list' %}"
+                   class="px-4 py-2 text-sm font-medium text-gray-700 hover:text-blue-600 transition">
+                    News
+                </a>
+                <a href="{% url 'mainapp:contact_us' %}"
+                   class="px-4 py-2 text-sm font-medium text-gray-700 hover:text-blue-600 transition">
+                    Contact Us
+                </a>
+
+                {% if user.is_authenticated %}
+                    <a href="{% url 'dashboard:home' %}"
+                       class="block text-center bg-blue-600 hover:bg-blue-700 text-white font-medium py-2.5 px-4 rounded-lg transition">
+                        Dashboard
+                    </a>
+                    <a href="{% url 'accounts:logout' %}"
+                       class="block text-center bg-red-600 hover:bg-red-700 text-white font-medium py-2.5 px-4 rounded-lg transition">
+                        <i class="fa-solid fa-right-from-bracket mr-2"></i>Logout
+                    </a>
+                {% else %}
+                    <a href="{% url 'accounts:login' %}"
+                       class="block text-center bg-blue-600 hover:bg-blue-700 text-white font-medium py-2.5 px-4 rounded-lg transition">
+                        🔐 Login
+                    </a>
+                {% endif %}
+            </div>
+
+            <!-- Mobile Menu Button -->
+            <button id="mobile-menu-button" class="md:hidden p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700">
+                <i class="fa-solid fa-bars text-gray-700 dark:text-gray-200"></i>
+            </button>
+        </nav>
+
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="hidden md:hidden px-6 pb-4 space-y-2">
+            <!-- Public Links -->
+            <a href="{% url 'mainapp:home' %}"
+               class="block w-full text-left px-4 py-3 rounded-lg text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700 transition">
+                Home
+            </a>
+            <a href="{% url 'mainapp:about_us' %}"
+               class="block w-full text-left px-4 py-3 rounded-lg text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700 transition">
+                About Us
+            </a>
+            <a href="{% url 'news:news_list' %}"
+               class="block w-full text-left px-4 py-3 rounded-lg text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700 transition">
+                News
+            </a>
+            <a href="{% url 'mainapp:contact_us' %}"
+               class="block w-full text-left px-4 py-3 rounded-lg text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700 transition">
+                Contact Us
+            </a>
+
+            {% if user.is_authenticated %}
+                <a href="{% url 'dashboard:home' %}"
+                   class="block w-full text-center bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-4 rounded-lg transition">
+                    Dashboard
+                </a>
+                <a href="{% url 'accounts:logout' %}"
+                   class="block w-full text-center bg-red-600 hover:bg-red-700 text-white font-medium py-3 px-4 rounded-lg transition">
+                    <i class="fa-solid fa-right-from-bracket mr-2"></i>Logout
+                </a>
+            {% else %}
+                <a href="{% url 'accounts:login' %}"
+                   class="block w-full text-center bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-4 rounded-lg transition">
+                    🔐 Login
+                </a>
+            {% endif %}
+        </div>
+    </header>
+
+    <!-- Messages -->
+    {% if messages %}
+    <div class="container mx-auto px-6 mt-4">
+        {% for message in messages %}
+        <div class="alert {{ message.tags }}">
+            <span>{{ message }}</span>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    {% if not user.is_authenticated %}
+    <footer class="bg-gray-800 dark:bg-gray-900 text-white py-12 mt-16">
+        <div class="container mx-auto px-6 grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div class="text-center">
+                <h3 class="text-xl font-bold mb-2 text-yellow-400">Kalabu Secondary School</h3>
+                
+                <p class="text-gray-400 mb-4">Strive to attain excellence</p>
+                
+                <div class="flex justify-center">
+                    <img src="{% static 'images/Logo.png' %}" 
+                        alt="Kalabu Secondary School Logo"
+                        class="h-20 w-20 object-contain opacity-90 logo-rotate">
+                </div>
+            </div>
+            <div>
+                <h4 class="text-lg font-semibold mb-4 text-yellow-400">Quick Links</h4>
+                <ul class="space-y-2 text-gray-400">
+                    <li><a href="https://www.kalabuprimaryschool.com/" class="footer-link">Kalabu Primary School</a></li>
+                    <li><a href="https://www.education.gov.fj/" class="footer-link">Ministry Of Education</a></li>
+                    <li><a href="https://www.femis.edu.gov.fj/" class="footer-link">FEMIS</a></li>
+                </ul>
+            </div>
+            <div> 
+
+                <h4 class="text-lg font-semibold mb-4 text-yellow-400">Contact</h4>
+                <ul class="space-y-2 text-gray-400">
+                    <li><i class="fa-solid fa-phone mr-2"></i>3392171</li>
+                    <li><i class="fa-solid fa-envelope mr-2"></i>kalabusecondaryschool@yahoo.com</li>
+                    <li><i class="fa-solid fa-envelope mr-2"></i>P O BOX 7401 NASINU</li>
+                </ul>
+            </div>
+        </div>
+        <div class="border-t border-gray-700 mt-8 pt-8 text-center text-gray-400">
+            <p>&copy; {{ current_year }} - {{ next_year }} Kalabu Secondary School. All rights reserved. Powered by <a href="https://faithtech.pythonanywhere.com/" target="_blank" class="text-blue-400 hover:text-blue-300 underline">
+            Faith Technology</a></p>
+        </div>
+    </footer>
+    {% endif %}
+
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/collapse@3.x.x/dist/cdn.min.js"></script>
+    <script src="https://unpkg.com/htmx.org@1.9.12"></script>
+    
+    <script>
+        const mobileMenuButton = document.getElementById('mobile-menu-button');
+        const mobileMenu = document.getElementById('mobile-menu');
+        mobileMenuButton.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+        });
+    </script>
+
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

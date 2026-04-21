@@ -1,0 +1,315 @@
+<div class="h-full flex flex-col">
+
+  <!-- Mobile header -->
+  <div class="lg:hidden flex items-center justify-between px-4 py-3 border-b border-gray-100">
+    <p class="text-sm font-semibold text-gray-800">Teacher Menu1</p>
+    <button
+      @click="sidebarOpen = false"
+      class="p-2 rounded-lg text-gray-600 hover:bg-gray-100">
+      ✕
+    </button>
+  </div>
+
+  <div class="flex-1 p-3 space-y-4 overflow-y-auto">
+
+    <!-- Quick links -->
+    <div class="bg-white border border-gray-200 rounded-xl p-3 space-y-1">
+
+      <a href="{% url 'dashboard:home' %}"
+         @click="sidebarOpen = false"
+         class="flex items-center gap-3 px-3 py-2 text-sm rounded-lg transition-colors
+         {% if active_view_name == 'dashboard:home' %}
+           bg-blue-50 text-blue-700 font-medium
+         {% else %}
+           text-gray-700 hover:bg-gray-100
+         {% endif %}">
+        <span class="w-5 text-center">🏠</span>
+        <span x-show="!sidebarMini">Dashboard</span>
+      </a>
+
+      <a href="{% url 'courses:list' %}"
+         @click="sidebarOpen = false"
+         class="flex items-center gap-3 px-3 py-2 text-sm rounded-lg transition-colors
+         {% if active_app_name == 'courses' and active_view_name != 'courses:browse' and active_view_name != 'courses:course_analysis' %}
+           bg-blue-50 text-blue-700 font-medium
+         {% else %}
+           text-gray-700 hover:bg-gray-100
+         {% endif %}">
+        <span class="w-5 text-center">📚</span>
+        <span x-show="!sidebarMini">My Coursess</span>
+      </a>
+
+      <a href="{% url 'courses:browse' %}"
+         @click="sidebarOpen = false"
+         class="flex items-center gap-3 px-3 py-2 text-sm rounded-lg transition-colors
+         {% if active_view_name == 'courses:browse' %}
+           bg-blue-50 text-blue-700 font-medium
+         {% else %}
+           text-gray-700 hover:bg-gray-100
+         {% endif %}">
+        <span class="w-5 text-center">🔎</span>
+        <span x-show="!sidebarMini">Browse Courses</span>
+      </a>
+
+      <a href="{% url 'assignments:list' %}"
+         @click="sidebarOpen = false"
+         class="flex items-center justify-between px-3 py-2 text-sm rounded-lg transition-colors
+         {% if active_app_name == 'assignments' and active_view_name != 'assignments:quiz_list' and active_view_name != 'assignments:quiz_create' and active_view_name != 'assignments:quiz_update' %}
+           bg-blue-50 text-blue-700 font-medium
+         {% else %}
+           text-gray-700 hover:bg-gray-100
+         {% endif %}">
+        <span class="flex items-center gap-3">
+          <span class="w-5 text-center">📝</span>
+          <span x-show="!sidebarMini">Assignments</span>
+        </span>
+        {% if sidebar_pending_submissions %}
+        <span x-show="!sidebarMini" class="text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full">
+          {{ sidebar_pending_submissions }}
+        </span>
+        {% endif %}
+      </a>
+
+      <a href="{% url 'assignments:quiz_list' %}"
+         @click="sidebarOpen = false"
+         class="flex items-center justify-between px-3 py-2 text-sm rounded-lg transition-colors
+         {% if active_view_name == 'assignments:quiz_list' or active_view_name == 'assignments:quiz_create' or active_view_name == 'assignments:quiz_update' %}
+           bg-blue-50 text-blue-700 font-medium
+         {% else %}
+           text-gray-700 hover:bg-gray-100
+         {% endif %}">
+        <span class="flex items-center gap-3">
+          <span class="w-5 text-center">❓</span>
+          <span x-show="!sidebarMini">All Quizzes</span>
+        </span>
+        {% if sidebar_teacher_quiz_count %}
+        <span x-show="!sidebarMini" class="text-xs bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full">
+          {{ sidebar_teacher_quiz_count }}
+        </span>
+        {% endif %}
+      </a>
+
+      <a href="{% url 'resources:list' %}"
+         @click="sidebarOpen = false"
+         class="flex items-center gap-3 px-3 py-2 text-sm rounded-lg transition-colors
+         {% if active_app_name == 'resources' %}
+           bg-blue-50 text-blue-700 font-medium
+         {% else %}
+           text-gray-700 hover:bg-gray-100
+         {% endif %}">
+        <span class="w-5 text-center">📂</span>
+        <span x-show="!sidebarMini">Resources</span>
+      </a>
+
+      <a href="{% url 'notifications:list' %}"
+         @click="sidebarOpen = false"
+         class="flex items-center justify-between px-3 py-2 text-sm rounded-lg transition-colors
+         {% if active_app_name == 'notifications' %}
+           bg-blue-50 text-blue-700 font-medium
+         {% else %}
+           text-gray-700 hover:bg-gray-100
+         {% endif %}">
+        <span class="flex items-center gap-3">
+          <span class="w-5 text-center">🔔</span>
+          <span x-show="!sidebarMini">Notifications</span>
+        </span>
+        {% if unread_notifications_count %}
+        <span x-show="!sidebarMini" class="text-xs bg-red-100 text-red-700 px-2 py-0.5 rounded-full">
+          {{ unread_notifications_count }}
+        </span>
+        {% endif %}
+      </a>
+
+      <a href="{% url 'courses:create' %}"
+         @click="sidebarOpen = false"
+         class="flex items-center gap-3 px-3 py-2 text-sm rounded-lg transition-colors
+         {% if active_view_name == 'courses:create' %}
+           bg-blue-50 text-blue-700 font-medium
+         {% else %}
+           text-gray-700 hover:bg-gray-100
+         {% endif %}">
+        <span class="w-5 text-center">➕</span>
+        <span x-show="!sidebarMini">New Course</span>
+      </a>
+
+      <a href="{% url 'dashboard:analytics' %}"
+         @click="sidebarOpen = false"
+         class="flex items-center gap-3 px-3 py-2 text-sm rounded-lg transition-colors
+         {% if active_view_name == 'dashboard:analytics' %}
+           bg-blue-50 text-blue-700 font-medium
+         {% else %}
+           text-gray-700 hover:bg-gray-100
+         {% endif %}">
+        <span class="w-5 text-center">📊</span>
+        <span x-show="!sidebarMini">Analytics</span>
+      </a>
+
+    </div>
+
+    <!-- Course tools -->
+    <div class="bg-white border border-gray-200 rounded-xl overflow-hidden">
+      <div class="px-4 py-3 border-b border-gray-100" x-show="!sidebarMini">
+        <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider">
+          Course Tools
+        </p>
+      </div>
+
+      {% if selected_course %}
+      <div class="px-4 py-3 border-b border-gray-100 bg-blue-50" x-show="!sidebarMini">
+        <p class="text-sm font-medium text-blue-700 truncate">{{ selected_course.title }}</p>
+        <p class="text-xs text-blue-500 mt-0.5">
+          {{ selected_course.get_term_display }} · {{ selected_course.year }}
+        </p>
+      </div>
+
+      <a href="{% url 'courses:course_analysis' selected_course.pk %}"
+         @click="sidebarOpen = false"
+         class="flex items-center gap-3 px-4 py-3 border-b border-gray-100 hover:bg-gray-50 transition-colors
+         {% if active_view_name == 'courses:course_analysis' %}
+           bg-blue-50 text-blue-700 font-medium
+         {% else %}
+           text-gray-700
+         {% endif %}">
+        <span class="w-5 text-center">📊</span>
+        <span x-show="!sidebarMini">Course Analysis</span>
+      </a>
+
+      <a href="{% url 'courses:student_roster' selected_course.pk %}"
+         @click="sidebarOpen = false"
+         class="flex items-center gap-3 px-4 py-3 border-b border-gray-100 hover:bg-gray-50 transition-colors
+         {% if active_view_name == 'courses:student_roster' %}
+           bg-blue-50 text-blue-700 font-medium
+         {% else %}
+           text-gray-700
+         {% endif %}">
+        <span class="w-5 text-center">👥</span>
+        <span x-show="!sidebarMini">Student Roster</span>
+      </a>
+
+      <a href="{% url 'courses:enrolment_requests' selected_course.pk %}"
+         @click="sidebarOpen = false"
+         class="flex items-center justify-between px-4 py-3 border-b border-gray-100 hover:bg-gray-50 transition-colors
+         {% if active_view_name == 'courses:enrolment_requests' %}
+           bg-blue-50 text-blue-700 font-medium
+         {% else %}
+           text-gray-700
+         {% endif %}">
+        <span class="flex items-center gap-3">
+          <span class="w-5 text-center">📨</span>
+          <span x-show="!sidebarMini">Enrolments</span>
+        </span>
+        {% if sidebar_pending_enrolments %}
+        <span x-show="!sidebarMini" class="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">
+          {{ sidebar_pending_enrolments }}
+        </span>
+        {% endif %}
+      </a>
+
+      <a href="{% url 'assignments:create' %}?course={{ selected_course.pk }}"
+         @click="sidebarOpen = false"
+         class="flex items-center gap-3 px-4 py-3 border-b border-gray-100 hover:bg-gray-50 transition-colors text-gray-700">
+        <span class="w-5 text-center">📝</span>
+        <span x-show="!sidebarMini">Add Assignment</span>
+      </a>
+
+      <a href="{% url 'assignments:quiz_create' %}?course={{ selected_course.pk }}"
+         @click="sidebarOpen = false"
+         class="flex items-center gap-3 px-4 py-3 border-b border-gray-100 hover:bg-gray-50 transition-colors text-gray-700">
+        <span class="w-5 text-center">❓</span>
+        <span x-show="!sidebarMini">Add Quiz</span>
+      </a>
+
+      <a href="{% url 'announcements:create' %}?course={{ selected_course.pk }}"
+         @click="sidebarOpen = false"
+         class="flex items-center gap-3 px-4 py-3 border-b border-gray-100 hover:bg-gray-50 transition-colors text-gray-700">
+        <span class="w-5 text-center">📢</span>
+        <span x-show="!sidebarMini">Add Announcement</span>
+      </a>
+
+      <a href="{% url 'resources:create' %}?course={{ selected_course.pk }}"
+         @click="sidebarOpen = false"
+         class="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors text-gray-700">
+        <span class="w-5 text-center">📂</span>
+        <span x-show="!sidebarMini">Add Resource</span>
+      </a>
+
+      {% else %}
+      <div class="px-4 py-6 text-center" x-show="!sidebarMini">
+        <p class="text-sm text-gray-400">Select a course to access course tools</p>
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- My courses -->
+    <div class="bg-white border border-gray-200 rounded-xl overflow-hidden">
+      <div class="px-4 py-3 border-b border-gray-100" x-show="!sidebarMini">
+        <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider">
+          My Courses
+        </p>
+      </div>
+
+      {% for course in sidebar_teaching_courses %}
+      <a
+        href="{% url 'dashboard:home' %}?course={{ course.pk }}"
+        hx-get="{% url 'dashboard:home' %}?course={{ course.pk }}"
+        hx-target="#dashboard-main-content"
+        hx-select="#dashboard-main-content"
+        hx-push-url="true"
+        @click="sidebarOpen = false"
+        class="flex items-start gap-3 px-4 py-3 border-b border-gray-100 last:border-0 hover:bg-gray-50 transition-colors
+        {% if selected_course and selected_course.pk == course.pk %}bg-blue-50{% endif %}">
+
+        <div class="w-8 h-8 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center text-xs font-semibold flex-shrink-0">
+          {{ course.title|slice:":1"|upper }}
+        </div>
+
+        <div class="min-w-0" x-show="!sidebarMini">
+          <span class="block text-sm font-medium {% if selected_course and selected_course.pk == course.pk %}text-blue-700{% else %}text-gray-800{% endif %}">
+            {{ course.title }}
+          </span>
+          <span class="block text-xs text-gray-400 mt-0.5">
+            {{ course.get_term_display }} · {{ course.year }} · {{ course.student_count }} students
+          </span>
+        </div>
+      </a>
+      {% empty %}
+      <div class="px-4 py-6 text-center" x-show="!sidebarMini">
+        <p class="text-sm text-gray-400">No courses yet</p>
+        <a href="{% url 'courses:create' %}" class="text-sm text-blue-600 hover:underline mt-1 inline-block">
+          Create one
+        </a>
+      </div>
+      {% endfor %}
+    </div>
+
+    <!-- Needs attention -->
+    {% if sidebar_pending_submissions or sidebar_pending_enrolments %}
+    <div class="bg-white border border-gray-200 rounded-xl overflow-hidden" x-show="!sidebarMini">
+      <div class="px-4 py-3 border-b border-gray-100">
+        <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider">
+          Needs attention
+        </p>
+      </div>
+
+      {% if sidebar_pending_submissions %}
+      <div class="flex items-center justify-between px-4 py-2.5 text-sm text-gray-600 border-b border-gray-100">
+        <span>Ungraded</span>
+        <span class="bg-amber-100 text-amber-700 text-xs font-semibold px-2 py-0.5 rounded-full">
+          {{ sidebar_pending_submissions }}
+        </span>
+      </div>
+      {% endif %}
+
+      {% if sidebar_pending_enrolments %}
+      <div class="flex items-center justify-between px-4 py-2.5 text-sm text-gray-600">
+        <span>Pending enrolments</span>
+        <span class="bg-blue-100 text-blue-700 text-xs font-semibold px-2 py-0.5 rounded-full">
+          {{ sidebar_pending_enrolments }}
+        </span>
+      </div>
+      {% endif %}
+    </div>
+    {% endif %}
+
+  </div>
+</div>

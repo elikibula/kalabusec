@@ -1,0 +1,109 @@
+<div class="h-full flex flex-col">
+
+  <!-- Mobile header -->
+  <div class="lg:hidden flex items-center justify-between px-4 py-3 border-b border-gray-100">
+    <p class="text-sm font-semibold text-gray-800">Student Menu</p>
+    <button
+      @click="sidebarOpen = false"
+      class="p-2 rounded-lg text-gray-600 hover:bg-gray-100">
+      ✕
+    </button>
+  </div>
+
+  <div class="flex-1 p-3 space-y-4">
+
+    <!-- Section: Overview -->
+    <div class="bg-white border border-gray-200 rounded-xl overflow-hidden">
+      <div class="px-4 py-3 border-b border-gray-100" x-show="!sidebarMini">
+        <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider">
+          Overview
+        </p>
+      </div>
+
+      <a href="{% url 'dashboard:home' %}"
+         class="flex items-center gap-3 px-4 py-3 border-b border-gray-100 hover:bg-gray-50 transition-colors
+         {% if active_view_name == 'dashboard:home' %}bg-blue-50{% endif %}">
+        
+        <span class="w-8 h-8 flex items-center justify-center rounded-lg bg-blue-100 text-blue-700">🏠</span>
+
+        <div x-show="!sidebarMini">
+          <span class="text-sm font-medium text-gray-800">Dashboard</span>
+        </div>
+      </a>
+
+      <a href="{% url 'dashboard:analytics' %}"
+         class="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors
+         {% if active_view_name == 'dashboard:analytics' %}bg-blue-50{% endif %}">
+
+        <span class="w-8 h-8 flex items-center justify-center rounded-lg bg-purple-100 text-purple-700">📊</span>
+
+        <div x-show="!sidebarMini">
+          <span class="text-sm font-medium text-gray-800">Analytics</span>
+        </div>
+      </a>
+    </div>
+
+    <!-- Section: Learning -->
+    <div class="bg-white border border-gray-200 rounded-xl overflow-hidden">
+      <div class="px-4 py-3 border-b border-gray-100" x-show="!sidebarMini">
+        <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider">
+          Learning
+        </p>
+      </div>
+
+      <a href="{% url 'courses:list' %}"
+         class="flex items-center gap-3 px-4 py-3 border-b border-gray-100 hover:bg-gray-50 transition-colors
+         {% if active_app_name == 'courses' %}bg-blue-50{% endif %}">
+
+        <span class="w-8 h-8 flex items-center justify-center rounded-lg bg-green-100 text-green-700">📚</span>
+
+        <div x-show="!sidebarMini">
+          <span class="text-sm font-medium text-gray-800">My Courses</span>
+        </div>
+      </a>
+
+      <a href="{% url 'assignments:list' %}"
+         class="flex items-center gap-3 px-4 py-3 border-b border-gray-100 hover:bg-gray-50 transition-colors
+         {% if active_app_name == 'assignments' and active_view_name != 'assignments:quiz_list' %}bg-blue-50{% endif %}">
+
+        <span class="w-8 h-8 flex items-center justify-center rounded-lg bg-amber-100 text-amber-700">📝</span>
+
+        <div x-show="!sidebarMini">
+          <span class="text-sm font-medium text-gray-800">Assignments</span>
+        </div>
+      </a>
+
+      <a href="{% url 'assignments:quiz_list' %}"
+         class="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors
+         {% if active_view_name == 'assignments:quiz_list' %}bg-blue-50{% endif %}">
+
+        <span class="w-8 h-8 flex items-center justify-center rounded-lg bg-indigo-100 text-indigo-700">❓</span>
+
+        <div x-show="!sidebarMini">
+          <span class="text-sm font-medium text-gray-800">Quizzes</span>
+        </div>
+      </a>
+    </div>
+
+    <!-- Section: Personal -->
+    <div class="bg-white border border-gray-200 rounded-xl overflow-hidden">
+      <div class="px-4 py-3 border-b border-gray-100" x-show="!sidebarMini">
+        <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider">
+          Personal
+        </p>
+      </div>
+
+      <a href="{% url 'accounts:profile' %}"
+         class="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors
+         {% if active_view_name == 'accounts:profile' %}bg-blue-50{% endif %}">
+
+        <span class="w-8 h-8 flex items-center justify-center rounded-lg bg-gray-100 text-gray-700">👤</span>
+
+        <div x-show="!sidebarMini">
+          <span class="text-sm font-medium text-gray-800">My Profile</span>
+        </div>
+      </a>
+    </div>
+
+  </div>
+</div>

@@ -1,0 +1,78 @@
+<!-- Student Submission Section -->
+<div class="bg-white dark:bg-gray-800 rounded-2xl shadow p-8">
+    <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">Your Submission</h2>
+    
+    {% if submission %}
+        <!-- Has Submitted -->
+        <div class="border-l-4 {% if submission.status == 'graded' %}border-green-500{% else %}border-blue-500{% endif %} bg-gray-50 dark:bg-gray-900/50 p-6 rounded-r-xl mb-6">
+            <div class="flex justify-between items-start mb-4">
+                <div>
+                    <span class="inline-block px-3 py-1 text-sm font-semibold rounded-full
+                        {% if submission.status == 'graded' %}bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300
+                        {% else %}bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300{% endif %}">
+                        {{ submission.get_status_display }}
+                    </span>
+                </div>
+                
+                {% if submission.score is not None %}
+                <div class="text-right">
+                    <span class="text-3xl font-bold text-green-600 dark:text-green-400">
+                        {{ submission.score }}<span class="text-xl">/{{ assignment.total_points }}</span>
+                    </span>
+                </div>
+                {% endif %}
+            </div>
+            
+            <p class="text-gray-600 dark:text-gray-400">
+                Submitted on <strong>{{ submission.submitted_at|date:"d M Y • H:i" }}</strong>
+                {% if submission.is_late %}
+                    <span class="text-red-600 font-medium">({{ submission.days_late }} days late)</span>
+                {% endif %}
+            </p>
+            
+            {% if submission.feedback %}
+            <div class="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
+                <p class="font-semibold text-gray-900 dark:text-white mb-2">Teacher Feedback:</p>
+                <p class="text-gray-700 dark:text-gray-300 italic">"{{ submission.feedback }}"</p>
+            </div>
+            {% endif %}
+        </div>
+
+        {% if can_submit %}
+        <a href="{% url 'assignments:submit' assignment.pk %}" 
+           class="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-medium transition">
+            📤 Update Submission
+        </a>
+        {% endif %}
+
+    {% else %}
+        <!-- No Submission Yet -->
+        {% if can_submit %}
+        <div class="text-center py-12">
+            <p class="text-gray-500 dark:text-gray-400 mb-6 text-lg">
+                You haven't submitted this assignment yet.
+            </p>
+            <a href="{% url 'assignments:submit' assignment.pk %}" 
+               class="inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-2xl font-semibold text-lg hover:shadow-xl transition">
+                Submit Your Assignment Now
+            </a>
+        </div>
+        {% else %}
+        <div class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-2xl p-8 text-center">
+            {% if assignment.timeline_state == 'upcoming' %}
+            <p class="text-blue-700 dark:text-blue-400 font-medium">
+                This assignment opens on {{ assignment.available_from|date:"d M Y H:i" }}.
+            </p>
+            {% elif assignment.timeline_state == 'draft' or assignment.timeline_state == 'archived' %}
+            <p class="text-gray-700 dark:text-gray-400 font-medium">
+                This assignment is not currently open to students.
+            </p>
+            {% else %}
+            <p class="text-red-700 dark:text-red-400 font-medium">
+                This assignment is past due and no longer accepts submissions.
+            </p>
+            {% endif %}
+        </div>
+        {% endif %}
+    {% endif %}
+</div>

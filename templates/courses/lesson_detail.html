@@ -1,0 +1,131 @@
+{% extends 'dashboard_base.html' %}
+{% load video_tags %}
+{% block title %}{{ lesson.title }}{% endblock %}
+
+{% block dashboard_content %}
+<div class="max-w-3xl">
+
+  <!-- Breadcrumb -->
+  <p class="text-sm text-gray-400 mb-4">
+    <a href="{% url 'courses:detail' lesson.module.course.pk %}" class="hover:text-blue-600">{{ lesson.module.course.title }}</a>
+    / {{ lesson.module.title }} / {{ lesson.title }}
+  </p>
+
+  <!-- Lesson header -->
+  <div class="flex items-start justify-between gap-4 mb-5">
+    <div>
+      <h1 class="text-2xl font-semibold text-gray-900">{{ lesson.title }}</h1>
+      {% if lesson.duration_minutes %}<p class="text-sm text-gray-400 mt-1">{{ lesson.duration_minutes }} min read</p>{% endif %}
+    </div>
+    <div class="flex items-center gap-2 flex-shrink-0">
+      {% if user.is_teacher or user.is_school_admin %}
+      <a href="{% url 'courses:lesson_update' lesson.pk %}" class="px-3 py-1.5 text-sm border border-gray-200 rounded-lg text-gray-600 hover:bg-gray-50">Edit</a>
+      <a href="{% url 'courses:lesson_delete' lesson.pk %}" class="px-3 py-1.5 text-sm border border-red-200 text-red-500 rounded-lg hover:bg-red-50">Delete</a>
+      {% endif %}
+    </div>
+  </div>
+
+ <!-- Video embed -->
+    {% if lesson.video_url %}
+    <div class="mb-5 rounded-xl overflow-hidden border border-gray-200 aspect-video">
+        {% if 'youtube.com' in lesson.video_url or 'youtu.be' in lesson.video_url %}
+            <iframe 
+                src="{{ lesson.video_url|youtube_embed_url }}"
+                class="w-full h-full" 
+                frameborder="0" 
+                allowfullscreen>
+            </iframe>
+        {% else %}
+            <a href="{{ lesson.video_url }}" 
+              target="_blank" 
+              class="flex items-center justify-center h-full bg-gray-50 text-blue-600 hover:underline text-sm">
+                Watch video →
+            </a>
+        {% endif %}
+    </div>
+    {% endif %}
+  <!-- Lesson content -->
+  <div class="bg-white border border-gray-200 rounded-xl p-6 mb-5 prose prose-sm max-w-none">
+    {{ lesson.content|linebreaks }}
+  </div>
+
+  <!-- File attachments -->
+  {% if files %}
+  <div class="bg-white border border-gray-200 rounded-xl overflow-hidden mb-5">
+    <div class="flex items-center justify-between px-4 py-3 border-b border-gray-100">
+      <h3 class="text-sm font-semibold text-gray-700">Attachments</h3>
+      {% if user.is_teacher or user.is_school_admin %}
+      <a href="{% url 'courses:lesson_file_upload' lesson.pk %}" class="text-xs text-blue-600 hover:underline">+ Upload</a>
+      {% endif %}
+    </div>
+    <div class="divide-y divide-gray-100">
+      {% for file in files %}
+      <div class="flex items-center gap-3 px-4 py-3">
+        <svg width="16" height="16" class="text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        <a href="{{ file.file.url }}" class="flex-1 text-sm text-blue-600 hover:underline truncate" target="_blank">{{ file.label|default:file.file.name }}</a>
+        {% if user.is_teacher or user.is_school_admin %}
+        <form method="post" action="{% url 'courses:lesson_file_delete' file.pk %}">{% csrf_token %}
+          <button class="text-xs text-red-400 hover:text-red-600">Remove</button>
+        </form>
+        {% endif %}
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% elif user.is_teacher or user.is_school_admin %}
+  <div class="mb-5">
+    <a href="{% url 'courses:lesson_file_upload' lesson.pk %}" class="text-sm text-blue-600 hover:underline">+ Add file attachments</a>
+  </div>
+  {% endif %}
+
+  <!-- Mark complete + navigation -->
+  <div class="flex items-center justify-between gap-4">
+    <div>
+      {% if prev_lesson %}
+      <a href="{% url 'courses:lesson_detail' prev_lesson.pk %}" class="inline-flex items-center gap-1.5 px-4 py-2 text-sm border border-gray-200 rounded-lg text-gray-600 hover:bg-gray-50">
+        ← {{ prev_lesson.title|truncatechars:30 }}
+      </a>
+      {% endif %}
+    </div>
+
+    <div class="flex items-center gap-3">
+      {% if user.is_student %}
+        {% if is_completed %}
+        <span class="flex items-center gap-1.5 text-sm text-green-600 font-medium">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          Completed
+        </span>
+        {% else %}
+        <form method="post" action="{% url 'courses:lesson_complete' lesson.pk %}">
+          {% csrf_token %}
+          <input type="hidden" name="time_spent" id="time_spent" value="0">
+          <button type="submit" class="px-4 py-2 text-sm bg-green-600 text-white rounded-lg hover:bg-green-700 font-medium transition-colors">
+            Mark as complete
+          </button>
+        </form>
+        {% endif %}
+      {% endif %}
+    </div>
+
+    <div>
+      {% if next_lesson %}
+      <a href="{% url 'courses:lesson_detail' next_lesson.pk %}" class="inline-flex items-center gap-1.5 px-4 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium">
+        {{ next_lesson.title|truncatechars:30 }} →
+      </a>
+      {% else %}
+      <a href="{% url 'courses:detail' lesson.module.course.pk %}" class="inline-flex items-center gap-1.5 px-4 py-2 text-sm border border-gray-200 rounded-lg text-gray-600 hover:bg-gray-50">
+        Back to course
+      </a>
+      {% endif %}
+    </div>
+  </div>
+
+</div>
+
+<script>
+  const start = Date.now();
+  document.querySelector('form[action*="complete"]')?.addEventListener('submit', function() {
+    document.getElementById('time_spent').value = Math.round((Date.now() - start) / 60000);
+  });
+</script>
+{% endblock %}

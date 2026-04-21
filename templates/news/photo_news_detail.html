@@ -1,0 +1,169 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load humanize %}
+{% load custom_filters %}
+
+{% block content %}
+<!-- Glightbox CSS/JS (kept here per your setup) -->
+<link href="https://cdn.jsdelivr.net/npm/glightbox/dist/css/glightbox.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/glightbox/dist/js/glightbox.min.js"></script>
+
+<main class="min-h-screen bg-gradient-to-b from-[#5c0d0d] to-[#7a1111] py-12">
+  <div class="container mx-auto px-4 max-w-5xl">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <article class="lg:col-span-2">
+        <div class="bg-white rounded-2xl shadow-lg p-6">
+          <header class="mb-4">
+            <h2 class="text-2xl font-bold text-[#7a1111]">{{ photo_news.title }}</h2>
+            <p class="mt-1 text-sm text-gray-500">
+              <time datetime="{{ photo_news.date_uploaded }}">
+                {{ photo_news.date_posted|date:"F j, Y" }}
+              </time>
+            </p>
+          </header>
+
+          <div class="prose prose-lg max-w-none text-gray-700 mb-6">
+            {{ description|default:"" | safe }}
+          </div>
+
+          <section aria-labelledby="gallery-heading" class="mt-4">
+            <h3 id="gallery-heading" class="text-lg font-semibold text-[#7a1111] mb-4">Click to enlarge</h3>
+
+            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+              {% for image in photo_news.images.all %}
+              <figure class="relative group rounded-lg overflow-hidden shadow-sm bg-gray-50">
+                <a href="{{ image.image.url }}"
+                   class="glightbox block"
+                   data-gallery="photo-news-gallery"
+                   data-type="image"
+                   data-title="{{ photo_news.title|escape }}"
+                   data-description="{{ image.caption|default:''|escape }}"
+                   aria-label="Open {{ photo_news.title }} image in lightbox">
+                  <img src="{{ image.image.url }}"
+                       alt="{{ image.caption|default:photo_news.title }}"
+                       loading="lazy"
+                       class="w-full h-44 object-cover transform transition-transform duration-300 group-hover:scale-105">
+                </a>
+
+                <div class="absolute bottom-2 left-2 flex items-center gap-2">
+                  <a href="{{ image.image.url }}" download
+                     class="inline-flex items-center gap-2 px-2.5 py-1 rounded-md bg-white/90 text-xs font-medium text-gray-700 shadow-sm hover:bg-white">
+                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3v12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 11l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    <span>Download</span>
+                  </a>
+                </div>
+              </figure>
+              {% empty %}
+                <p class="text-sm text-gray-500 col-span-full">No photos available.</p>
+              {% endfor %}
+            </div>
+          </section>
+
+          <div class="mt-6 border-t pt-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+              <h4 class="text-sm font-medium text-gray-700 mb-2">Share this photo news</h4>
+              <div class="flex items-center gap-2">
+                <a href="https://www.facebook.com/sharer/sharer.php?u={{ request.build_absolute_uri|urlencode }}"
+                   target="_blank" rel="noopener noreferrer"
+                   class="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-blue-600 text-white text-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400">
+                  <i class="bi bi-facebook" aria-hidden="true"></i>
+                  <span>Facebook</span>
+                </a>
+
+                <a href="mailto:?subject={{ photo_news.title|urlencode }}&body={{ request.build_absolute_uri|urlencode }}"
+                   class="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-gray-200 text-sm bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[#7a1111]">
+                  <i class="bi bi-envelope-fill" aria-hidden="true"></i>
+                  <span>Email</span>
+                </a>
+              </div>
+            </div>
+
+            <div class="text-sm text-gray-500">
+              <span class="hidden sm:inline">Published:</span>
+              <time datetime="{{ photo_news.date_uploaded }}">{{ photo_news.date_uploaded|naturaltime }}</time>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <aside class="lg:col-span-1">
+        <div class="space-y-6">
+          <div class="bg-white rounded-2xl shadow p-4">
+            <h4 class="text-sm font-semibold maroon-text mb-3 uppercase tracking-wide">News Categories</h4>
+
+            {% if categories %}
+            <ul class="divide-y divide-gray-100">
+              {% for category in categories %}
+                <li>
+                  <a href="{% url 'news:category_view' pk=category.pk slug=category.slug %}" class="flex justify-between items-center py-3 text-sm text-gray-700 hover:bg-gray-50 rounded px-2">
+                    <span>{{ category.name }}</span>
+                    <span class="text-xs bg-gray-100 px-2 py-0.5 rounded-full">{{ category.total_count }}</span>
+                  </a>
+                </li>
+              {% endfor %}
+            </ul>
+            {% else %}
+              <p class="text-sm text-gray-500">No categories yet.</p>
+            {% endif %}
+          </div>
+
+          <div class="bg-white rounded-2xl shadow p-4">
+            <h4 class="text-sm font-semibold maroon-text mb-3">Recent News</h4>
+
+            {% if recent_news %}
+            <div class="space-y-3">
+              {% for item in recent_news %}
+                {% if item.slug %}
+                  {% url 'news:news_detail' item.slug as item_url %}
+                {% else %}
+                  {% url 'news:photo_news_detail' item.pk as item_url %}
+                {% endif %}
+
+                <a href="{{ item_url }}" class="flex gap-3 items-center group">
+                  {% if item.image %}
+                    {% if item.image.url %}
+                      <img src="{{ item.image.url }}" alt="{{ item.title }}" class="w-16 h-12 object-cover rounded-md shadow-sm transform group-hover:scale-105 transition" loading="lazy">
+                    {% endif %}
+                  {% endif %}
+                  <div class="flex-1">
+                    <h5 class="text-sm font-medium text-gray-800">{{ item.title|truncatewords:7 }}</h5>
+                    <p class="text-xs text-gray-500">
+                      {% if item.content %}{{ item.content|striptags|truncatewords:8 }}
+                      {% elif item.description %}{{ item.description|striptags|truncatewords:8 }}
+                      {% else %}{% if item.caption %}{{ item.caption|truncatewords:8 }}{% else %}No summary available.{% endif %}{% endif %}
+                    </p>
+                    <p class="text-xs text-gray-400 mt-1">
+                      {% if item.date_posted %}{{ item.date_posted|naturaltime }}{% elif item.date_uploaded %}{{ item.date_uploaded|naturaltime }}{% endif %}
+                    </p>
+                  </div>
+                </a>
+              {% endfor %}
+            </div>
+            {% else %}
+              <p class="text-sm text-gray-500">No recent news.</p>
+            {% endif %}
+          </div>
+        </div>
+      </aside>
+    </div>
+  </div>
+</main>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    try {
+      if (typeof GLightbox === 'function' && document.querySelector('.glightbox')) {
+        window.newsLightbox = GLightbox({
+          selector: '.glightbox',
+          touchNavigation: true,
+          loop: true,
+          zoomable: true,
+          moreText: 'View'
+        });
+      }
+    } catch (err) {
+      console.error('Error initializing GLightbox:', err);
+    }
+  });
+</script>
+{% endblock %}

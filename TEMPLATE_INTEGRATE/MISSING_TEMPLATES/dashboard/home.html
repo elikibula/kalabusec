@@ -1,0 +1,76 @@
+{% extends 'base/base.html' %}
+
+{% block title %}Dashboard - School LMS{% endblock %}
+
+{% block content %}
+<div class="bg-gradient-to-br from-blue-600 via-purple-600 to-pink-600 text-white py-12">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <h1 class="text-4xl font-bold mb-2">Welcome back, {{ user.get_full_name }}! 👋</h1>
+        <p class="text-blue-100">{{ user.get_role_display }} Dashboard</p>
+    </div>
+</div>
+
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    {% if user.is_student %}
+    <!-- Student Dashboard Content -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div class="bg-white rounded-xl shadow-md p-6">
+            <p class="text-sm font-medium text-gray-600">Enrolled Courses</p>
+            <p class="text-3xl font-bold text-gray-900 mt-2">{{ enrolled_courses.count|default:0 }}</p>
+        </div>
+        <div class="bg-white rounded-xl shadow-md p-6">
+            <p class="text-sm font-medium text-gray-600">Pending Assignments</p>
+            <p class="text-3xl font-bold text-gray-900 mt-2">{{ upcoming_assignments.count|default:0 }}</p>
+        </div>
+    </div>
+    
+    <div class="bg-white rounded-xl shadow-md p-6 mb-8">
+        <h2 class="text-2xl font-bold text-gray-900 mb-6">My Courses</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {% for course in enrolled_courses %}
+            <a href="{% url 'courses:detail' course.pk %}" class="block border-2 border-gray-200 rounded-xl p-6 hover:border-blue-500 hover:shadow-lg transition-all">
+                <h3 class="text-lg font-semibold text-gray-900 mb-2">{{ course.title }}</h3>
+                <p class="text-sm text-gray-600">{{ course.code }}</p>
+            </a>
+            {% empty %}
+            <p class="text-gray-500 col-span-2">You haven't enrolled in any courses yet. <a href="{% url 'courses:list' %}" class="text-blue-600">Browse courses</a></p>
+            {% endfor %}
+        </div>
+    </div>
+    
+    {% elif user.is_teacher %}
+    <!-- Teacher Dashboard Content -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div class="bg-white rounded-xl shadow-md p-6">
+            <p class="text-sm font-medium text-gray-600">My Courses</p>
+            <p class="text-3xl font-bold text-gray-900 mt-2">{{ teaching_courses.count|default:0 }}</p>
+        </div>
+        <div class="bg-white rounded-xl shadow-md p-6">
+            <p class="text-sm font-medium text-gray-600">Pending Grading</p>
+            <p class="text-3xl font-bold text-gray-900 mt-2">{{ pending_submissions.count|default:0 }}</p>
+        </div>
+    </div>
+    
+    <div class="bg-white rounded-xl shadow-md p-6">
+        <div class="flex items-center justify-between mb-6">
+            <h2 class="text-2xl font-bold text-gray-900">Quick Actions</h2>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <a href="{% url 'courses:create' %}" class="px-6 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:shadow-lg transition text-center font-medium">
+                + Create Course
+            </a>
+            <a href="{% url 'assignments:create' %}" class="px-6 py-4 border-2 border-blue-600 text-blue-600 rounded-lg hover:bg-blue-50 transition text-center font-medium">
+                + Create Assignment
+            </a>
+        </div>
+    </div>
+    
+    {% else %}
+    <!-- Admin or other role -->
+    <div class="bg-white rounded-xl shadow-md p-6 text-center">
+        <h2 class="text-2xl font-bold text-gray-900 mb-4">Welcome to School LMS</h2>
+        <p class="text-gray-600">Get started by exploring the system</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

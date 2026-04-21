@@ -1,0 +1,49 @@
+{% extends 'base/base.html' %}
+
+{% block title %}Assignments - School LMS{% endblock %}
+
+{% block content %}
+<div class="bg-gradient-to-r from-purple-600 to-pink-600 text-white py-12">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <h1 class="text-4xl font-bold mb-2">📝 Assignments</h1>
+        <p class="text-purple-100">Manage your assignments and submissions</p>
+    </div>
+</div>
+
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    {% if assignments %}
+    <div class="space-y-4">
+        {% for assignment in assignments %}
+        <div class="bg-white rounded-xl shadow-md p-6 hover:shadow-lg transition">
+            <div class="flex items-start justify-between">
+                <div class="flex-1">
+                    <div class="flex items-center space-x-3 mb-2">
+                        <span class="px-3 py-1 bg-purple-100 text-purple-700 text-sm font-semibold rounded-full">
+                            {{ assignment.course.code }}
+                        </span>
+                        <span class="text-sm {% if assignment.due_date < now %}text-red-600{% else %}text-gray-600{% endif %}">
+                            Due: {{ assignment.due_date|date:"M d, Y H:i" }}
+                        </span>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-2">{{ assignment.title }}</h3>
+                    <p class="text-gray-600 mb-3">{{ assignment.description|truncatewords:30 }}</p>
+                    <div class="flex items-center space-x-4 text-sm text-gray-600">
+                        <span><i class="fas fa-star mr-1"></i>{{ assignment.total_points }} points</span>
+                        <span><i class="fas fa-book mr-1"></i>{{ assignment.course.title }}</span>
+                    </div>
+                </div>
+                <a href="{% url 'assignments:detail' assignment.pk %}" 
+                   class="px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition font-medium">
+                    View
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="text-center py-12 bg-white rounded-xl">
+        <p class="text-gray-500">No assignments available</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

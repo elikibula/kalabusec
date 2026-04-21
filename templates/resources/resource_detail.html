@@ -1,0 +1,228 @@
+{% extends 'dashboard_base.html' %}
+
+{% block title %}{{ resource.title }} - Resource Details{% endblock %}
+
+{% block dashboard_content %}
+<div class="bg-gradient-to-r from-green-500 to-teal-600 text-white py-10">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
+            <div>
+                <div class="flex flex-wrap items-center gap-2 mb-3">
+                    <span class="px-3 py-1 rounded-full bg-white/20 text-sm font-semibold">
+                        {{ resource.get_resource_type_display }}
+                    </span>
+
+                    {% if resource.is_public %}
+                    <span class="px-3 py-1 rounded-full bg-emerald-400/20 text-sm font-semibold">
+                        Public
+                    </span>
+                    {% else %}
+                    <span class="px-3 py-1 rounded-full bg-amber-400/20 text-sm font-semibold">
+                        Private
+                    </span>
+                    {% endif %}
+
+                    {% if resource.category %}
+                    <span class="px-3 py-1 rounded-full bg-white/20 text-sm font-semibold">
+                        {{ resource.category.name }}
+                    </span>
+                    {% endif %}
+                </div>
+
+                <h1 class="text-4xl font-bold mb-3">{{ resource.title }}</h1>
+                <p class="text-green-100 max-w-3xl">
+                    {{ resource.description }}
+                </p>
+            </div>
+
+            <div class="flex flex-wrap gap-3">
+                <a href="{% url 'resources:list' %}"
+                   class="inline-flex items-center px-5 py-3 bg-white text-green-700 font-semibold rounded-xl hover:bg-green-50 transition">
+                    ← Back to Library
+                </a>
+
+                {% if user.is_teacher or user.is_school_admin %}
+                <a href="{% url 'resources:update' resource.pk %}"
+                   class="inline-flex items-center px-5 py-3 bg-green-700 text-white font-semibold rounded-xl hover:bg-green-800 transition">
+                    ✏️ Edit
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+        <!-- Main Content -->
+        <div class="lg:col-span-2 space-y-6">
+
+            <!-- Description Card -->
+            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-md p-6">
+                <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-4">About this Resource</h2>
+                <div class="prose max-w-none text-gray-700 dark:text-gray-300">
+                    <p>{{ resource.description|linebreaks }}</p>
+                </div>
+            </div>
+
+            <!-- Access Card -->
+            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-md p-6">
+                <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-4">Access Resource</h2>
+
+                <div class="space-y-4">
+                    {% if resource.file %}
+                    <div class="rounded-xl border border-gray-200 dark:border-gray-700 p-4">
+                        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                            <div>
+                                <p class="font-semibold text-gray-900 dark:text-white">Download File</p>
+                                <p class="text-sm text-gray-500 dark:text-gray-400">
+                                    {% if resource.file_size %}{{ resource.file_size|filesizeformat }}{% else %}File available{% endif %}
+                                </p>
+                            </div>
+                            <a href="{% url 'resources:download' resource.pk %}"
+                                class="inline-flex items-center justify-center px-5 py-3 bg-green-600 text-white rounded-xl hover:bg-green-700 transition font-semibold">
+                                    ⬇ Download
+                            </a>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    {% if resource.url %}
+                    <div class="rounded-xl border border-gray-200 dark:border-gray-700 p-4">
+                        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                            <div>
+                                <p class="font-semibold text-gray-900 dark:text-white">External Link</p>
+                                <p class="text-sm text-gray-500 dark:text-gray-400 break-all">
+                                    {{ resource.url }}
+                                </p>
+                            </div>
+                            <a href="{{ resource.url }}" target="_blank" rel="noopener"
+                               class="inline-flex items-center justify-center px-5 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition font-semibold">
+                                🔗 Open Link
+                            </a>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    {% if not resource.file and not resource.url %}
+                    <div class="rounded-xl border border-amber-200 bg-amber-50 dark:bg-amber-900/20 dark:border-amber-800 p-4">
+                        <p class="text-sm text-amber-700 dark:text-amber-300">
+                            No downloadable file or external link is attached to this resource yet.
+                        </p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Sidebar Info -->
+        <div class="space-y-6">
+
+            <!-- Resource Info -->
+            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-md p-6">
+                <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4">Resource Information</h3>
+
+                <dl class="space-y-4 text-sm">
+                    <div>
+                        <dt class="text-gray-500 dark:text-gray-400">Type</dt>
+                        <dd class="font-medium text-gray-900 dark:text-white">{{ resource.get_resource_type_display }}</dd>
+                    </div>
+
+                    {% if resource.category %}
+                    <div>
+                        <dt class="text-gray-500 dark:text-gray-400">Category</dt>
+                        <dd class="font-medium text-gray-900 dark:text-white">{{ resource.category.name }}</dd>
+                    </div>
+                    {% endif %}
+
+                    {% if resource.subject %}
+                    <div>
+                        <dt class="text-gray-500 dark:text-gray-400">Subject</dt>
+                        <dd class="font-medium text-gray-900 dark:text-white">{{ resource.subject.name }}</dd>
+                    </div>
+                    {% endif %}
+
+                    {% if resource.course %}
+                    <div>
+                        <dt class="text-gray-500 dark:text-gray-400">Course</dt>
+                        <dd class="font-medium text-gray-900 dark:text-white">{{ resource.course.title }}</dd>
+                    </div>
+                    {% endif %}
+
+                    <div>
+                        <dt class="text-gray-500 dark:text-gray-400">Visibility</dt>
+                        <dd class="font-medium text-gray-900 dark:text-white">
+                            {% if resource.is_public %}Public{% else %}Private{% endif %}
+                        </dd>
+                    </div>
+                </dl>
+            </div>
+
+            <!-- Upload Info -->
+            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-md p-6">
+                <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4">Upload Details</h3>
+
+                <dl class="space-y-4 text-sm">
+                    <div>
+                        <dt class="text-gray-500 dark:text-gray-400">Uploaded By</dt>
+                        <dd class="font-medium text-gray-900 dark:text-white">
+                            {{ resource.uploaded_by.get_full_name|default:resource.uploaded_by.username }}
+                        </dd>
+                    </div>
+
+                    <div>
+                        <dt class="text-gray-500 dark:text-gray-400">Created</dt>
+                        <dd class="font-medium text-gray-900 dark:text-white">
+                            {{ resource.created_at|date:"d M Y, h:i A" }}
+                        </dd>
+                    </div>
+
+                    <div>
+                        <dt class="text-gray-500 dark:text-gray-400">Last Updated</dt>
+                        <dd class="font-medium text-gray-900 dark:text-white">
+                            {{ resource.updated_at|date:"d M Y, h:i A" }}
+                        </dd>
+                    </div>
+
+                    <div>
+                        <dt class="text-gray-500 dark:text-gray-400">Downloads</dt>
+                        <dd class="font-medium text-gray-900 dark:text-white">
+                            {{ resource.download_count }}
+                        </dd>
+                    </div>
+
+                    {% if resource.file_size %}
+                    <div>
+                        <dt class="text-gray-500 dark:text-gray-400">File Size</dt>
+                        <dd class="font-medium text-gray-900 dark:text-white">
+                            {{ resource.file_size|filesizeformat }}
+                        </dd>
+                    </div>
+                    {% endif %}
+                </dl>
+            </div>
+
+            {% if user.is_teacher or user.is_school_admin %}
+            <!-- Staff Actions -->
+            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-md p-6">
+                <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4">Manage Resource</h3>
+
+                <div class="space-y-3">
+                    <a href="{% url 'resources:update' resource.pk %}"
+                       class="w-full inline-flex items-center justify-center px-4 py-3 bg-green-600 text-white rounded-xl hover:bg-green-700 transition font-semibold">
+                        ✏️ Edit Resource
+                    </a>
+
+                    <a href="{% url 'resources:delete' resource.pk %}"
+                       class="w-full inline-flex items-center justify-center px-4 py-3 bg-red-600 text-white rounded-xl hover:bg-red-700 transition font-semibold">
+                        🗑 Delete Resource
+                    </a>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

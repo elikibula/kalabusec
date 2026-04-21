@@ -1,0 +1,98 @@
+{% extends 'base/base.html' %}
+
+{% block title %}{% if object %}Edit Lesson{% else %}Create Lesson{% endif %} - School LMS{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-8">
+        <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-6">
+            {% if object %}Edit Lesson{% else %}Create New Lesson{% endif %}
+        </h1>
+        
+        <form method="post" enctype="multipart/form-data" class="space-y-6">
+            {% csrf_token %}
+            
+            {% if form.errors %}
+            <div class="bg-red-50 border border-red-200 rounded-lg p-4">
+                <p class="text-sm text-red-800 font-medium mb-2">Please correct the following errors:</p>
+                <ul class="list-disc list-inside text-sm text-red-700">
+                    {% for field, errors in form.errors.items %}
+                        {% for error in errors %}
+                        <li>{{ field|title }}: {{ error }}</li>
+                        {% endfor %}
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+            
+            <div>
+                <label for="{{ form.title.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Lesson Title <span class="text-red-500">*</span>
+                </label>
+                {{ form.title }}
+            </div>
+            
+            <div>
+                <label for="{{ form.content.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Content <span class="text-red-500">*</span>
+                </label>
+                {{ form.content }}
+            </div>
+            
+            <div>
+                <label for="{{ form.video_url.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Video URL (YouTube, Vimeo, etc.)
+                </label>
+                {{ form.video_url }}
+                <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Optional: Add a video link to enhance the lesson</p>
+            </div>
+            
+            <div>
+                <label for="{{ form.attachments.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Attachments
+                </label>
+                {{ form.attachments }}
+                {% if object and object.attachments %}
+                <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">Current: {{ object.attachments.name }}</p>
+                {% endif %}
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div>
+                    <label for="{{ form.order.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        Order
+                    </label>
+                    {{ form.order }}
+                </div>
+                
+                <div>
+                    <label for="{{ form.duration_minutes.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        Duration (minutes)
+                    </label>
+                    {{ form.duration_minutes }}
+                </div>
+                
+                <div class="flex items-center">
+                    <input type="checkbox" id="{{ form.is_published.id_for_label }}" name="is_published" 
+                           {% if form.is_published.value %}checked{% endif %}
+                           class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                    <label for="{{ form.is_published.id_for_label }}" class="ml-2 block text-sm text-gray-700 dark:text-gray-300">
+                        Published
+                    </label>
+                </div>
+            </div>
+            
+            <div class="flex items-center justify-between pt-6 border-t border-gray-200 dark:border-gray-700">
+                <a href="javascript:history.back()" 
+                   class="px-6 py-3 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition font-medium">
+                    Cancel
+                </a>
+                <button type="submit" 
+                        class="px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:shadow-lg transition font-medium">
+                    {% if object %}Update Lesson{% else %}Create Lesson{% endif %}
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

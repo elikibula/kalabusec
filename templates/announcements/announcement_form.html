@@ -1,0 +1,94 @@
+{% extends 'dashboard_base.html' %}
+
+{% block title %}
+    {% if object %}Edit Announcement - Kalabu Secondary School{% else %}Create Announcement - Kalabu Secondary School{% endif %}
+{% endblock %}
+
+{% block dashboard_content %}
+<div class="bg-gradient-to-r from-pink-500 to-rose-600 text-white py-10">
+    <div class="max-w-4xl mx-auto px-4">
+        <h1 class="text-4xl font-bold mb-2">
+            {% if object %}✏️ Edit Announcement{% else %}📢 Create Announcement{% endif %}
+        </h1>
+        <p class="text-pink-100">
+            Share important updates with your students and staff.
+        </p>
+    </div>
+</div>
+
+<div class="max-w-4xl mx-auto px-4 py-8">
+    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-md p-6">
+
+        <form method="post" class="space-y-6">
+            {% csrf_token %}
+
+            <!-- Errors -->
+            {% if form.non_field_errors %}
+            <div class="p-4 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm">
+                {{ form.non_field_errors }}
+            </div>
+            {% endif %}
+
+            <!-- Title -->
+            <div>
+                <label class="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-200">
+                    Title
+                </label>
+                {{ form.title }}
+                {% if form.title.errors %}
+                <p class="text-red-600 text-sm mt-1">{{ form.title.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <!-- Content -->
+            <div>
+                <label class="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-200">
+                    Content
+                </label>
+                {{ form.content }}
+                {% if form.content.errors %}
+                <p class="text-red-600 text-sm mt-1">{{ form.content.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <!-- Course -->
+            <div>
+                <label class="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-200">
+                    Course
+                </label>
+                {{ form.course }}
+                {% if form.course.errors %}
+                <p class="text-red-600 text-sm mt-1">{{ form.course.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <!-- Public toggle -->
+            <div class="flex items-start gap-3 p-4 rounded-xl bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700">
+                {{ form.is_public }}
+                <div>
+                    <label class="font-semibold text-gray-700 dark:text-gray-200">
+                        Make announcement public
+                    </label>
+                    <p class="text-sm text-gray-500 dark:text-gray-400">
+                        Public announcements are visible to all students.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="flex gap-3 pt-4">
+                <button type="submit"
+                        class="px-6 py-3 bg-pink-600 text-white rounded-xl hover:bg-pink-700 transition font-semibold">
+                    {% if object %}Update{% else %}Publish{% endif %}
+                </button>
+
+                <a href="{% url 'announcements:list' %}"
+                   class="px-6 py-3 border border-gray-300 dark:border-gray-600 rounded-xl text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700">
+                    Cancel
+                </a>
+            </div>
+
+        </form>
+    </div>
+</div>
+{% endblock %}

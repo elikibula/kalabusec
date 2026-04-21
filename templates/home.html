@@ -1,0 +1,506 @@
+{% extends "base.html" %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}Home - Kalabu Secondary School{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section>
+    
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500&display=swap');
+
+  .hero-root {
+    font-family: 'DM Sans', sans-serif;
+    position: relative;
+    min-height: 560px;
+    overflow: hidden;
+    background: #0B1F3A;
+  }
+
+  .hero-bg-image {
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(160deg, rgba(11,31,58,0.92) 0%, rgba(11,31,58,0.7) 50%, rgba(11,31,58,0.88) 100%),
+      url('{% static 'images/home.jpg' %}') center/cover no-repeat;
+    z-index: 0;
+  }
+
+  .hero-grid-overlay {
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+    background-size: 60px 60px;
+    z-index: 1;
+  }
+
+  
+  .hero-content {
+    position: relative;
+    z-index: 5;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    gap: 40px;
+    padding: 64px 56px 56px;
+    min-height: 560px;
+    box-sizing: border-box;
+  }
+
+
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(201, 168, 76, 0.15);
+    border: 1px solid rgba(201, 168, 76, 0.4);
+    border-radius: 100px;
+    padding: 6px 16px 6px 10px;
+    margin-bottom: 24px;
+  }
+
+  .hero-badge-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: #C9A84C;
+  }
+
+  .hero-badge span {
+    font-size: 12px;
+    font-weight: 500;
+    color: #E8C97A;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .hero-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(32px, 4vw, 54px);
+    font-weight: 900;
+    color: #e9c800;
+    line-height: 1.1;
+    margin: 0 0 8px;
+    letter-spacing: -0.02em;
+  }
+
+  .hero-title-highlight {
+    color: #185ecc;
+  }
+
+  .hero-divider {
+    width: 56px;
+    height: 3px;
+    background: linear-gradient(90deg, #C9A84C, transparent);
+    margin: 20px 0;
+    border-radius: 2px;
+  }
+
+  .hero-tagline {
+    font-size: 18px;
+    font-weight: 300;
+    color: rgba(255,255,255,0.72);
+    margin: 0 0 36px;
+    line-height: 1.6;
+    max-width: 400px;
+    font-style: italic;
+  }
+
+  .hero-tagline em {
+    color: rgba(255,255,255,0.92);
+    font-style: normal;
+    font-weight: 400;
+  }
+
+  .hero-actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .btn-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: #C9A84C;
+    color: #0B1F3A;
+    padding: 13px 28px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    text-decoration: none;
+    letter-spacing: 0.02em;
+    transition: background 0.2s, transform 0.15s;
+    cursor: pointer;
+    border: none;
+  }
+
+  .btn-primary:hover { background: #E8C97A; transform: translateY(-1px); }
+
+  .btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: transparent;
+    color: rgba(255,255,255,0.85);
+    padding: 12px 28px;
+    border-radius: 8px;
+    border: 1px solid rgba(255,255,255,0.25);
+    font-size: 14px;
+    font-weight: 400;
+    text-decoration: none;
+    letter-spacing: 0.02em;
+    transition: border-color 0.2s, color 0.2s, transform 0.15s;
+    cursor: pointer;
+  }
+
+  .btn-secondary:hover {
+    border-color: rgba(255,255,255,0.6);
+    color: #fff;
+    transform: translateY(-1px);
+  }
+
+  .hero-stats {
+    display: flex;
+    gap: 32px;
+    margin-top: 48px;
+    padding-top: 32px;
+    border-top: 1px solid rgba(255,255,255,0.1);
+  }
+
+   .stat-number {
+    font-family: 'Playfair Display', serif;
+    font-size: 26px;
+    font-weight: 700;
+    color: #e9c800;
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+
+  .stat-label {
+    font-size: 12px;
+    color: rgba(255,255,255,0.45);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-weight: 500;
+  }
+
+  .hero-right {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    flex-shrink: 0;
+  }
+
+  .hero-crest {
+    width: 140px;
+    height: 140px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(201,168,76,0.35);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
+
+  .hero-crest::before {
+    content: '';
+    position: absolute;
+    inset: 6px;
+    border-radius: 50%;
+    border: 1px dashed rgba(201,168,76,0.2);
+  }
+
+  .hero-crest-inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .crest-icon {
+    font-size: 42px;
+    line-height: 1;
+  }
+
+  .crest-year {
+    font-size: 11px;
+    color: rgba(201,168,76,0.7);
+    letter-spacing: 0.15em;
+    font-weight: 500;
+  }
+
+  .hero-school-name-vertical {
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    font-size: 11px;
+    color: rgb(255, 238, 3);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    font-weight: 400;
+  }
+
+  @media (max-width: 640px) {
+    .hero-content {
+      grid-template-columns: 1fr;
+      padding: 48px 28px 40px;
+      text-align: center;
+    }
+    .hero-right { display: none; }
+    .hero-stats { justify-content: center; }
+    .hero-actions { justify-content: center; }
+    .hero-divider { margin: 20px auto; }
+    .hero-tagline { margin: 0 auto 36px; }
+    .hero-badge { display: none; }
+  }
+
+  @keyframes gentleRotate {
+    0%   { transform: rotate(-3deg) scale(1); }
+    50%  { transform: rotate(3deg) scale(1.05); }
+    100% { transform: rotate(-3deg) scale(1); }
+}
+
+.rotate-slow {
+    animation: gentleRotate 6s ease-in-out infinite;
+    transform-origin: center;
+}
+</style>
+
+<h2 class="sr-only">Kalabu Secondary School — hero section showing school name, motto, and navigation buttons</h2>
+
+<div class="hero-root">
+  <div class="hero-accent-bar"></div>
+  <div class="hero-bg-image"></div>
+  <div class="hero-grid-overlay"></div>
+
+  <div class="hero-content">
+    <div class="hero-left">
+      <h1 class="hero-title">
+        Kalabu<br>
+        <span class="hero-title-highlight">Secondary</span><br>
+        School
+      </h1>
+
+      <div class="hero-divider"></div>
+
+      <p class="hero-tagline">
+        <em>Strive to attain excellence.</em><br>
+        Empowering students to build bold futures through knowledge, character, and community.
+      </p>
+
+      <div class="hero-stats">
+        <div class="stat-item">
+          <div class="stat-number">800+</div>
+          <div class="stat-label">Students</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-number">20+</div>
+          <div class="stat-label">Staff</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-number">Forms 3–7</div>
+          <div class="stat-label">Year Levels</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="hero-right">
+      <div class="hero-crest">
+        <div class="hero-crest-inner">
+            <span class="crest-icon inline-flex items-center justify-center">
+                <img src="{% static 'images/Logo.png' %}" alt="Kalabu Secondary School" class="h-25 w-25 rounded-full shadow-md rotate-slow">
+            </span>          
+        </div>
+      </div>
+      <span class="hero-school-name-vertical">Strive to Attain Excellence</span>
+    </div>
+  </div>
+</div>
+
+</section>
+
+<!-- NEWS SECTION -->
+<section>
+  <div class="py-16 text-white bg-gray-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+      <div class="text-center mb-10">
+        <h1 class="text-4xl font-extrabold tracking-tight text-blue-600">Latest News Updates</h1>
+        <p class="text-lg text-blue-600 mt-2">Stay informed with the latest announcements, events, and developments.</p>
+      </div>
+
+      {% if latest_news %}
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {% for news in latest_news %}
+            {% if news.slug %}
+              {% url 'news:news_detail' news.slug as item_url %}
+            {% else %}
+              {% url 'news:photo_news_detail' news.pk as item_url %}
+            {% endif %}
+
+            <a href="{{ item_url }}" class="group block rounded-2xl overflow-hidden relative h-[350px]
+                border-4 border-[#FFD700]
+                shadow-[0_0_10px_rgba(255,215,0,0.3),0_0_20px_rgba(255,215,0,0.2)]
+                hover:shadow-[0_0_25px_rgba(255,215,0,0.6),0_0_50px_rgba(255,215,0,0.4)]
+                transition-all duration-300">
+
+              {% if news.image %}
+                <img src="{{ news.image.url }}" alt="{{ news.title }}"
+                  class="absolute inset-0 w-full h-full object-cover
+                         transition-transform duration-500 ease-in-out
+                         group-hover:scale-110">
+              {% else %}
+                <div class="absolute inset-0 w-full h-full bg-gray-200 flex items-center justify-center">
+                  <span class="text-gray-400 font-semibold text-sm">No Image Available</span>
+                </div>
+              {% endif %}
+
+              <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent
+                          transition-opacity duration-300 group-hover:opacity-90"></div>
+
+              <div class="absolute bottom-0 left-0 right-0 p-5 text-white
+                          translate-y-2 group-hover:translate-y-0
+                          transition-transform duration-300 ease-out">
+                <h3 class="text-base font-semibold leading-snug mb-1 line-clamp-2">
+                  {{ news.title }}
+                </h3>
+                <p class="text-xs text-white/70 mb-3 line-clamp-2
+                          opacity-0 group-hover:opacity-100
+                          transition-opacity duration-300 delay-75">
+                  {{ news.content|striptags|truncatewords:15 }}
+                </p>
+                <div class="flex items-center justify-between text-xs text-white/60">
+                  <span>{{ news.date_posted|date:"d M, Y" }}</span>
+                  <span class="flex items-center gap-1">
+                    <i class="fa fa-clock-o" aria-hidden="true"></i>
+                    {{ news.date_posted|naturaltime }}
+                  </span>
+                </div>
+              </div>
+
+            </a>
+          {% endfor %}
+        </div>
+
+        <div class="text-center mt-12">
+          <a href="{% url 'news:news_list' %}"
+            class="inline-block bg-[#FFD700] text-gray-900 font-semibold py-3 px-10 rounded-full
+                   shadow-lg hover:bg-yellow-400
+                   hover:shadow-[0_0_20px_rgba(255,215,0,0.6)]
+                   transition-all transform hover:scale-105 duration-300">
+            View All News
+          </a>
+        </div>
+
+      {% else %}
+        <p class="text-center text-blue-400 mt-6">No news available at the moment. Please check back later.</p>
+      {% endif %}
+
+    </div>
+  </div>
+</section>
+ 
+<!-- About Section -->
+<section id="about" class="py-16 bg-gray-200 dark:bg-gray-900">
+    <div class="container mx-auto px-6">
+        <h2 class="text-3xl font-bold text-center text-blue-600 mb-12">About Kalabu Secondary School</h2>
+        <div class="max-w-3xl mx-auto text-center">
+            <p class="text-lg text-gray-600 dark:text-gray-300 mb-6">
+                Established in 2004, Kalabu Secondary School is a proud Fijian institution where strength is built through resilience and dreams are shaped by determination. Our students come from diverse and humble beginnings, yet they rise above challenges with courage, unity, and an unwavering commitment to education.
+
+At Kalabu, we believe that greatness is not defined by where you start, but by the passion, discipline, and purpose you carry forward. Every student is empowered to grow, to lead, and to strive for excellence—turning ambition into achievement and potential into success.
+            </p>            
+        </div>
+        <div class="mt-8 grid grid-cols-1 sm:grid-cols-3 gap-4">
+    <img src="{% static 'images/school1.jpg' %}" 
+         class="w-full h-48 object-cover rounded-xl shadow-md hover:scale-105 transition duration-300"
+         alt="Students learning">
+
+    <img src="{% static 'images/school2.png' %}" 
+         class="w-full h-48 object-cover rounded-xl shadow-md hover:scale-105 transition duration-300"
+         alt="Classroom activity">
+
+    <img src="{% static 'images/school.jpg' %}" 
+         class="w-full h-48 object-cover rounded-xl shadow-md hover:scale-105 transition duration-300"
+         alt="School environment">
+</div>
+    </div>
+</section>
+
+<!-- Location Section -->
+<section class="w-full bg-gray-200">
+  <h2 class="text-3xl font-bold text-center text-blue-600 mb-12">Our School Location</h2>
+  <div class="w-full h-[450px]">
+    <iframe 
+      src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d474.0865046803471!2d178.49066382044165!3d-18.085806018173727!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x6e1be063058958af%3A0x62872ba646046823!2sKalabu%20Secondary%20School!5e0!3m2!1sen!2sfj!4v1776715406143!5m2!1sen!2sfj"
+      width="100%"
+      height="100%"
+      style="border:0; display:block;"
+      allowfullscreen=""
+      loading="lazy"
+      referrerpolicy="no-referrer-when-downgrade">
+    </iframe>
+  </div>
+</section>
+
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Filter button toggle
+    const filterButton = document.getElementById('filter-button');
+    const filterDropdown = document.getElementById('filter-dropdown');
+    
+    filterButton.addEventListener('click', () => {
+        filterDropdown.classList.toggle('hidden');
+    });
+    
+    // Close filter dropdown when clicking outside
+    document.addEventListener('click', (e) => {
+        if (!filterButton.contains(e.target) && !filterDropdown.contains(e.target)) {
+            filterDropdown.classList.add('hidden');
+        }
+    });
+    
+    // Search functionality (if you want to implement it)
+    const searchInput = document.getElementById('search-input');
+    const searchResults = document.getElementById('search-results');
+    
+    if (searchInput) {
+        searchInput.addEventListener('input', (e) => {
+            const query = e.target.value.trim();
+            if (query.length > 2) {
+                // Implement search logic here
+                // For now, just show a message
+                searchResults.innerHTML = `<div class="px-4 py-2 text-gray-500 dark:text-gray-400">Searching for "${query}"...</div>`;
+                searchResults.classList.remove('hidden');
+            } else {
+                searchResults.classList.add('hidden');
+            }
+        });
+        
+        document.addEventListener('click', (e) => {
+            if (e.target !== searchInput) {
+                searchResults.classList.add('hidden');
+            }
+        });
+    }
+    
+    // Contact form submission
+    const contactForm = document.getElementById('contact-form');
+    contactForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const formData = new FormData(contactForm);
+        const data = Object.fromEntries(formData.entries());
+        console.log('Contact Form Data:', data);
+        alert('Thank you for contacting us! We will get back to you soon.');
+        contactForm.reset();
+    });
+</script>
+{% endblock %}

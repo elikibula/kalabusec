@@ -1,0 +1,727 @@
+{% extends "dashboard_base.html" %}
+{% load static %}
+
+{% block dashboard_content %}
+<style>
+    .modal-backdrop {
+        backdrop-filter: blur(6px);
+    }
+
+    .dashboard-input,
+    .dashboard-select,
+    .dashboard-textarea,
+    input.form-control,
+    select.form-control,
+    textarea.form-control {
+        width: 100%;
+        border: 1px solid #d1d5db;
+        border-radius: 0.9rem;
+        padding: 0.75rem 1rem;
+        background: white;
+        outline: none;
+        transition: all 0.2s ease-in-out;
+    }
+
+    .dashboard-input:focus,
+    .dashboard-select:focus,
+    .dashboard-textarea:focus,
+    input.form-control:focus,
+    select.form-control:focus,
+    textarea.form-control:focus {
+        border-color: #800000;
+        box-shadow: 0 0 0 4px rgba(128, 0, 0, 0.08);
+    }
+
+    .modal-panel {
+        animation: modalFade 0.25s ease;
+    }
+
+    @keyframes modalFade {
+        from {
+            opacity: 0;
+            transform: translateY(20px) scale(0.98);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+    }
+</style>
+
+<div class="p-6 space-y-8" x-data="{ activeModal: null }">
+
+    {% if messages %}
+        <div class="space-y-3">
+            {% for message in messages %}
+                <div class="rounded-2xl px-4 py-3 shadow border border-green-200 bg-green-50 text-green-800">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <!-- Header -->
+    <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+        <div>
+            <h1 class="text-3xl font-extrabold text-[#5c0d0d]">About Us Management</h1>
+            <p class="text-gray-600 mt-2">Manage your school profile, timeline, departments, staff, and historical gallery from one place.</p>
+        </div>
+
+        <div class="flex flex-wrap gap-3">
+            <button @click="activeModal='editAboutModal'"
+                    class="px-5 py-3 bg-[#800000] text-white rounded-2xl shadow hover:bg-[#5c0d0d] transition">
+                Edit Main Content
+            </button>
+
+            <a href="{% url 'mainapp:about_us' %}" target="_blank"
+               class="px-5 py-3 bg-yellow-500 text-white rounded-2xl shadow hover:bg-yellow-600 transition">
+                View About Page
+            </a>
+        </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6">
+        <div class="bg-white rounded-3xl shadow border border-gray-100 p-6">
+            <p class="text-sm text-gray-500">Timeline Events</p>
+            <h3 class="text-3xl font-bold text-[#800000] mt-2">{{ timeline_events.count }}</h3>
+        </div>
+        <div class="bg-white rounded-3xl shadow border border-gray-100 p-6">
+            <p class="text-sm text-gray-500">Departments</p>
+            <h3 class="text-3xl font-bold text-[#800000] mt-2">{{ departments.count }}</h3>
+        </div>
+        <div class="bg-white rounded-3xl shadow border border-gray-100 p-6">
+            <p class="text-sm text-gray-500">Staff Members</p>
+            <h3 class="text-3xl font-bold text-[#800000] mt-2">{{ staff_members.count }}</h3>
+        </div>
+        <div class="bg-white rounded-3xl shadow border border-gray-100 p-6">
+            <p class="text-sm text-gray-500">Historical Images</p>
+            <h3 class="text-3xl font-bold text-[#800000] mt-2">{{ historical_images.count }}</h3>
+        </div>
+    </div>
+
+    <!-- Main About Card -->
+    <div class="bg-white rounded-3xl shadow border border-gray-100 p-6">
+        <div class="flex justify-between items-center mb-6">
+            <h2 class="text-2xl font-bold text-[#5c0d0d]">Main About Content</h2>
+            <button @click="activeModal='editAboutModal'"
+                    class="px-4 py-2 bg-[#800000] text-white rounded-xl hover:bg-[#5c0d0d] transition">
+                Edit
+            </button>
+        </div>
+
+        <div class="grid lg:grid-cols-2 gap-8 items-start">
+            <div class="space-y-4">
+                <div>
+                    <p class="text-sm text-gray-500">School Name</p>
+                    <p class="text-lg font-semibold text-gray-800">{{ about_page.school_name }}</p>
+                </div>
+                <div>
+                    <p class="text-sm text-gray-500">Page Title</p>
+                    <p class="text-lg font-semibold text-gray-800">{{ about_page.title }}</p>
+                </div>
+                <div>
+                    <p class="text-sm text-gray-500">Introduction</p>
+                    <p class="text-gray-700">{{ about_page.intro|truncatewords:35 }}</p>
+                </div>
+                <div>
+                    <p class="text-sm text-gray-500">Mission</p>
+                    <p class="text-gray-700">{{ about_page.mission|truncatewords:30 }}</p>
+                </div>
+                <div>
+                    <p class="text-sm text-gray-500">Vision</p>
+                    <p class="text-gray-700">{{ about_page.vision|truncatewords:30 }}</p>
+                </div>
+            </div>
+
+            <div>
+                {% if about_page.hero_image %}
+                    <img src="{{ about_page.hero_image.url }}" alt="Hero"
+                         class="w-full h-80 object-cover rounded-3xl shadow-lg border border-gray-100">
+                {% else %}
+                    <div class="w-full h-80 rounded-3xl bg-gray-100 flex items-center justify-center text-gray-400 border border-dashed border-gray-300">
+                        No Hero Image Uploaded
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Timeline -->
+    <div class="bg-white rounded-3xl shadow border border-gray-100 p-6">
+        <div class="flex justify-between items-center mb-6">
+            <h2 class="text-2xl font-bold text-[#5c0d0d]">Timeline Events</h2>
+            <button @click="activeModal='addTimelineModal'"
+                    class="px-4 py-2 bg-[#800000] text-white rounded-xl hover:bg-[#5c0d0d] transition">
+                Add Event
+            </button>
+        </div>
+
+        <div class="overflow-x-auto">
+            <table class="min-w-full text-sm">
+                <thead class="bg-gray-50 text-gray-700">
+                    <tr>
+                        <th class="px-4 py-3 text-left">Year</th>
+                        <th class="px-4 py-3 text-left">Title</th>
+                        <th class="px-4 py-3 text-left">Description</th>
+                        <th class="px-4 py-3 text-left">Order</th>
+                        <th class="px-4 py-3 text-right">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for event in timeline_events %}
+                    <tr class="border-t">
+                        <td class="px-4 py-3">{{ event.year }}</td>
+                        <td class="px-4 py-3 font-medium">{{ event.title }}</td>
+                        <td class="px-4 py-3 text-gray-600">{{ event.description|truncatewords:12 }}</td>
+                        <td class="px-4 py-3">{{ event.order }}</td>
+                        <td class="px-4 py-3 text-right">
+                            <div class="flex justify-end gap-2">
+                                <button @click="activeModal='editTimeline{{ event.pk }}'"
+                                        class="px-3 py-1.5 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100">
+                                    Edit
+                                </button>
+                                <button @click="activeModal='deleteTimeline{{ event.pk }}'"
+                                        class="px-3 py-1.5 bg-red-50 text-red-700 rounded-lg hover:bg-red-100">
+                                    Delete
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="px-4 py-4 text-gray-500">No timeline events yet.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Departments -->
+    <div class="bg-white rounded-3xl shadow border border-gray-100 p-6">
+        <div class="flex justify-between items-center mb-6">
+            <h2 class="text-2xl font-bold text-[#5c0d0d]">Departments</h2>
+            <button @click="activeModal='addDepartmentModal'"
+                    class="px-4 py-2 bg-[#800000] text-white rounded-xl hover:bg-[#5c0d0d] transition">
+                Add Department
+            </button>
+        </div>
+
+        <div class="overflow-x-auto">
+            <table class="min-w-full text-sm">
+                <thead class="bg-gray-50 text-gray-700">
+                    <tr>
+                        <th class="px-4 py-3 text-left">Name</th>
+                        <th class="px-4 py-3 text-left">Description</th>
+                        <th class="px-4 py-3 text-left">Order</th>
+                        <th class="px-4 py-3 text-right">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for department in departments %}
+                    <tr class="border-t">
+                        <td class="px-4 py-3 font-medium">{{ department.name }}</td>
+                        <td class="px-4 py-3 text-gray-600">{{ department.description|truncatewords:12 }}</td>
+                        <td class="px-4 py-3">{{ department.order }}</td>
+                        <td class="px-4 py-3 text-right">
+                            <div class="flex justify-end gap-2">
+                                <button @click="activeModal='editDepartment{{ department.pk }}'"
+                                        class="px-3 py-1.5 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100">
+                                    Edit
+                                </button>
+                                <button @click="activeModal='deleteDepartment{{ department.pk }}'"
+                                        class="px-3 py-1.5 bg-red-50 text-red-700 rounded-lg hover:bg-red-100">
+                                    Delete
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="4" class="px-4 py-4 text-gray-500">No departments yet.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Staff -->
+    <div class="bg-white rounded-3xl shadow border border-gray-100 p-6">
+        <div class="flex justify-between items-center mb-6">
+            <h2 class="text-2xl font-bold text-[#5c0d0d]">Staff Members</h2>
+            <button @click="activeModal='addStaffModal'"
+                    class="px-4 py-2 bg-[#800000] text-white rounded-xl hover:bg-[#5c0d0d] transition">
+                Add Staff Member
+            </button>
+        </div>
+
+        <div class="overflow-x-auto">
+            <table class="min-w-full text-sm">
+                <thead class="bg-gray-50 text-gray-700">
+                    <tr>
+                        <th class="px-4 py-3 text-left">Photo</th>
+                        <th class="px-4 py-3 text-left">Name</th>
+                        <th class="px-4 py-3 text-left">Job Title</th>
+                        <th class="px-4 py-3 text-left">Type</th>
+                        <th class="px-4 py-3 text-left">Department</th>
+                        <th class="px-4 py-3 text-right">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for staff in staff_members %}
+                    <tr class="border-t">
+                        <td class="px-4 py-3">
+                            {% if staff.photo %}
+                                <img src="{{ staff.photo.url }}" alt="{{ staff.full_name }}"
+                                     class="w-12 h-12 object-cover rounded-full border">
+                            {% else %}
+                                <div class="w-12 h-12 rounded-full bg-gray-200"></div>
+                            {% endif %}
+                        </td>
+                        <td class="px-4 py-3 font-medium">{{ staff.full_name }}</td>
+                        <td class="px-4 py-3">{{ staff.job_title }}</td>
+                        <td class="px-4 py-3">{{ staff.get_staff_type_display }}</td>
+                        <td class="px-4 py-3">{{ staff.department|default:"-" }}</td>
+                        <td class="px-4 py-3 text-right">
+                            <div class="flex justify-end gap-2">
+                                <button @click="activeModal='editStaff{{ staff.pk }}'"
+                                        class="px-3 py-1.5 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100">
+                                    Edit
+                                </button>
+                                <button @click="activeModal='deleteStaff{{ staff.pk }}'"
+                                        class="px-3 py-1.5 bg-red-50 text-red-700 rounded-lg hover:bg-red-100">
+                                    Delete
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="px-4 py-4 text-gray-500">No staff members yet.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Gallery -->
+    <div class="bg-white rounded-3xl shadow border border-gray-100 p-6">
+        <div class="flex justify-between items-center mb-6">
+            <h2 class="text-2xl font-bold text-[#5c0d0d]">Historical Gallery</h2>
+            <button @click="activeModal='addHistoricalImageModal'"
+                    class="px-4 py-2 bg-[#800000] text-white rounded-xl hover:bg-[#5c0d0d] transition">
+                Add Image
+            </button>
+        </div>
+
+        <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {% for image in historical_images %}
+            <div class="bg-white border border-gray-100 rounded-3xl shadow-sm overflow-hidden">
+                <img src="{{ image.image.url }}" alt="{{ image.title }}" class="w-full h-48 object-cover">
+                <div class="p-4">
+                    <h3 class="font-semibold text-[#5c0d0d]">{{ image.title|default:"Historical Image" }}</h3>
+                    <p class="text-sm text-gray-600 mt-1">{{ image.caption|truncatewords:10 }}</p>
+                    <div class="flex gap-2 mt-4">
+                        <button @click="activeModal='editHistoricalImage{{ image.pk }}'"
+                                class="flex-1 px-3 py-2 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100">
+                            Edit
+                        </button>
+                        <button @click="activeModal='deleteHistoricalImage{{ image.pk }}'"
+                                class="flex-1 px-3 py-2 bg-red-50 text-red-700 rounded-lg hover:bg-red-100">
+                            Delete
+                        </button>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <p class="text-gray-500">No historical images yet.</p>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- ========================= -->
+    <!-- MODALS -->
+    <!-- ========================= -->
+
+    <!-- Edit About Modal -->
+    <div x-show="activeModal === 'editAboutModal'" x-cloak
+         class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 modal-backdrop px-4">
+        <div @click.away="activeModal = null" class="modal-panel bg-white rounded-3xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto p-8">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-2xl font-bold text-[#5c0d0d]">Edit Main About Content</h3>
+                <button @click="activeModal = null" class="text-gray-500 hover:text-red-600 text-2xl">&times;</button>
+            </div>
+
+            <form method="post" enctype="multipart/form-data" action="{% url 'mainapp:edit_about_page' %}" class="space-y-5">
+                {% csrf_token %}
+                {% for field in about_form %}
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">{{ field.label }}</label>
+                    {{ field }}
+                </div>
+                {% endfor %}
+
+                <div class="flex justify-end gap-3 pt-4">
+                    <button type="button" @click="activeModal = null"
+                            class="px-5 py-3 bg-gray-200 text-gray-800 rounded-xl hover:bg-gray-300">
+                        Cancel
+                    </button>
+                    <button type="submit"
+                            class="px-5 py-3 bg-[#800000] text-white rounded-xl hover:bg-[#5c0d0d]">
+                        Save Changes
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add Timeline Modal -->
+    <div x-show="activeModal === 'addTimelineModal'" x-cloak
+         class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 modal-backdrop px-4">
+        <div @click.away="activeModal = null" class="modal-panel bg-white rounded-3xl shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-y-auto p-8">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-2xl font-bold text-[#5c0d0d]">Add Timeline Event</h3>
+                <button @click="activeModal = null" class="text-gray-500 hover:text-red-600 text-2xl">&times;</button>
+            </div>
+
+            <form method="post" enctype="multipart/form-data" action="{% url 'mainapp:add_timeline_event' %}" class="space-y-5">
+                {% csrf_token %}
+                {% for field in timeline_form %}
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">{{ field.label }}</label>
+                    {{ field }}
+                </div>
+                {% endfor %}
+                <div class="flex justify-end gap-3 pt-4">
+                    <button type="button" @click="activeModal = null" class="px-5 py-3 bg-gray-200 rounded-xl">Cancel</button>
+                    <button type="submit" class="px-5 py-3 bg-[#800000] text-white rounded-xl">Add Event</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit Timeline Modals -->
+    {% for event in timeline_events %}
+    <div x-show="activeModal === 'editTimeline{{ event.pk }}'" x-cloak
+         class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 modal-backdrop px-4">
+        <div @click.away="activeModal = null" class="modal-panel bg-white rounded-3xl shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-y-auto p-8">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-2xl font-bold text-[#5c0d0d]">Edit Timeline Event</h3>
+                <button @click="activeModal = null" class="text-gray-500 hover:text-red-600 text-2xl">&times;</button>
+            </div>
+
+            <form method="post" enctype="multipart/form-data" action="{% url 'mainapp:edit_timeline_event' event.pk %}" class="space-y-5">
+                {% csrf_token %}
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Year</label>
+                    <input type="text" name="year" value="{{ event.year }}" class="dashboard-input">
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Title</label>
+                    <input type="text" name="title" value="{{ event.title }}" class="dashboard-input">
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Description</label>
+                    <textarea name="description" rows="4" class="dashboard-textarea">{{ event.description }}</textarea>
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Event Image</label>
+                    <input type="file" name="event_image" class="dashboard-input">
+                    {% if event.event_image %}
+                        <img src="{{ event.event_image.url }}" class="w-32 h-24 object-cover rounded-xl mt-3">
+                    {% endif %}
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Order</label>
+                    <input type="number" name="order" value="{{ event.order }}" class="dashboard-input">
+                </div>
+
+                <div class="flex justify-end gap-3 pt-4">
+                    <button type="button" @click="activeModal = null" class="px-5 py-3 bg-gray-200 rounded-xl">Cancel</button>
+                    <button type="submit" class="px-5 py-3 bg-[#800000] text-white rounded-xl">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div x-show="activeModal === 'deleteTimeline{{ event.pk }}'" x-cloak
+         class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
+        <div @click.away="activeModal = null" class="modal-panel bg-white rounded-3xl shadow-2xl w-full max-w-lg p-8">
+            <h3 class="text-2xl font-bold text-red-700 mb-3">Delete Timeline Event</h3>
+            <p class="text-gray-600 mb-6">Are you sure you want to delete <strong>{{ event.title }}</strong>?</p>
+            <form method="post" action="{% url 'mainapp:delete_timeline_event' event.pk %}" class="flex justify-end gap-3">
+                {% csrf_token %}
+                <button type="button" @click="activeModal = null" class="px-5 py-3 bg-gray-200 rounded-xl">Cancel</button>
+                <button type="submit" class="px-5 py-3 bg-red-600 text-white rounded-xl">Delete</button>
+            </form>
+        </div>
+    </div>
+    {% endfor %}
+
+    <!-- Add Department Modal -->
+    <div x-show="activeModal === 'addDepartmentModal'" x-cloak
+         class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 modal-backdrop px-4">
+        <div @click.away="activeModal = null" class="modal-panel bg-white rounded-3xl shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-y-auto p-8">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-2xl font-bold text-[#5c0d0d]">Add Department</h3>
+                <button @click="activeModal = null" class="text-gray-500 hover:text-red-600 text-2xl">&times;</button>
+            </div>
+
+            <form method="post" action="{% url 'mainapp:add_department' %}" class="space-y-5">
+                {% csrf_token %}
+                {% for field in department_form %}
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">{{ field.label }}</label>
+                    {{ field }}
+                </div>
+                {% endfor %}
+
+                <div class="flex justify-end gap-3 pt-4">
+                    <button type="button" @click="activeModal = null" class="px-5 py-3 bg-gray-200 rounded-xl">Cancel</button>
+                    <button type="submit" class="px-5 py-3 bg-[#800000] text-white rounded-xl">Add Department</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit Department Modals -->
+    {% for department in departments %}
+    <div x-show="activeModal === 'editDepartment{{ department.pk }}'" x-cloak
+         class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 modal-backdrop px-4">
+        <div @click.away="activeModal = null" class="modal-panel bg-white rounded-3xl shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-y-auto p-8">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-2xl font-bold text-[#5c0d0d]">Edit Department</h3>
+                <button @click="activeModal = null" class="text-gray-500 hover:text-red-600 text-2xl">&times;</button>
+            </div>
+
+            <form method="post" action="{% url 'mainapp:edit_department' department.pk %}" class="space-y-5">
+                {% csrf_token %}
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Name</label>
+                    <input type="text" name="name" value="{{ department.name }}" class="dashboard-input">
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Description</label>
+                    <textarea name="description" rows="4" class="dashboard-textarea">{{ department.description }}</textarea>
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Order</label>
+                    <input type="number" name="order" value="{{ department.order }}" class="dashboard-input">
+                </div>
+
+                <div class="flex justify-end gap-3 pt-4">
+                    <button type="button" @click="activeModal = null" class="px-5 py-3 bg-gray-200 rounded-xl">Cancel</button>
+                    <button type="submit" class="px-5 py-3 bg-[#800000] text-white rounded-xl">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div x-show="activeModal === 'deleteDepartment{{ department.pk }}'" x-cloak
+         class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
+        <div @click.away="activeModal = null" class="modal-panel bg-white rounded-3xl shadow-2xl w-full max-w-lg p-8">
+            <h3 class="text-2xl font-bold text-red-700 mb-3">Delete Department</h3>
+            <p class="text-gray-600 mb-6">Are you sure you want to delete <strong>{{ department.name }}</strong>?</p>
+            <form method="post" action="{% url 'mainapp:delete_department' department.pk %}" class="flex justify-end gap-3">
+                {% csrf_token %}
+                <button type="button" @click="activeModal = null" class="px-5 py-3 bg-gray-200 rounded-xl">Cancel</button>
+                <button type="submit" class="px-5 py-3 bg-red-600 text-white rounded-xl">Delete</button>
+            </form>
+        </div>
+    </div>
+    {% endfor %}
+
+    <!-- Add Staff Modal -->
+    <div x-show="activeModal === 'addStaffModal'" x-cloak
+         class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 modal-backdrop px-4">
+        <div @click.away="activeModal = null" class="modal-panel bg-white rounded-3xl shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-y-auto p-8">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-2xl font-bold text-[#5c0d0d]">Add Staff Member</h3>
+                <button @click="activeModal = null" class="text-gray-500 hover:text-red-600 text-2xl">&times;</button>
+            </div>
+
+            <form method="post" enctype="multipart/form-data" action="{% url 'mainapp:add_staff_member' %}" class="space-y-5">
+                {% csrf_token %}
+                {% for field in staff_form %}
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">{{ field.label }}</label>
+                    {{ field }}
+                </div>
+                {% endfor %}
+
+                <div class="flex justify-end gap-3 pt-4">
+                    <button type="button" @click="activeModal = null" class="px-5 py-3 bg-gray-200 rounded-xl">Cancel</button>
+                    <button type="submit" class="px-5 py-3 bg-[#800000] text-white rounded-xl">Add Staff</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit Staff Modals -->
+    {% for staff in staff_members %}
+    <div x-show="activeModal === 'editStaff{{ staff.pk }}'" x-cloak
+         class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 modal-backdrop px-4">
+        <div @click.away="activeModal = null" class="modal-panel bg-white rounded-3xl shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-y-auto p-8">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-2xl font-bold text-[#5c0d0d]">Edit Staff Member</h3>
+                <button @click="activeModal = null" class="text-gray-500 hover:text-red-600 text-2xl">&times;</button>
+            </div>
+
+            <form method="post" enctype="multipart/form-data" action="{% url 'mainapp:edit_staff_member' staff.pk %}" class="space-y-5">
+                {% csrf_token %}
+
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Full Name</label>
+                    <input type="text" name="full_name" value="{{ staff.full_name }}" class="dashboard-input">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Job Title</label>
+                    <input type="text" name="job_title" value="{{ staff.job_title }}" class="dashboard-input">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Staff Type</label>
+                    <select name="staff_type" class="dashboard-select">
+                        <option value="admin" {% if staff.staff_type == 'admin' %}selected{% endif %}>Admin</option>
+                        <option value="teacher" {% if staff.staff_type == 'teacher' %}selected{% endif %}>Teacher</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Department</label>
+                    <select name="department" class="dashboard-select">
+                        <option value="">---------</option>
+                        {% for dept in departments %}
+                            <option value="{{ dept.pk }}" {% if staff.department and staff.department.pk == dept.pk %}selected{% endif %}>
+                                {{ dept.name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Photo</label>
+                    <input type="file" name="photo" class="dashboard-input">
+                    {% if staff.photo %}
+                        <img src="{{ staff.photo.url }}" class="w-24 h-24 object-cover rounded-2xl mt-3 border">
+                    {% endif %}
+                </div>
+
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Bio</label>
+                    <textarea name="bio" rows="4" class="dashboard-textarea">{{ staff.bio }}</textarea>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Order</label>
+                    <input type="number" name="order" value="{{ staff.order }}" class="dashboard-input">
+                </div>
+
+                <div class="flex justify-end gap-3 pt-4">
+                    <button type="button" @click="activeModal = null" class="px-5 py-3 bg-gray-200 rounded-xl">Cancel</button>
+                    <button type="submit" class="px-5 py-3 bg-[#800000] text-white rounded-xl">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div x-show="activeModal === 'deleteStaff{{ staff.pk }}'" x-cloak
+         class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
+        <div @click.away="activeModal = null" class="modal-panel bg-white rounded-3xl shadow-2xl w-full max-w-lg p-8">
+            <h3 class="text-2xl font-bold text-red-700 mb-3">Delete Staff Member</h3>
+            <p class="text-gray-600 mb-6">Are you sure you want to delete <strong>{{ staff.full_name }}</strong>?</p>
+            <form method="post" action="{% url 'mainapp:delete_staff_member' staff.pk %}" class="flex justify-end gap-3">
+                {% csrf_token %}
+                <button type="button" @click="activeModal = null" class="px-5 py-3 bg-gray-200 rounded-xl">Cancel</button>
+                <button type="submit" class="px-5 py-3 bg-red-600 text-white rounded-xl">Delete</button>
+            </form>
+        </div>
+    </div>
+    {% endfor %}
+
+    <!-- Add Historical Image Modal -->
+    <div x-show="activeModal === 'addHistoricalImageModal'" x-cloak
+         class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 modal-backdrop px-4">
+        <div @click.away="activeModal = null" class="modal-panel bg-white rounded-3xl shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-y-auto p-8">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-2xl font-bold text-[#5c0d0d]">Add Historical Image</h3>
+                <button @click="activeModal = null" class="text-gray-500 hover:text-red-600 text-2xl">&times;</button>
+            </div>
+
+            <form method="post" enctype="multipart/form-data" action="{% url 'mainapp:add_historical_image' %}" class="space-y-5">
+                {% csrf_token %}
+                {% for field in historical_image_form %}
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">{{ field.label }}</label>
+                    {{ field }}
+                </div>
+                {% endfor %}
+
+                <div class="flex justify-end gap-3 pt-4">
+                    <button type="button" @click="activeModal = null" class="px-5 py-3 bg-gray-200 rounded-xl">Cancel</button>
+                    <button type="submit" class="px-5 py-3 bg-[#800000] text-white rounded-xl">Add Image</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit Historical Image Modals -->
+    {% for image in historical_images %}
+    <div x-show="activeModal === 'editHistoricalImage{{ image.pk }}'" x-cloak
+         class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 modal-backdrop px-4">
+        <div @click.away="activeModal = null" class="modal-panel bg-white rounded-3xl shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-y-auto p-8">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-2xl font-bold text-[#5c0d0d]">Edit Historical Image</h3>
+                <button @click="activeModal = null" class="text-gray-500 hover:text-red-600 text-2xl">&times;</button>
+            </div>
+
+            <form method="post" enctype="multipart/form-data" action="{% url 'mainapp:edit_historical_image' image.pk %}" class="space-y-5">
+                {% csrf_token %}
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Title</label>
+                    <input type="text" name="title" value="{{ image.title }}" class="dashboard-input">
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Image</label>
+                    <input type="file" name="image" class="dashboard-input">
+                    {% if image.image %}
+                        <img src="{{ image.image.url }}" class="w-32 h-24 object-cover rounded-xl mt-3">
+                    {% endif %}
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Caption</label>
+                    <textarea name="caption" rows="4" class="dashboard-textarea">{{ image.caption }}</textarea>
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Order</label>
+                    <input type="number" name="order" value="{{ image.order }}" class="dashboard-input">
+                </div>
+
+                <div class="flex justify-end gap-3 pt-4">
+                    <button type="button" @click="activeModal = null" class="px-5 py-3 bg-gray-200 rounded-xl">Cancel</button>
+                    <button type="submit" class="px-5 py-3 bg-[#800000] text-white rounded-xl">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div x-show="activeModal === 'deleteHistoricalImage{{ image.pk }}'" x-cloak
+         class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
+        <div @click.away="activeModal = null" class="modal-panel bg-white rounded-3xl shadow-2xl w-full max-w-lg p-8">
+            <h3 class="text-2xl font-bold text-red-700 mb-3">Delete Historical Image</h3>
+            <p class="text-gray-600 mb-6">Are you sure you want to delete <strong>{{ image.title|default:"this image" }}</strong>?</p>
+            <form method="post" action="{% url 'mainapp:delete_historical_image' image.pk %}" class="flex justify-end gap-3">
+                {% csrf_token %}
+                <button type="button" @click="activeModal = null" class="px-5 py-3 bg-gray-200 rounded-xl">Cancel</button>
+                <button type="submit" class="px-5 py-3 bg-red-600 text-white rounded-xl">Delete</button>
+            </form>
+        </div>
+    </div>
+    {% endfor %}
+
+</div>
+{% endblock %}

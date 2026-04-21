@@ -1,0 +1,88 @@
+{% extends 'dashboard_base.html' %}
+{% block title %}Roster — {{ course.title }}{% endblock %}
+{% block dashboard_content %}
+<div class="flex items-center justify-between mb-6">
+  <div>
+    <p class="text-sm text-gray-400 mb-1">
+      <a href="{% url 'courses:detail' course.pk %}" class="hover:text-blue-600">{{ course.title }}</a> / Roster
+    </p>
+    <h1 class="text-2xl font-semibold text-gray-900">Student roster</h1>
+  </div>
+  <a href="{% url 'courses:enrolment_requests' course.pk %}"
+     class="px-3 py-2 text-sm border border-gray-200 rounded-lg text-gray-600 hover:bg-gray-50">
+    Enrolment requests
+  </a>
+</div>
+
+<div class="bg-white border border-gray-200 rounded-xl overflow-hidden">
+  <div class="px-4 py-3 border-b border-gray-100 flex items-center gap-4 text-xs text-gray-400 font-medium uppercase tracking-wider">
+    <span class="w-8"></span>
+    <span class="flex-1">Student</span>
+    <span class="w-32">Status</span>
+    <span class="w-40">Progress</span>
+    <span class="w-24 text-right">Enrolled</span>
+    <span class="w-28 text-right">Action</span>
+  </div>
+
+  {% for item in roster_data %}
+  <div class="flex items-center gap-4 px-4 py-3 border-b border-gray-100 last:border-0 hover:bg-gray-50">
+    <div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-700 text-xs font-semibold flex-shrink-0">
+      {{ item.enrollment.student.first_name|first|upper }}{{ item.enrollment.student.last_name|first|upper }}
+    </div>
+
+    <div class="flex-1 min-w-0">
+      <p class="text-sm font-medium text-gray-800">
+        {{ item.enrollment.student.get_full_name|default:item.enrollment.student.username }}
+      </p>
+      <p class="text-xs text-gray-400">{{ item.enrollment.student.email }}</p>
+    </div>
+
+    <div class="w-32">
+      <span class="text-xs px-2 py-0.5 rounded-full font-medium
+        {% if item.enrollment.status == 'active' %}bg-green-100 text-green-700
+        {% elif item.enrollment.status == 'pending' %}bg-amber-100 text-amber-700
+        {% elif item.enrollment.status == 'completed' %}bg-blue-100 text-blue-700
+        {% elif item.enrollment.status == 'dropped' %}bg-red-100 text-red-700
+        {% elif item.enrollment.status == 'failed' %}bg-red-100 text-red-700
+        {% elif item.enrollment.status == 'rejected' %}bg-gray-100 text-gray-600
+        {% else %}bg-gray-100 text-gray-500{% endif %}">
+        {{ item.enrollment.get_status_display }}
+      </span>
+    </div>
+
+    <div class="w-40 flex items-center gap-2">
+      <div class="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden">
+        <div class="h-full rounded-full {% if item.pct == 100 %}bg-green-500{% elif item.pct >= 50 %}bg-blue-500{% else %}bg-amber-400{% endif %}"
+             style="width: {{ item.pct }}%"></div>
+      </div>
+      <span class="text-xs text-gray-500 w-10 text-right">{{ item.completed }}/{{ item.total }}</span>
+    </div>
+
+    <div class="w-24 text-right text-xs text-gray-400">
+      {{ item.enrollment.enrolled_at|date:"j M Y" }}
+    </div>
+
+    <div class="w-28 flex justify-end">
+      {% if item.enrollment.status == 'active' %}
+      <form method="post"
+            action="{% url 'courses:unenroll' course.pk %}"
+            onsubmit="return confirm('Are you sure you want to unenrol this student from {{ course.title }}?');">
+        {% csrf_token %}
+        <input type="hidden" name="student_id" value="{{ item.enrollment.student.pk }}">
+        <button type="submit"
+                class="inline-flex items-center rounded-lg bg-red-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-red-700 transition-colors">
+          Unenrol
+        </button>
+      </form>
+      {% else %}
+      <span class="text-xs text-gray-400">—</span>
+      {% endif %}
+    </div>
+  </div>
+  {% empty %}
+  <div class="px-4 py-10 text-center text-sm text-gray-400">
+    No students enrolled yet.
+  </div>
+  {% endfor %}
+</div>
+{% endblock %}

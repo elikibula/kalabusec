@@ -1,0 +1,42 @@
+{% extends 'base/base.html' %}
+
+{% block title %}{{ lesson.title }} - School LMS{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="bg-white rounded-xl shadow-md p-8">
+        <h1 class="text-3xl font-bold text-gray-900 mb-2">{{ lesson.title }}</h1>
+        <p class="text-gray-600 mb-6">{{ lesson.module.course.title }}</p>
+        
+        {% if lesson.video_url %}
+        <div class="mb-6">
+            <div class="aspect-w-16 aspect-h-9 bg-gray-200 rounded-lg">
+                <iframe src="{{ lesson.video_url }}" class="w-full h-96 rounded-lg" allowfullscreen></iframe>
+            </div>
+        </div>
+        {% endif %}
+        
+        <div class="prose max-w-none mb-6">
+            {{ lesson.content|linebreaks }}
+        </div>
+        
+        {% if lesson.attachments %}
+        <div class="border-t border-gray-200 pt-6 mb-6">
+            <h3 class="font-bold text-gray-900 mb-3">Attachments</h3>
+            <a href="{{ lesson.attachments.url }}" class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                <i class="fas fa-download mr-2"></i>Download
+            </a>
+        </div>
+        {% endif %}
+        
+        {% if user.is_student and not is_completed %}
+        <div class="border-t border-gray-200 pt-6">
+            <a href="{% url 'courses:lesson_complete' lesson.pk %}" 
+               class="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition font-medium">
+                Mark as Complete
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

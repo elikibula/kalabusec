@@ -1,0 +1,177 @@
+{% extends 'dashboard_base.html' %}
+
+{% block title %}
+    {% if object %}Edit Resource{% else %}Upload Resource{% endif %} - School LMS
+{% endblock %}
+
+{% block dashboard_content %}
+<div class="bg-gradient-to-r from-green-500 to-teal-600 text-white py-10">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <h1 class="text-4xl font-bold mb-2">
+            {% if object %}✏️ Edit Resource{% else %}📂 Upload Resource{% endif %}
+        </h1>
+        <p class="text-green-100">
+            {% if object %}
+                Update and manage your learning resource details.
+            {% else %}
+                Add documents, videos, links, presentations, and other learning materials.
+            {% endif %}
+        </p>
+    </div>
+</div>
+
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-md overflow-hidden">
+        <div class="p-6 sm:p-8">
+
+            {% if form.non_field_errors %}
+            <div class="mb-6 rounded-xl border border-red-200 bg-red-50 dark:bg-red-900/20 dark:border-red-800 p-4">
+                <div class="text-sm text-red-700 dark:text-red-300">
+                    {{ form.non_field_errors }}
+                </div>
+            </div>
+            {% endif %}
+
+            <form method="post" enctype="multipart/form-data" class="space-y-6">
+                {% csrf_token %}
+
+                <!-- Title -->
+                <div>
+                    <label for="{{ form.title.id_for_label }}" class="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
+                        Title
+                    </label>
+                    {{ form.title }}
+                    {% if form.title.errors %}
+                    <p class="mt-2 text-sm text-red-600 dark:text-red-400">{{ form.title.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <!-- Description -->
+                <div>
+                    <label for="{{ form.description.id_for_label }}" class="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
+                        Description
+                    </label>
+                    {{ form.description }}
+                    {% if form.description.errors %}
+                    <p class="mt-2 text-sm text-red-600 dark:text-red-400">{{ form.description.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <!-- Type / Category -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label for="{{ form.resource_type.id_for_label }}" class="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
+                            Resource Type
+                        </label>
+                        {{ form.resource_type }}
+                        {% if form.resource_type.errors %}
+                        <p class="mt-2 text-sm text-red-600 dark:text-red-400">{{ form.resource_type.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+
+                    <div>
+                        <label for="{{ form.category.id_for_label }}" class="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
+                            Category
+                        </label>
+                        {{ form.category }}
+                        {% if form.category.errors %}
+                        <p class="mt-2 text-sm text-red-600 dark:text-red-400">{{ form.category.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Subject / Course -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label for="{{ form.subject.id_for_label }}" class="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
+                            Subject
+                        </label>
+                        {{ form.subject }}
+                        {% if form.subject.errors %}
+                        <p class="mt-2 text-sm text-red-600 dark:text-red-400">{{ form.subject.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+
+                    <div>
+                        <label for="{{ form.course.id_for_label }}" class="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
+                            Course
+                        </label>
+                        {{ form.course }}
+                        {% if form.course.errors %}
+                        <p class="mt-2 text-sm text-red-600 dark:text-red-400">{{ form.course.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- File -->
+                <div>
+                    <label for="{{ form.file.id_for_label }}" class="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
+                        Upload File
+                    </label>
+                    {{ form.file }}
+                    <p class="mt-2 text-xs text-gray-500 dark:text-gray-400">
+                        Upload a document, presentation, image, or other file.
+                    </p>
+                    {% if form.file.errors %}
+                    <p class="mt-2 text-sm text-red-600 dark:text-red-400">{{ form.file.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <!-- URL -->
+                <div>
+                    <label for="{{ form.url.id_for_label }}" class="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
+                        External URL
+                    </label>
+                    {{ form.url }}
+                    <p class="mt-2 text-xs text-gray-500 dark:text-gray-400">
+                        Add a link for videos, websites, or cloud-based resources.
+                    </p>
+                    {% if form.url.errors %}
+                    <p class="mt-2 text-sm text-red-600 dark:text-red-400">{{ form.url.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <!-- Public -->
+                <div class="rounded-xl border border-gray-200 dark:border-gray-700 p-4 bg-gray-50 dark:bg-gray-900/30">
+                    <div class="flex items-start gap-3">
+                        <div class="pt-1">
+                            {{ form.is_public }}
+                        </div>
+                        <div>
+                            <label for="{{ form.is_public.id_for_label }}" class="text-sm font-semibold text-gray-700 dark:text-gray-200">
+                                Make this resource public
+                            </label>
+                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                Public resources can be viewed by students and other permitted users. Private resources remain restricted to staff visibility rules.
+                            </p>
+                            {% if form.is_public.errors %}
+                            <p class="mt-2 text-sm text-red-600 dark:text-red-400">{{ form.is_public.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Actions -->
+                <div class="flex flex-col sm:flex-row gap-3 pt-4">
+                    <button type="submit"
+                            class="inline-flex items-center justify-center px-6 py-3 bg-green-600 text-white rounded-xl hover:bg-green-700 transition font-semibold">
+                        {% if object %}Update Resource{% else %}Upload Resource{% endif %}
+                    </button>
+
+                    <a href="{% url 'resources:list' %}"
+                       class="inline-flex items-center justify-center px-6 py-3 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition font-semibold">
+                        Cancel
+                    </a>
+
+                    {% if object %}
+                    <a href="{% url 'resources:detail' object.pk %}"
+                       class="inline-flex items-center justify-center px-6 py-3 border border-transparent text-green-700 dark:text-green-400 hover:underline font-semibold">
+                        View Resource
+                    </a>
+                    {% endif %}
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

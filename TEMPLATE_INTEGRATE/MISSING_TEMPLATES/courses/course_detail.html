@@ -1,0 +1,63 @@
+{% extends 'base/base.html' %}
+
+{% block title %}{{ course.title }} - School LMS{% endblock %}
+
+{% block content %}
+<div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="bg-white rounded-xl shadow-md p-8">
+        <div class="flex items-start justify-between mb-6">
+            <div>
+                <span class="inline-block px-3 py-1 bg-blue-100 text-blue-700 text-sm font-semibold rounded-full mb-3">
+                    {{ course.code }}
+                </span>
+                <h1 class="text-3xl font-bold text-gray-900 mb-2">{{ course.title }}</h1>
+                <p class="text-gray-600">{{ course.subject.name }} - Grade {{ course.grade_level }}</p>
+                <p class="text-gray-600 mt-2"><i class="fas fa-user mr-2"></i>{{ course.teacher.get_full_name }}</p>
+            </div>
+            {% if user.is_student %}
+                {% if is_enrolled %}
+                <button class="px-6 py-3 bg-green-600 text-white rounded-lg font-medium" disabled>
+                    <i class="fas fa-check mr-2"></i>Enrolled
+                </button>
+                {% else %}
+                <a href="{% url 'courses:enroll' course.pk %}" 
+                   class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-medium">
+                    Enroll Now
+                </a>
+                {% endif %}
+            {% endif %}
+        </div>
+        
+        <div class="border-t border-gray-200 pt-6 mb-6">
+            <h2 class="text-xl font-bold text-gray-900 mb-4">Description</h2>
+            <p class="text-gray-700 leading-relaxed">{{ course.description }}</p>
+        </div>
+        
+        <div class="border-t border-gray-200 pt-6">
+            <h2 class="text-xl font-bold text-gray-900 mb-4">Course Modules</h2>
+            {% if modules %}
+                {% for module in modules %}
+                <div class="border border-gray-200 rounded-lg p-4 mb-4">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">{{ module.title }}</h3>
+                    <p class="text-gray-600 text-sm mb-3">{{ module.description }}</p>
+                    {% if module.lessons.all %}
+                    <ul class="space-y-2">
+                        {% for lesson in module.lessons.all %}
+                        <li>
+                            <a href="{% url 'courses:lesson_detail' lesson.pk %}" 
+                               class="text-blue-600 hover:text-blue-700">
+                                {{ lesson.title }}
+                            </a>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            {% else %}
+                <p class="text-gray-500">No modules added yet.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

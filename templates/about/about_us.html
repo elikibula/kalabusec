@@ -1,0 +1,763 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&family=Bebas+Neue&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --blue:        #2563eb;
+    --blue-dark:   #1d4ed8;
+    --blue-deep:   #1e3a5f;
+    --blue-deeper: #0f1f35;
+    --gold:        #FFD700;
+    --gold-light:  #fff3a0;
+    --gold-muted:  #c9a227;
+    --cream:       #f0f6ff;
+    --ink:         #0c1a2e;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; }
+  body { overflow-x: hidden; }
+
+  .font-display  { font-family: 'Cormorant Garamond', Georgia, serif; }
+  .font-headline { font-family: 'Bebas Neue', sans-serif; letter-spacing: 0.04em; }
+  .font-body     { font-family: 'DM Sans', sans-serif; }
+
+  /* Gold shimmer */
+  @keyframes shimmer {
+    0%   { background-position: -200% center; }
+    100% { background-position:  200% center; }
+  }
+  .gold-shimmer {
+    background: linear-gradient(90deg, var(--gold-muted) 20%, #fff7c0 40%, var(--gold) 60%, var(--gold-muted) 80%);
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: shimmer 4s linear infinite;
+  }
+
+  /* Reveal */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes scaleIn {
+    from { opacity: 0; transform: scale(0.94); }
+    to   { opacity: 1; transform: scale(1); }
+  }
+  .reveal        { opacity: 0; }
+  .reveal.visible { animation: fadeUp  0.72s cubic-bezier(.22,1,.36,1) forwards; }
+  .reveal-scale  { opacity: 0; }
+  .reveal-scale.visible { animation: scaleIn 0.65s cubic-bezier(.22,1,.36,1) forwards; }
+
+  /* Timeline */
+  .tl-line {
+    position: absolute; left: 50%; top: 0; bottom: 0;
+    width: 2px; transform: translateX(-50%);
+    background: linear-gradient(to bottom, transparent, var(--gold) 10%, var(--blue) 50%, var(--gold) 90%, transparent);
+  }
+  .tl-dot {
+    position: absolute; left: 50%; top: 50%;
+    transform: translate(-50%, -50%);
+    width: 20px; height: 20px; border-radius: 50%;
+    background: var(--gold); border: 3px solid white;
+    box-shadow: 0 0 0 4px var(--blue), 0 0 20px rgba(255,215,0,0.5);
+    z-index: 10;
+  }
+
+  /* Card lift */
+  .card-lift { transition: transform 0.4s cubic-bezier(.22,1,.36,1), box-shadow 0.4s ease; }
+  .card-lift:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 32px 64px -12px rgba(37,99,235,0.2), 0 0 0 1px rgba(255,215,0,0.15);
+  }
+
+  /* Photo zoom */
+  .photo-wrap { overflow: hidden; }
+  .photo-wrap img { transition: transform 0.7s cubic-bezier(.22,1,.36,1); }
+  .photo-wrap:hover img { transform: scale(1.07); }
+
+  /* Pulse */
+  @keyframes pulseDot {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(255,215,0,0.6); }
+    50%       { box-shadow: 0 0 0 8px rgba(255,215,0,0); }
+  }
+  .pulse-dot { animation: pulseDot 2s ease-in-out infinite; }
+
+  /* Gallery caption */
+  .gallery-caption {
+    transform: translateY(100%);
+    transition: transform 0.4s cubic-bezier(.22,1,.36,1);
+  }
+  .gallery-item:hover .gallery-caption { transform: translateY(0); }
+
+  /* Marquee */
+  @keyframes marquee {
+    from { transform: translateX(0); }
+    to   { transform: translateX(-50%); }
+  }
+  .marquee-inner { animation: marquee 24s linear infinite; white-space: nowrap; display: inline-flex; align-items: center; gap: 2rem; }
+  .marquee-inner:hover { animation-play-state: paused; }
+
+  /* Dept tab */
+  .dept-tab.active {
+    background: var(--blue); color: white;
+    border-color: var(--blue);
+    box-shadow: 0 4px 20px rgba(37,99,235,0.35);
+  }
+
+  /* Responsive type */
+  .hero-headline    { font-size: clamp(2.8rem, 11vw, 9rem); line-height: 0.93; }
+  .section-headline { font-size: clamp(2rem,   7vw, 6rem);  line-height: 0.95; }
+  .stat-number      { font-size: clamp(1.8rem,  5vw, 3.2rem); }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- ══════════════════════ HERO ══════════════════════ -->
+<section class="relative min-h-screen lg:min-h-[100svh] flex items-center overflow-hidden"
+         style="background: linear-gradient(150deg, var(--blue-deeper) 0%, var(--blue-deep) 55%, #0a1628 100%);">
+
+  <style>
+    .hero-parallax {
+      transform: translateY(var(--parallax-offset, 0px));
+      transition: transform 0.1s linear;
+      will-change: transform;
+    }
+
+    .hero-headline {
+      font-size: clamp(3rem, 8vw, 6.8rem);
+      line-height: 0.92;
+      font-weight: 900;
+      letter-spacing: -0.04em;
+    }
+
+    .gold-shimmer {
+      background: linear-gradient(90deg, #ffd700 0%, #fff1a8 25%, #ffd700 50%, #fff1a8 75%, #ffd700 100%);
+      background-size: 200% auto;
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      animation: shimmerText 5s linear infinite;
+    }
+
+    @keyframes shimmerText {
+      to {
+        background-position: 200% center;
+      }
+    }
+
+    .stat-number {
+      font-size: clamp(1.8rem, 4vw, 2.6rem);
+      line-height: 1;
+      font-weight: 800;
+    }
+
+    .pulse-dot {
+      animation: pulseDot 1.8s ease-in-out infinite;
+    }
+
+    @keyframes pulseDot {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.35); opacity: 0.75; }
+    }
+
+    .hero-float {
+      animation: heroFloat 7s ease-in-out infinite;
+    }
+
+    @keyframes heroFloat {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-10px); }
+    }
+
+    .reveal-up {
+      opacity: 0;
+      transform: translateY(30px);
+      animation: revealUp 0.9s ease forwards;
+    }
+
+    .reveal-scale {
+      opacity: 0;
+      transform: translateY(24px) scale(0.97);
+      animation: revealScale 1s ease forwards;
+    }
+
+    @keyframes revealUp {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes revealScale {
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    .glass-card {
+      background: linear-gradient(180deg, rgba(255,255,255,0.10) 0%, rgba(255,255,255,0.05) 100%);
+      box-shadow:
+        0 10px 40px rgba(0,0,0,0.28),
+        inset 0 1px 0 rgba(255,255,255,0.08);
+    }
+
+    .hero-image-frame {
+      box-shadow:
+        0 20px 60px rgba(0,0,0,0.45),
+        inset 0 1px 0 rgba(255,255,255,0.08);
+    }
+
+    .hero-btn-primary:hover,
+    .hero-btn-secondary:hover {
+      transform: translateY(-2px);
+    }
+
+    .hero-btn-primary,
+    .hero-btn-secondary {
+      transition: all 0.25s ease;
+    }
+
+    .hero-grid-lines {
+      background-image:
+        linear-gradient(rgba(255,215,0,0.08) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,215,0,0.08) 1px, transparent 1px);
+      background-size: 60px 60px;
+    }
+
+    .hero-vignette {
+      background: radial-gradient(circle at center, transparent 30%, rgba(10,22,40,0.25) 100%);
+    }
+  </style>
+
+  <!-- Background layers -->
+  <div class="absolute inset-0 pointer-events-none">
+    {% if about_page.hero_image %}
+      <img src="{{ about_page.hero_image.url }}"
+           alt="Hero"
+           class="absolute inset-0 w-full h-full object-cover opacity-20 hero-parallax"
+           data-parallax-speed="0.18"
+           style="filter: saturate(0.55) contrast(1.05);">
+    {% endif %}
+
+    <div class="absolute inset-0"
+         style="background: linear-gradient(to bottom, rgba(10,22,40,0.78) 0%, rgba(10,22,40,0.38) 45%, rgba(10,22,40,0.95) 100%);"></div>
+
+    <div class="absolute inset-0 hero-vignette"></div>
+
+    <div class="absolute top-[18%] right-[12%] w-72 sm:w-[28rem] h-72 sm:h-[28rem] rounded-full blur-3xl hero-float hero-parallax"
+         data-parallax-speed="0.08"
+         style="background: radial-gradient(circle, rgba(255,215,0,0.15) 0%, transparent 70%);"></div>
+
+    <div class="absolute bottom-[12%] left-[8%] w-64 sm:w-96 h-64 sm:h-96 rounded-full blur-3xl hero-float hero-parallax"
+         data-parallax-speed="0.12"
+         style="background: radial-gradient(circle, rgba(37,99,235,0.26) 0%, transparent 70%); animation-delay: 1s;"></div>
+
+    <div class="absolute inset-0 opacity-[0.04] hero-grid-lines"></div>
+  </div>
+
+  <!-- Top badge -->
+  <div class="absolute top-5 sm:top-8 left-1/2 -translate-x-1/2 z-20 w-full flex justify-center px-4">
+    <div class="flex items-center gap-2 px-4 py-2 rounded-full border border-yellow-400/25 bg-black/30 backdrop-blur-xl text-yellow-300 text-xs sm:text-sm font-body font-medium max-w-max shadow-lg reveal-up"
+         style="animation-delay: 0.1s;">
+      <span class="pulse-dot w-2 h-2 rounded-full bg-yellow-400 flex-shrink-0"></span>
+      Est. {{ about_page.founded_year|default:"2004" }} — Kalabu, Fiji
+    </div>
+  </div>
+
+  <!-- Main content -->
+  <div class="relative z-10 max-w-7xl mx-auto w-full px-4 sm:px-6 py-24 sm:py-32">
+    <div class="grid lg:grid-cols-12 gap-10 lg:gap-16 items-center min-h-[78vh]">
+
+      <!-- Left -->
+      <div class="lg:col-span-7">
+        <p class="font-body text-yellow-400/80 text-xs uppercase tracking-[0.45em] mb-4 sm:mb-5 reveal-up"
+           style="animation-delay: 0.18s;">
+          About Our School
+        </p>
+
+        <h1 class="font-headline hero-headline mb-5 reveal-up"
+            style="animation-delay: 0.28s;">
+          <span class="block text-[#2563eb] drop-shadow-[0_8px_30px_rgba(37,99,235,0.25)]">KALABU</span>
+          <span class="block gold-shimmer">SECONDARY</span>
+          <span class="block text-white">SCHOOL</span>
+        </h1>
+
+        <p class="font-display italic text-white/55 text-lg sm:text-2xl mb-5 reveal-up"
+           style="animation-delay: 0.4s;">
+          "{{ about_page.tagline|default:"Strive to Attain Excellence" }}"
+        </p>
+
+        <p class="font-body text-white/70 text-sm sm:text-lg leading-7 sm:leading-8 max-w-2xl mb-8 reveal-up"
+           style="animation-delay: 0.52s;">
+          {{ about_page.intro|default:"A legacy of academic excellence, character development, and community service since our founding." }}
+        </p>
+
+        <div class="flex flex-wrap gap-3 reveal-up"
+             style="animation-delay: 0.64s;">
+          <a href="#history"
+             class="hero-btn-primary inline-flex items-center gap-2 px-5 sm:px-7 py-3 rounded-2xl font-body font-semibold text-sm shadow-xl"
+             style="background: var(--gold); color: var(--blue-deeper);">
+            Explore Our Story
+            <span>→</span>
+          </a>
+
+          <a href="#team"
+             class="hero-btn-secondary inline-flex items-center gap-2 px-5 sm:px-7 py-3 rounded-2xl font-body font-semibold text-sm text-white border border-white/20 bg-white/10 backdrop-blur-md shadow-lg">
+            Meet Our Team
+          </a>
+        </div>
+      </div>
+
+      <!-- Right premium card -->
+      <div class="lg:col-span-5 reveal-scale"
+           style="animation-delay: 0.55s;">
+        <div class="glass-card rounded-[2rem] border border-white/10 backdrop-blur-2xl p-5 sm:p-8 space-y-5 hero-parallax"
+             data-parallax-speed="0.06">
+
+          <div class="flex items-center justify-between gap-4">
+            <div>
+              <p class="font-body text-white/40 text-xs uppercase tracking-[0.3em] mb-1">At a glance</p>
+              <h3 class="text-white text-xl font-semibold">School Overview</h3>
+            </div>
+            <div class="w-12 h-12 rounded-2xl flex items-center justify-center text-yellow-400 border border-yellow-400/20 bg-yellow-400/10">
+              <i class="fas fa-school text-lg"></i>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-3">
+            <div class="rounded-2xl bg-white/5 border border-white/10 p-4 shadow-inner">
+              <p class="font-headline stat-number gold-shimmer">{{ about_page.timeline_events.count|default:"0" }}</p>
+              <p class="font-body text-white/60 text-xs mt-1">Milestones</p>
+            </div>
+
+            <div class="rounded-2xl bg-white/5 border border-white/10 p-4 shadow-inner">
+              <p class="font-headline stat-number gold-shimmer">{{ departments.count|default:"0" }}</p>
+              <p class="font-body text-white/60 text-xs mt-1">Departments</p>
+            </div>
+
+            <div class="rounded-2xl bg-white/5 border border-white/10 p-4 shadow-inner col-span-2">
+              <p class="font-headline stat-number gold-shimmer">{{ staff_members.count|default:"0" }}</p>
+              <p class="font-body text-white/60 text-xs mt-1">Staff Members</p>
+            </div>
+          </div>
+
+          {% if about_page.hero_image %}
+          <div class="rounded-[1.5rem] overflow-hidden hero-image-frame border border-white/10 bg-black/20">
+            <img src="{{ about_page.hero_image.url }}"
+                 alt="Campus"
+                 class="w-full h-40 sm:h-52 object-cover transition duration-700 hover:scale-105">
+          </div>
+          {% else %}
+          <div class="rounded-[1.5rem] border border-white/10 bg-white/5 h-40 sm:h-52 flex items-center justify-center text-white/40">
+            Campus Image Preview
+          </div>
+          {% endif %}
+
+          <div class="rounded-2xl border border-white/10 bg-gradient-to-r from-white/5 to-white/[0.03] px-4 py-4">
+            <p class="text-xs uppercase tracking-[0.3em] text-yellow-400/80 mb-2">Excellence</p>
+            <p class="text-white/70 text-sm leading-7">
+              Empowering students through knowledge, discipline, service, and a strong foundation for the future.
+            </p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Bottom wave -->
+  <div class="absolute bottom-0 left-0 right-0">
+    <svg viewBox="0 0 1440 90" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full block">
+      <path d="M0,45 C320,95 1120,0 1440,45 L1440,90 L0,90 Z" fill="white"/>
+    </svg>
+  </div>
+
+  <!-- AOS -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      if (window.AOS) {
+        AOS.init({
+          duration: 900,
+          easing: 'ease-out-cubic',
+          once: true,
+          offset: 40
+        });
+      }
+    });
+  </script>
+
+  <!-- Parallax -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const section = document.currentScript.closest('section');
+      const parallaxItems = section.querySelectorAll('[data-parallax-speed]');
+
+      function updateParallax() {
+        const rect = section.getBoundingClientRect();
+        const viewportHeight = window.innerHeight;
+        const progress = (rect.top + rect.height / 2 - viewportHeight / 2) / viewportHeight;
+
+        parallaxItems.forEach((el) => {
+          const speed = parseFloat(el.dataset.parallaxSpeed || '0.1');
+          const offset = progress * -60 * speed * 10;
+          el.style.setProperty('--parallax-offset', `${offset}px`);
+        });
+      }
+
+      updateParallax();
+      window.addEventListener('scroll', updateParallax, { passive: true });
+      window.addEventListener('resize', updateParallax);
+    });
+  </script>
+</section>
+
+
+<!-- ══════════════════════ MARQUEE ══════════════════════ -->
+<div class="bg-white py-4 sm:py-5 overflow-hidden border-b border-gray-100">
+  <div class="marquee-inner font-headline text-base sm:text-xl" style="color: rgba(6, 10, 243, 0.918);">
+    <span>EXCELLENCE</span><span class="text-yellow-400 mx-2">·</span>
+    <span>SERVICE</span><span class="text-yellow-400 mx-2">·</span>
+    <span>INTEGRITY</span><span class="text-yellow-400 mx-2">·</span>
+    <span>COMMUNITY</span><span class="text-yellow-400 mx-2">·</span>
+    <span>KNOWLEDGE</span><span class="text-yellow-400 mx-2">·</span>
+    <span>TRADITION</span><span class="text-yellow-400 mx-2">·</span>
+    <span>LEADERSHIP</span><span class="text-yellow-400 mx-2">·</span>
+    <span>EXCELLENCE</span><span class="text-yellow-400 mx-2">·</span>
+    <span>SERVICE</span><span class="text-yellow-400 mx-2">·</span>
+    <span>INTEGRITY</span><span class="text-yellow-400 mx-2">·</span>
+    <span>COMMUNITY</span><span class="text-yellow-400 mx-2">·</span>
+    <span>KNOWLEDGE</span><span class="text-yellow-400 mx-2">·</span>
+    <span>TRADITION</span><span class="text-yellow-400 mx-2">·</span>
+    <span>LEADERSHIP</span><span class="text-yellow-400 mx-2">·</span>
+  </div>
+</div>
+
+
+<!-- ══════════════════════ MISSION & VISION ══════════════════════ -->
+<section class="relative bg-white py-16 sm:py-24 overflow-hidden">
+  <div class="absolute top-0 right-0 w-64 sm:w-96 h-64 sm:h-96 rounded-full opacity-20 pointer-events-none"
+       style="background: radial-gradient(circle, var(--gold-light), transparent 70%); transform: translate(30%,-30%);"></div>
+
+  <div class="relative max-w-7xl mx-auto px-4 sm:px-6">
+    <div class="flex items-center gap-4 mb-10 sm:mb-14 reveal">
+      <div class="h-px w-10 sm:w-16 flex-shrink-0" style="background: var(--gold);"></div>
+      <span class="font-body text-xs uppercase tracking-[0.4em] text-blue-600 whitespace-nowrap">Our Purpose</span>
+      <div class="h-px flex-1" style="background: linear-gradient(to right, var(--gold), transparent);"></div>
+    </div>
+
+    <div class="grid sm:grid-cols-1 lg:grid-cols-2 gap-5">
+      <!-- Mission -->
+      <div class="reveal card-lift relative rounded-[2rem] overflow-hidden" style="animation-delay:0.1s">
+        <div class="absolute inset-0" style="background: linear-gradient(135deg, var(--blue-deeper), var(--blue-dark));"></div>
+        <div class="absolute inset-0 opacity-10" style="background-image: repeating-linear-gradient(45deg, rgba(255,215,0,0.4) 0, rgba(255,215,0,0.4) 1px, transparent 0, transparent 50%); background-size: 12px 12px;"></div>
+        <div class="relative p-8 sm:p-12">
+          <div class="inline-flex items-center justify-center w-12 sm:w-14 h-12 sm:h-14 rounded-2xl border border-yellow-400/30 bg-yellow-400/20 mb-6">
+            <i class="fas fa-bullseye text-yellow-400 text-lg sm:text-xl"></i>
+          </div>
+          <p class="font-body text-yellow-400/60 text-xs uppercase tracking-[0.4em] mb-2">Our Mission</p>
+          <h2 class="font-display font-bold text-white mb-4 leading-tight" style="font-size: clamp(1.8rem, 4vw, 3rem);">
+            What We <em>Strive For</em>
+          </h2>
+          <p class="font-body text-white/75 text-sm sm:text-lg leading-8">{{ about_page.mission }}</p>
+        </div>
+      </div>
+
+      <!-- Vision -->
+      <div class="reveal card-lift relative rounded-[2rem] overflow-hidden border border-blue-100 bg-[var(--cream)]" style="animation-delay:0.2s">
+        <div class="absolute top-0 right-0 w-48 sm:w-64 h-48 sm:h-64 rounded-full opacity-50 pointer-events-none" style="background: radial-gradient(circle, rgba(255,215,0,0.3), transparent 70%); transform: translate(30%,-30%);"></div>
+        <div class="relative p-8 sm:p-12">
+          <div class="inline-flex items-center justify-center w-12 sm:w-14 h-12 sm:h-14 rounded-2xl border border-blue-200 bg-blue-100 mb-6">
+            <i class="fas fa-eye text-blue-600 text-lg sm:text-xl"></i>
+          </div>
+          <p class="font-body text-blue-400 text-xs uppercase tracking-[0.4em] mb-2">Our Vision</p>
+          <h2 class="font-display font-bold text-blue-900 mb-4 leading-tight" style="font-size: clamp(1.8rem, 4vw, 3rem);">
+            Where We <em>Are Going</em>
+          </h2>
+          <p class="font-body text-gray-700 text-sm sm:text-lg leading-8">{{ about_page.vision }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════ TIMELINE ══════════════════════ -->
+<section id="history" class="relative py-16 sm:py-24 overflow-hidden"
+         style="background: linear-gradient(160deg, #f0f6ff 0%, #e8f0fe 100%);">
+
+  <div class="absolute inset-0 opacity-5 pointer-events-none" style="background-image: radial-gradient(circle, var(--blue) 1px, transparent 1px); background-size: 32px 32px;"></div>
+
+  <div class="relative max-w-7xl mx-auto px-4 sm:px-6">
+    <div class="text-center mb-14 sm:mb-20 reveal">
+      <p class="font-body text-blue-600 text-xs uppercase tracking-[0.5em] mb-3">Historical Timeline</p>
+      <h2 class="font-headline text-blue-900 section-headline mb-4">OUR JOURNEY</h2>
+      <p class="font-body text-gray-600 text-sm sm:text-lg max-w-2xl mx-auto leading-8">
+        {{ about_page.history_summary|default:"Decades of growth, achievement, and service to the Kalabu community." }}
+      </p>
+    </div>
+
+    <div class="relative max-w-5xl mx-auto">
+      <div class="tl-line hidden md:block"></div>
+      <div class="space-y-8 sm:space-y-14">
+        {% for event in about_page.timeline_events.all %}
+        <div class="reveal relative grid md:grid-cols-2 gap-5 sm:gap-10 items-center" style="animation-delay:{{ forloop.counter0 }}00ms">
+          {% if forloop.counter|divisibleby:2 %}
+            <div class="md:order-2 card-lift">
+              <div class="rounded-[1.5rem] sm:rounded-[2rem] bg-white shadow-xl overflow-hidden border border-blue-50">
+                {% if event.event_image %}<div class="photo-wrap"><img src="{{ event.event_image.url }}" alt="{{ event.title }}" class="w-full h-48 sm:h-64 object-cover"></div>{% endif %}
+                <div class="p-5 sm:p-8">
+                  <span class="font-headline text-2xl sm:text-4xl" style="color:var(--gold-muted);">{{ event.year }}</span>
+                  <h3 class="font-display text-lg sm:text-2xl font-bold text-blue-900 mt-1 sm:mt-2 mb-2 sm:mb-3">{{ event.title }}</h3>
+                  <p class="font-body text-gray-600 text-sm sm:text-base leading-7 sm:leading-8">{{ event.description }}</p>
+                </div>
+              </div>
+            </div>
+            <div class="md:order-1 hidden md:block"></div>
+          {% else %}
+            <div class="card-lift">
+              <div class="rounded-[1.5rem] sm:rounded-[2rem] bg-white shadow-xl overflow-hidden border border-blue-50">
+                {% if event.event_image %}<div class="photo-wrap"><img src="{{ event.event_image.url }}" alt="{{ event.title }}" class="w-full h-48 sm:h-64 object-cover"></div>{% endif %}
+                <div class="p-5 sm:p-8">
+                  <span class="font-headline text-2xl sm:text-4xl" style="color:var(--gold-muted);">{{ event.year }}</span>
+                  <h3 class="font-display text-lg sm:text-2xl font-bold text-blue-900 mt-1 sm:mt-2 mb-2 sm:mb-3">{{ event.title }}</h3>
+                  <p class="font-body text-gray-600 text-sm sm:text-base leading-7 sm:leading-8">{{ event.description }}</p>
+                </div>
+              </div>
+            </div>
+            <div class="hidden md:block"></div>
+          {% endif %}
+          <div class="tl-dot hidden md:flex"></div>
+        </div>
+        {% empty %}
+        <div class="text-center py-14 sm:py-20 rounded-[2rem] bg-white border border-blue-100 shadow-xl">
+          <i class="fas fa-hourglass-half text-3xl sm:text-4xl mb-4" style="color:var(--gold-muted);"></i>
+          <h3 class="font-display text-xl sm:text-2xl text-blue-900">History Coming Soon</h3>
+          <p class="font-body text-gray-500 mt-2 text-sm">Timeline events will appear here once added.</p>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════ ADMINISTRATION ══════════════════════ -->
+<section id="team" class="relative bg-white py-16 sm:py-24 overflow-hidden">
+  <div class="absolute left-0 top-1/4 bottom-1/4 w-1 sm:w-1.5 rounded-r-full hidden sm:block"
+       style="background: linear-gradient(to bottom, transparent, var(--gold), var(--blue), var(--gold), transparent);"></div>
+
+  <div class="max-w-7xl mx-auto px-4 sm:px-6">
+    <div class="flex flex-col sm:flex-row sm:items-end gap-4 sm:gap-8 mb-10 sm:mb-14 reveal">
+      <div>
+        <p class="font-body text-blue-600 text-xs uppercase tracking-[0.5em] mb-2">Leadership</p>
+        <h2 class="font-headline text-blue-900 section-headline">ADMINISTRATION</h2>
+      </div>
+      <div class="h-px flex-1 hidden sm:block" style="background: linear-gradient(to right, var(--gold), transparent);"></div>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 sm:gap-6">
+      {% for admin in admins %}
+      <div class="reveal card-lift group rounded-[1.5rem] sm:rounded-[2rem] overflow-hidden bg-[var(--cream)] border border-blue-100 shadow-lg"
+           style="animation-delay:{{ forloop.counter0 }}00ms">
+        <div class="h-1 w-full" style="background: linear-gradient(to right, var(--gold), var(--blue), var(--gold));"></div>
+        <div class="photo-wrap relative">
+          {% if admin.photo %}
+            <img src="{{ admin.photo.url }}" alt="{{ admin.full_name }}" class="w-full h-60 sm:h-72 object-cover">
+          {% else %}
+            <div class="w-full h-60 sm:h-72 flex items-center justify-center" style="background: linear-gradient(135deg, #e8f0fe, #dbeafe);">
+              <div class="text-center text-blue-300">
+                <i class="fas fa-user-shield text-4xl sm:text-5xl mb-2"></i>
+                <p class="font-body text-xs sm:text-sm">No Photo</p>
+              </div>
+            </div>
+          {% endif %}
+          <div class="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
+        </div>
+        <div class="p-4 sm:p-6">
+          <h3 class="font-display text-lg sm:text-xl font-bold text-blue-900">{{ admin.full_name }}</h3>
+          <span class="inline-block mt-2 px-3 py-1 rounded-full text-xs font-body font-semibold" style="background: var(--blue); color: var(--gold);">
+            {{ admin.job_title }}
+          </span>
+          {% if admin.bio %}<p class="font-body text-gray-600 text-xs sm:text-sm leading-6 sm:leading-7 mt-3">{{ admin.bio|truncatewords:20 }}</p>{% endif %}
+        </div>
+      </div>
+      {% empty %}
+      <div class="col-span-full rounded-[2rem] bg-[var(--cream)] border border-blue-100 p-10 text-center">
+        <p class="font-body text-gray-500 text-sm">No administrators added yet.</p>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════ DEPARTMENTS & TEACHERS ══════════════════════ -->
+<section class="relative py-16 sm:py-24 overflow-hidden"
+         style="background: linear-gradient(170deg, var(--blue-deeper) 0%, var(--blue-dark) 60%, #1a3a6e 100%);">
+
+  <div class="absolute inset-0 opacity-[0.04] pointer-events-none" style="background-image: linear-gradient(rgba(255,215,0,1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,215,0,1) 1px, transparent 1px); background-size: 48px 48px;"></div>
+
+  <div class="relative max-w-7xl mx-auto px-4 sm:px-6">
+    <div class="text-center mb-10 sm:mb-14 reveal">
+      <p class="font-body text-yellow-400/60 text-xs uppercase tracking-[0.5em] mb-3">Academic Team</p>
+      <h2 class="font-headline text-white section-headline mb-3">TEACHERS BY <span class="gold-shimmer">DEPT</span></h2>
+      <p class="font-body text-white/50 text-sm sm:text-lg max-w-xl mx-auto leading-8">
+        Our dedicated educators across every faculty, committed to nurturing the next generation.
+      </p>
+    </div>
+
+    <!-- Scrollable tabs on mobile -->
+    <div class="overflow-x-auto pb-2 mb-8 sm:mb-12 reveal" style="-webkit-overflow-scrolling: touch;">
+      <div class="flex gap-2 sm:gap-3 sm:justify-center w-max sm:w-auto mx-auto px-1">
+        {% for department in departments %}
+        <button onclick="showDept('dept-{{ department.pk }}')" id="tab-dept-{{ department.pk }}"
+          class="dept-tab font-body text-xs sm:text-sm font-medium px-4 sm:px-5 py-2 sm:py-2.5 rounded-full border border-white/15 text-white/70 hover:text-white hover:border-white/30 transition-all duration-200 whitespace-nowrap flex-shrink-0 {% if forloop.first %}active{% endif %}">
+          {{ department.name }}
+        </button>
+        {% endfor %}
+      </div>
+    </div>
+
+    {% for department in departments %}
+    <div id="dept-{{ department.pk }}" class="dept-panel {% if not forloop.first %}hidden{% endif %}">
+      {% if department.description %}
+      <p class="font-body text-white/50 text-center max-w-2xl mx-auto mb-7 sm:mb-10 text-sm sm:text-base leading-8 reveal">{{ department.description }}</p>
+      {% endif %}
+      <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 sm:gap-6">
+        {% for teacher in department.staff_members.all %}
+          {% if teacher.staff_type == 'teacher' %}
+          <div class="reveal card-lift group rounded-[1.5rem] sm:rounded-[2rem] overflow-hidden border border-white/10 bg-white/5 backdrop-blur-md" style="animation-delay:{{ forloop.counter0 }}00ms">
+            <div class="photo-wrap relative">
+              {% if teacher.photo %}
+                <img src="{{ teacher.photo.url }}" alt="{{ teacher.full_name }}" class="w-full h-60 sm:h-72 object-cover">
+              {% else %}
+                <div class="w-full h-60 sm:h-72 flex items-center justify-center bg-white/5">
+                  <div class="text-center text-white/30">
+                    <i class="fas fa-chalkboard-teacher text-4xl sm:text-5xl mb-2"></i>
+                    <p class="font-body text-xs sm:text-sm">No Photo</p>
+                  </div>
+                </div>
+              {% endif %}
+              <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
+            </div>
+            <div class="p-4 sm:p-6">
+              <h4 class="font-display text-lg sm:text-xl font-bold text-white">{{ teacher.full_name }}</h4>
+              <span class="inline-block mt-2 px-3 py-1 rounded-full text-xs font-body font-semibold bg-yellow-400/15 border border-yellow-400/30 text-yellow-300">
+                {{ teacher.job_title }}
+              </span>
+              {% if teacher.bio %}<p class="font-body text-white/50 text-xs sm:text-sm leading-6 sm:leading-7 mt-3">{{ teacher.bio|truncatewords:18 }}</p>{% endif %}
+            </div>
+          </div>
+          {% endif %}
+        {% empty %}
+        <div class="col-span-full rounded-[2rem] border border-white/10 bg-white/5 p-8 sm:p-10 text-center">
+          <p class="font-body text-white/40 text-sm">No teachers in this department yet.</p>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    {% empty %}
+    <div class="rounded-[2rem] border border-white/10 bg-white/5 p-10 sm:p-12 text-center">
+      <p class="font-body text-white/40 text-sm">No departments created yet.</p>
+    </div>
+    {% endfor %}
+  </div>
+</section>
+
+
+<!-- ══════════════════════ GALLERY ══════════════════════ -->
+<section class="relative bg-[var(--ink)] py-16 sm:py-24 overflow-hidden">
+  <div class="absolute inset-0 pointer-events-none" style="background: radial-gradient(ellipse at 20% 80%, rgba(37,99,235,0.3) 0%, transparent 50%), radial-gradient(ellipse at 80% 20%, rgba(255,215,0,0.05) 0%, transparent 50%);"></div>
+
+  <div class="relative max-w-7xl mx-auto px-4 sm:px-6">
+    <div class="flex flex-col sm:flex-row sm:items-end gap-5 sm:gap-8 mb-10 sm:mb-14 reveal">
+      <div>
+        <p class="font-body text-yellow-400/60 text-xs uppercase tracking-[0.5em] mb-2">Memories</p>
+        <h2 class="font-headline text-white section-headline">HISTORICAL <span class="gold-shimmer">GALLERY</span></h2>
+      </div>
+      <p class="font-body text-white/40 text-sm sm:text-base max-w-xs leading-7 sm:pb-3">A visual record of our most significant moments.</p>
+    </div>
+
+    <!-- Mobile: single column stack. Tablet+: editorial grid -->
+    <div class="flex flex-col gap-4 sm:grid sm:grid-cols-2 lg:grid-cols-12">
+      {% for image in about_page.historical_images.all|slice:":5" %}
+        {% if forloop.counter == 1 %}
+        <div class="gallery-item relative rounded-[1.5rem] sm:rounded-[2rem] overflow-hidden sm:col-span-2 lg:col-span-7" style="height: 280px; sm:height: 400px;">
+        {% elif forloop.counter == 2 %}
+        <div class="gallery-item relative rounded-[1.5rem] sm:rounded-[2rem] overflow-hidden sm:col-span-1 lg:col-span-5" style="height: 260px;">
+        {% else %}
+        <div class="gallery-item relative rounded-[1.5rem] sm:rounded-[2rem] overflow-hidden sm:col-span-1 lg:col-span-4" style="height: 240px;">
+        {% endif %}
+          <img src="{{ image.image.url }}" alt="{{ image.title }}" class="w-full h-full object-cover transition-transform duration-700 hover:scale-105">
+          <div class="absolute inset-0 bg-gradient-to-t from-black/75 via-transparent to-transparent"></div>
+          <div class="gallery-caption absolute inset-x-0 bottom-0 p-4 sm:p-6">
+            <h3 class="font-display text-lg sm:text-xl font-bold text-white">{{ image.title|default:"Historical Image" }}</h3>
+            {% if image.caption %}<p class="font-body text-white/70 text-xs mt-1">{{ image.caption }}</p>{% endif %}
+          </div>
+        </div>
+      {% empty %}
+        {% for i in "12345" %}
+        <div class="rounded-[1.5rem] sm:rounded-[2rem] border border-white/10 bg-white/5 flex items-center justify-center text-white/20 sm:col-span-1 {% if forloop.counter == 1 %}lg:col-span-7{% elif forloop.counter == 2 %}lg:col-span-5{% else %}lg:col-span-4{% endif %}" style="height: 240px;">
+          <div class="text-center"><i class="fas fa-image text-3xl mb-2"></i><p class="font-body text-xs">Image {{ forloop.counter }}</p></div>
+        </div>
+        {% endfor %}
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════ CTA ══════════════════════ -->
+<section class="relative py-16 sm:py-24 overflow-hidden" style="background: var(--blue-dark);">
+  <div class="absolute inset-0 opacity-10 pointer-events-none" style="background-image: radial-gradient(circle, var(--gold) 1px, transparent 1px); background-size: 28px 28px;"></div>
+  <div class="absolute inset-0 pointer-events-none" style="background: radial-gradient(ellipse at center, rgba(255,215,0,0.07) 0%, transparent 65%);"></div>
+
+  <div class="relative max-w-3xl mx-auto px-4 sm:px-6 text-center reveal">
+    <p class="font-display italic text-yellow-400/70 text-base sm:text-xl mb-3">"Strive to Attain Excellence"</p>
+    <h2 class="font-headline text-white section-headline mb-4">BE PART OF OUR STORY</h2>
+    <p class="font-body text-white/50 text-sm sm:text-lg mb-8 max-w-lg mx-auto leading-8">
+      Join the Kalabu Secondary School community — where excellence, service, and character define every student's journey.
+    </p>
+    <a href="{% url 'news:news_list' %}"
+       class="inline-flex items-center gap-2 px-6 sm:px-8 py-3 sm:py-4 rounded-2xl font-body font-semibold text-sm sm:text-base transition-all hover:scale-105"
+       style="background: var(--gold); color: var(--blue-deeper);">
+      Read Our Latest News <span>→</span>
+    </a>
+  </div>
+</section>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  // Scroll reveal
+  const obs = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) { e.target.classList.add('visible'); obs.unobserve(e.target); }
+    });
+  }, { threshold: 0.08 });
+  document.querySelectorAll('.reveal, .reveal-scale').forEach(el => obs.observe(el));
+
+  // Department tabs
+  function showDept(id) {
+    document.querySelectorAll('.dept-panel').forEach(p => p.classList.add('hidden'));
+    document.querySelectorAll('.dept-tab').forEach(t => t.classList.remove('active'));
+    const panel = document.getElementById(id);
+    const tab   = document.getElementById('tab-' + id);
+    if (panel) panel.classList.remove('hidden');
+    if (tab)   tab.classList.add('active');
+    panel?.querySelectorAll('.reveal').forEach(el => {
+      el.classList.remove('visible');
+      setTimeout(() => obs.observe(el), 60);
+    });
+  }
+</script>
+{% endblock %}
